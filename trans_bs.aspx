@@ -21,9 +21,10 @@
 
 			var q_name = "trans";
 			var q_readonly = ['txtWeight3','txtMiles','txtTotal','txtTotal2','txtNoa','txtOrdeno','txtWorker','txtWorker2'];
-			var bbmNum = [['txtCustdiscount',10,0,1],['txtWeight3',10,3,1],['txtWeight2',10,3,1],['txtInmount',10,3,1],['txtPton',10,3,1],['txtPrice',10,3,1],['txtTotal',10,0,1]
-			,['txtOutmount',10,3,1],['txtPton2',10,3,1],['txtPrice2',10,3,1],['txtPrice3',10,3,1],['txtDiscount',10,3,1],['txtTotal2',10,0,1]
-			,['txtBmiles',10,0,1],['txtEmiles',10,0,1],['txtMount3',10,0,1],['txtOverw',10,0,1],['txtOverh',10,0,1]];
+			var bbmNum = [['txtWeight3',10,3,1],['txtWeight2',10,3,1]
+			,['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
+			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtTotal2',10,0,1]
+			];
 			var bbmMask = [['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99'],['txtLtime','99:99'],['txtStime','99:99'],['txtDtime','99:99']];
 			q_sqlCount = 6;
 			brwCount = 6;
@@ -43,8 +44,6 @@
 			,['txtStraddrno', 'lblStraddr', 'addr', 'noa,addr,productno,product,salesno,sales', 'txtStraddrno,txtStraddr,txtUccno,txtProduct,txtSalesno,txtSales,txtStraddr', 'addr_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			);
-		
-			
             	
 			$(document).ready(function() {
 				bbmKey = ['noa'];
@@ -418,16 +417,11 @@
 						<td> </td>
 						<td class="tdZ"> </td>
 					</tr>
-					
 					<tr>
 						<td><span> </span><a id="lblDatea" class="lbl"> </a></td>
 						<td><input id="txtDatea"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblTrandate" class="lbl"> </a></td>
 						<td><input id="txtTrandate"  type="text" class="txt c1"/></td>
-						<td style="display:none;"><span> </span><a id="lblMon" class="lbl"> </a></td>
-						<td style="display:none;"><input id="txtMon"  type="text" class="txt c1"/></td>
-						<td style="display:none;"><span> </span><a id="lblMon2" class="lbl"> </a></td>
-						<td style="display:none;"><input id="txtMon2"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
@@ -445,45 +439,31 @@
 							<input id="txtComp"  type="text" style="float:left;width:70%;"/>
 							<input id="txtNick" type="text" style="display:none;"/>
 						</td>
-				
-					</tr>
-					<tr>
-						
-						<td><span> </span><a id="lblStraddr" class="lbl btn"> </a></td>
-						<td colspan="3">
-							<input id="txtStraddrno"  type="text" style="float:left;width:30%;"/>
-							<input id="txtStraddr"  type="text" style="float:left;width:70%;"/>
-						</td>
 						<td><span> </span><a id="lblUcc" class="lbl btn"> </a></td>
 						<td colspan="3">
 							<input id="txtUccno"  type="text" style="float:left;width:30%;"/>
 							<input id="txtProduct"  type="text" style="float:left;width:70%;"/>
 						</td>
 					</tr>
-					<tr style="background-color: #B18904;">
-						<td><span> </span><a id="lblInmount" class="lbl"> </a></td>
-						<td><input id="txtInmount"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblPton" class="lbl"> </a></td>
-						<td><input id="txtPton"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblPrice" class="lbl"> </a></td>
-                        <td><input id="txtPrice"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblCustdiscount" class="lbl">折數％</a></td>
-                        <td><input id="txtCustdiscount"  type="text" class="txt c1 num"/></td>
-						<td class="tdZ"></td>
+					<tr>
+						<td><span> </span><a id="lblStraddr" class="lbl btn">區域</a></td>
+						<td colspan="3">
+							<input id="txtStraddrno"  type="text" style="float:left;width:30%;"/>
+							<input id="txtStraddr"  type="text" style="float:left;width:70%;"/>
+						</td>
+						
 					</tr>
 					<tr style="background-color: #B18904;">
-					    <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-					    <td><span> </span><a id="lblTotal" class="lbl"> </a></td>
-                        <td>
-                            <input id="txtMount"  type="text" style="display:none;"/>
-                            <input id="txtTotal"  type="text" class="txt c1 num"/>
-                        </td>
-                        <td class="tdZ"></td>
+						<td><span> </span><a id="lblMount" class="lbl"> </a></td>
+						<td><input id="txtMount"  type="text" class="txt c1 num"/></td>
+						
+						<td><span> </span><a id="lblPrice" class="lbl"> </a></td>
+                        <td><input id="txtPrice"  type="text" class="txt c1 num"/></td>
+                        <td> </td>
+                        <td> </td>
+                        <td><span> </span><a id="lblTotal" class="lbl"> </a></td>
+                        <td><input id="txtTotal"  type="text" class="txt c1 num"/></td>
+						<td class="tdZ"> </td>
 					</tr>
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>
@@ -491,35 +471,15 @@
 						<td class="tdZ"></td>
 					</tr>
 					<tr style="background-color: pink;">
-						<td><span> </span><a id="lblOutmount" class="lbl"> </a></td>
-						<td><input id="txtOutmount"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblPton2" class="lbl"> </a></td>
-						<td><input id="txtPton2"  type="text" class="txt c1 num"/></td>
-						<td><span> </span>
-							<a id="lblPrice2" class="lbl"> </a>
-							<a id="lblPrice3" class="lbl"> </a>
-						</td>
-						<td>
-							<input id="txtPrice2"  type="text" class="txt c1 num"/>
-							<input id="txtPrice3"  type="text" class="txt c1 num"/>
-						</td>
-						<td></td>
-                        <td></td>
-						<td class="tdZ"></td>
-					</tr>
-					<tr  style="background-color:pink;">
-					    <td><span> </span><a class="lbl">扣％(百分比)</a></td>
-                        <td><input id="txtOverw"  type="text" class="txt c1 num"/></td>
-                        <td><span> </span><a class="lbl">抽成(百分比)</a></td>
-                        <td><input id="txtOverh"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblDiscount" class="lbl"> </a></td>
-						<td><input id="txtDiscount"  type="text" class="txt c1 num"/></td>
+						<td><span> </span><a id="lblMount2" class="lbl"> </a></td>
+						<td><input id="txtMount2"  type="text" class="txt c1 num"/></td>
+						<td><span> </span><a id="lblPrice2" class="lbl"> </a></td>
+						<td><input id="txtPrice2"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a id="lblTotal2" class="lbl"> </a></td>
-                        <td>
-                            <input id="txtMount2"  type="text" style="display:none;"/>
-                            <input id="txtTotal2"  type="text" class="txt c1 num"/>
-                        </td>
-						<td class="tdZ"></td>
+                        <td><input id="txtTotal2"  type="text" class="txt c1 num"/></td>
+						<td> </td>
+                        <td> </td>
+						<td class="tdZ"> </td>
 					</tr>
 					<tr style="background-color:pink;">
 						<td><span> </span><a id="lblSender" class="lbl">備註</a></td>
