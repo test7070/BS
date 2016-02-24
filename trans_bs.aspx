@@ -20,9 +20,8 @@
 			}
 
 			var q_name = "trans";
-			var q_readonly = ['txtWeight3','txtMiles','txtTotal','txtTotal2','txtNoa','txtOrdeno','txtWorker','txtWorker2'];
-			var bbmNum = [['txtWeight3',10,3,1],['txtWeight2',10,3,1]
-			,['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
+			var q_readonly = ['txtTotal','txtTotal2','txtNoa','txtWorker','txtWorker2'];
+			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtTotal2',10,0,1]
 			];
 			var bbmMask = [['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99'],['txtLtime','99:99'],['txtStime','99:99'],['txtDtime','99:99']];
@@ -71,12 +70,30 @@
 		                input.selectionEnd = $(input).val().length;
 		            }
 				});
+				
+				$('#txtTrandate').change(function(e){
+					getDriverprice();
+				});
+				
+				$('#txtMount').change(function(e){
+					sum();
+				});
+				$('#txtPrice').change(function(e){
+					sum();
+				});
+				$('#txtMount2').change(function(e){
+					sum();
+				});
+				$('#txtPrice2').change(function(e){
+					sum();
+				});
 			}
 
 			function sum() {
 				if(q_cur!=1 && q_cur!=2)
 					return;
-				
+				$('#txtTotal').val(round(q_mul(q_float('txtMount'),q_float('txtPrice')),0));
+				$('#txtTotal2').val(round(q_mul(q_float('txtMount2'),q_float('txtPrice2')),0));
 			}
 
 			function q_boxClose(s2) {
@@ -118,19 +135,39 @@
 						}
 						break;
 					case 'txtStraddrno':
-						if(!trans.isTrd){
-							trans.priceChange();
-						}
+                        getDriverprice();
+                    case 'txtUccno':
+                        getDriverprice();
 						break;
 				}
 			}
-
+			function getDriverprice(){
+				t_addrno = $.trim($('#txtStraddrno').val());
+				t_productno = $.trim($('#txtUccno').val());
+				t_trandate = $.trim($('#txtTrandate').val());
+				Lock(1, {opacity : 0});
+				q_func('qtxt.query.trans_bs', 'trans_bs.txt,getDriverprice,' + encodeURI(t_addrno) + ';' + encodeURI(t_productno)+ ';' + encodeURI(t_trandate));
+			}
+			function q_funcPost(t_func, result) {
+                switch(t_func) {
+                    case 'qtxt.query.trans_bs':
+                        var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                            $('#txtPrice2').val(as[0].price);
+                        }
+                        else{
+                            $('#txtPrice2').val(0);
+                        }
+                        sum();
+                        Unlock(1);
+                        break;
+                }
+            }
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)
 					return;
 				q_box('trans_bs_s.aspx', q_name + '_s', "550px", "95%", q_getMsg("popSeek"));
 			}
-
 			function btnIns() {
 				_btnIns();
 				$('#txtNoa').val('AUTO');
@@ -381,12 +418,12 @@
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
-						<td align="center" style="width:60px; color:black;">客戶數量</td>
-						<td align="center" style="width:60px; color:black;">客戶單價</td>
-						<td align="center" style="width:60px; color:black;">客戶金額</td>
-						<td align="center" style="width:60px; color:black;">司機數量</td>
-						<td align="center" style="width:60px; color:black;">司機單價</td>
-						<td align="center" style="width:60px; color:black;">司機金額</td>
+						<td align="center" style="width:80px; color:black;">客戶數量</td>
+						<td align="center" style="width:80px; color:black;">客戶單價</td>
+						<td align="center" style="width:80px; color:black;">客戶金額</td>
+						<td align="center" style="width:80px; color:black;">司機數量</td>
+						<td align="center" style="width:80px; color:black;">司機單價</td>
+						<td align="center" style="width:80px; color:black;">司機金額</td>
 					</tr>
 					<tr>
 						<td ><input id="chkBrow.*" type="checkbox"/></td>
@@ -451,7 +488,10 @@
 							<input id="txtStraddrno"  type="text" style="float:left;width:30%;"/>
 							<input id="txtStraddr"  type="text" style="float:left;width:70%;"/>
 						</td>
-						
+						<td><span> </span><a id="lblSaddr" class="lbl">地址</a></td>
+						<td colspan="3">
+							<input id="txtSaddr"  type="text" style="float:left;width:100%;"/>
+						</td>
 					</tr>
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a id="lblMount" class="lbl"> </a></td>
@@ -487,68 +527,11 @@
 						<td class="tdZ"></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblPo" class="lbl"> </a></td>
-						<td colspan="2"><input id="txtPo"  type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblCustorde" class="lbl"> </a></td>
-						<td colspan="2"><input id="txtCustorde" type="text" class="txt c1"/></td>
-						<td><span> </span><a class="lbl">顆數</a></td>
-                        <td><input id="txtMount3"  type="text" class="txt c1 num"/></td>
-					</tr>
-					<tr>
-						<td><span> </span><a id="lblCaseno" class="lbl"> </a></td>
-						<td colspan="3">
-							<input id="txtCaseno"  type="text" style="float:left;width:50%;"/>
-							<input id="txtCaseno2"  type="text" style="float:left;width:50%;"/>
-						</td>
-						<td><span> </span><a id="lblCasetype" class="lbl"> </a></td>
-						<td><select id="cmbCasetype" class="txt c1"> </select></td>
-					</tr>
-					<tr>
-						<td><span> </span><a id="lblBmiles" class="lbl"> </a></td>
-						<td><input id="txtBmiles"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblEmiles" class="lbl"> </a></td>
-						<td><input id="txtEmiles"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblMiles" class="lbl"> </a></td>
-						<td><input id="txtMiles"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblGps" class="lbl"> </a></td>
-						<td><input id="txtGps"  type="text" class="txt c1 num"/></td>
-					</tr>
-					<tr>
-						<td><span> </span><a id="lblLtime" class="lbl"> </a></td>
-						<td><input id="txtLtime"  type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblStime" class="lbl"> </a></td>
-						<td><input id="txtStime"  type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblDtime" class="lbl"> </a></td>
-						<td><input id="txtDtime"  type="text" class="txt c1"/></td>
-					</tr>
-					<tr>
-						<td><span> </span><a id="lblSales" class="lbl btn"> </a></td>
-						<td colspan="2">
-							<input id="txtSalesno"  type="text" style="float:left; width:50%;"/>
-							<input id="txtSales"  type="text" style="float:left; width:50%;"/>
-						</td>
-						<td> </td>
-						<td><span> </span><a id="lblWeight2" class="lbl"> </a></td>
-						<td><input id="txtWeight2" type="text"  class="txt num c1"/></td>
-						<td><span> </span><a id="lblWeight3" class="lbl"> </a></td>
-						<td><input id="txtWeight3" type="text"  class="txt num c1"/></td>
-					</tr>
-					<tr>
-						<td><span> </span><a id="lblTgg" class="lbl btn"> </a></td>
-						<td><input id="txtTggno" type="text" class="txt c1"/></td>
-						<td colspan="2"><input id="txtTgg" class="txt c1"/></td>
-						<td><span> </span><a id="lblCardeal" class="lbl btn"> </a></td>
-						<td><input id="txtCardealno" type="text" class="txt c1"/></td>
-						<td colspan="2"><input id="txtCardeal" class="txt c1"/></td>
-					</tr>
-					<tr>
 						<td><span> </span><a id="lblNoa" class="lbl"> </a></td>
 						<td>
 							<input id="txtNoa"  type="text" class="txt c1"/>
 							<input id="txtNoq"  type="text" style="display:none;"/>
 						</td>
-						<td><span> </span><a id="lblOrdeno" class="lbl"> </a></td>
-						<td><input id="txtOrdeno"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblWorker" class="lbl"> </a></td>

@@ -1,0 +1,17 @@
+getDriverprice: -- trans_bs.txt  getDriverprice
+	declare @t_addrno nvarchar(20) = [1]
+	declare @t_productno nvarchar(20) = [2]
+	declare @t_datea nvarchar(20) = [3]
+	
+	declare @tmp table( 
+		datea nvarchar(20) 
+		,price float 
+	) 
+	
+	insert into @tmp(datea,price) 
+	select b.datea,b.driverprice 
+	from addr a 
+	outer apply(select top 1 DATEA,driverprice from addrs where noa=a.noa and datea<=@t_datea order by datea desc)b 
+	where a.noa=@t_addrno and a.productno=@t_productno 
+	
+	select * from @tmp; 

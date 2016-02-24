@@ -34,6 +34,7 @@
 			brwKey = 'Datea';
 			aPop = new Array(['txtProductno', 'lblProductno', 'ucc', 'noa,product', 'txtProductno,txtProduct', 'ucc_b.aspx']
 				, ['txtCustno', 'lblCust', 'cust', 'noa,comp,nick', 'txtCustno,txtCust', 'cust_b.aspx']
+				, ['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx']
 			);
 			$(document).ready(function() {
 				bbmKey = ['noa'];
@@ -131,7 +132,7 @@
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)
 					return;
-				q_box('addr_bs_s.aspx', q_name + '_s', "500px", "330px", q_getMsg("popSeek"));
+				q_box('addr_bs_s.aspx', q_name + '_s', "550px", "400px", q_getMsg("popSeek"));
 			}
 			function bbsAssign() {
 				for (var i = 0; i < q_bbsCount; i++) {
@@ -354,6 +355,7 @@
                     <tr>
                         <td align="center" style="width:20px; color:black;"><a id='vewChk'> </a></td>
                         <td align="center" style="width:100px; color:black;"><a id='vewNoa'> </a></td>
+                        <td align="center" style="width:100px; color:black;"><a>名稱</a></td>
                         <td align="center" style="width:100px; color:black;"><a>區域</a></td>
                         <td align="center" style="width:100px; color:black;"><a>品項</a></td>
                     </tr>
@@ -361,6 +363,7 @@
                         <td><input id="chkBrow.*" type="checkbox" /></td>
                         <td style="text-align: center;" id='noa'>~noa</td>
                         <td style="text-align: left;" id='addr'>~addr</td>
+                        <td style="text-align: left;" id='straddr'>~straddr</td>
                         <td style="text-align: left;" id='product'>~product</td>
                     </tr>
                 </table>
@@ -379,8 +382,15 @@
                         <td colspan="2"><input id="txtNoa" type="text" class="txt c1" /> </td>
                     </tr>
                     <tr>
-                        <td><span> </span><a id='lblAddr' class="lbl"> </a></td>
+                        <td><span> </span><a class="lbl">名稱</a></td>
                         <td colspan="3"><input id="txtAddr" type="text" class="txt c1" /></td>
+                    </tr>
+                    <tr>
+                        <td><span> </span><a id='lblXstraddr' class="lbl btn">區域</a></td>
+                        <td colspan="3">
+                        <input id="txtStraddrno" type="text" style="float:left; width:40%;"/>
+                        <input id="txtStraddr" type="text" style="float:left; width:60%;"/>
+                        </td>
                     </tr>
                     <tr>
                         <td><span> </span><a id='lblProductno' class="lbl btn"> </a></td>

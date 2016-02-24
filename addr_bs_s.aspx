@@ -15,9 +15,9 @@
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
             aPop = new Array(
-            	['txtProductno', '', 'ucc', 'noa,product', 'txtProductno', 'ucc_b.aspx'],
-            	['txtNoa', '', 'addr', 'noa,addr', 'txtNoa', 'addr_b.aspx'],
-            	['txtCustno', '', 'cust', 'noa,comp', 'txtCustno', 'cust_b.aspx']            	
+            	['txtNoa', '', 'addr', 'noa,addr', 'txtNoa', 'addr_b.aspx']
+            	, ['txtStraddrno', 'lblXstraddrno', 'addr3', 'noa,namea', 'txtStraddrno', 'addr3_bs_b.aspx'] 
+            	, ['txtProductno', '', 'ucc', 'noa,product', 'txtProductno', 'ucc_b.aspx']          	
             );
             var q_name = "addr_s";
 
@@ -44,14 +44,21 @@
             function q_seekStr() {
                 t_noa = $('#txtNoa').val();
                 t_addr = $.trim($('#txtAddr').val());
+                t_straddrno = $('#txtStraddrno').val();
+                t_straddr = $('#txtStraddr').val();
                 t_productno = $('#txtProductno').val();
-				t_custno = $.trim($('#txtCustno').val());
+                t_product = $('#txtProduct').val();
+                
                 var t_where = " 1=1 " 
                 	+ q_sqlPara2("noa", t_noa) 
-                	+ q_sqlPara2("productno", t_productno) 
-					+ q_sqlPara2("noa", t_custno);
+                	+ q_sqlPara2("straddrno", t_straddrno) 
+                	+ q_sqlPara2("productno", t_productno) ;
                 if (t_addr.length > 0)
                     t_where += " and charindex('" + t_addr + "',addr)>0";
+                if (t_straddr.length > 0)
+                    t_where += " and charindex('" + t_straddr + "',straddr)>0";
+                if (t_product.length > 0)
+                    t_where += " and charindex('" + t_product + "',product)>0";
                 t_where = ' where=^^' + t_where + '^^ ';
                 return t_where;
             }
@@ -75,23 +82,36 @@
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-                    <td class='seek'  style="width:20%;"><a id='lblCustno'></a></td>
-                    <td>
-                    <input class="txt" id="txtCustno" type="text" style="width:215px; font-size:medium;" />
-                    </td>
-                </tr>
-				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblAddr'></a></td>
 					<td>
 					<input class="txt" id="txtAddr" type="text" style="width:215px; font-size:medium;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-                    <td class='seek'  style="width:20%;"><a id='lblProductno'></a></td>
+                    <td class='seek'  style="width:20%;"><a id='lblXstraddrno'>區域編號</a></td>
+                    <td>
+                    <input class="txt" id="txtStraddrno" type="text" style="width:215px; font-size:medium;" />
+                    </td>
+                </tr>
+                <tr class='seek_tr'>
+                    <td class='seek'  style="width:20%;"><a id='lblXstraddr'>區域名稱</a></td>
+                    <td>
+                    <input class="txt" id="txtStraddr" type="text" style="width:215px; font-size:medium;" />
+                    </td>
+                </tr>
+				<tr class='seek_tr'>
+                    <td class='seek'  style="width:20%;"><a id='lblProductno'>產品編號</a></td>
                     <td>
                     <input class="txt" id="txtProductno" type="text" style="width:215px; font-size:medium;" />
                     </td>
                 </tr>
+                <tr class='seek_tr'>
+                    <td class='seek'  style="width:20%;"><a id='lblProduct'>產品名稱</a></td>
+                    <td>
+                    <input class="txt" id="txtProduct" type="text" style="width:215px; font-size:medium;" />
+                    </td>
+                </tr>
+                
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->
 		</div>
