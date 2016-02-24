@@ -411,7 +411,7 @@
 						<td><input id="txtNoa"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblSerial' class="lbl"> </a></td>
 						<td><input id="txtSerial"  type="text"  class="txt c1"/></td>
-						<td><span> </span><a id='lblInvestdate' class="lbl">簽約到期日  </a></td>
+						<td><span> </span><a id='lblInvestdate' class="lbl">簽約到期日 </a></td>
 						<td><input id="txtInvestdate"  type="text"  class="txt c1"/></td>
 					</tr>
 					<tr>
