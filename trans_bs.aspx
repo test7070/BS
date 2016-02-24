@@ -408,6 +408,7 @@
 						<td align="center" style="width:80px; color:black;"><a id="vewDatea"> </a></td>
 						<td align="center" style="width:80px; color:black;"><a id="vewTrandate"> </a></td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
+						<td align="center" style="width:80px; color:black;">區域</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;">客戶數量</td>
@@ -422,6 +423,7 @@
 						<td id="datea" style="text-align: center;">~datea</td>
 						<td id="trandate" style="text-align: center;">~trandate</td>
 						<td id="nick" style="text-align: center;">~nick</td>
+						<td id="straddr" style="text-align: center;">~straddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="product" style="text-align: center;">~product</td>
 						<td id="mount" style="text-align: right;">~mount</td>
@@ -507,10 +509,11 @@
 						<td><input id="txtMount2"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a id="lblPrice2" class="lbl"> </a></td>
 						<td><input id="txtPrice2"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblTotal2" class="lbl"> </a></td>
-                        <td><input id="txtTotal2"  type="text" class="txt c1 num"/></td>
+						
 						<td> </td>
                         <td> </td>
+                        <td><span> </span><a id="lblTotal2" class="lbl"> </a></td>
+                        <td><input id="txtTotal2"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
 					</tr>
 					<tr style="background-color:pink;">
