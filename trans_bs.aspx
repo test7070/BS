@@ -40,7 +40,7 @@
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
 			,['txtUccno', 'lblUcc', 'ucc', 'noa,product', 'txtUccno,txtProduct', 'ucc_b.aspx']
 			,['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx']
-			,['txtStraddrno', 'lblStraddr', 'addr', 'noa,addr,productno,product,salesno,sales', 'txtStraddrno,txtStraddr,txtUccno,txtProduct,txtSalesno,txtSales,txtStraddr', 'addr_b.aspx'] 
+			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			);
             	
@@ -119,19 +119,10 @@
 				switch(id) {
 					case 'txtCarno':
 						if(q_cur==1 || q_cur==2){
-							$('#txtDriverno').focus();
 						}
 						break;
 					case 'txtCustno':
 						if(q_cur==1 || q_cur==2){
-							if(!trans.isTrd){
-								$('#txtCaseuseno').val($('#txtCustno').val());
-								$('#txtCaseuse').val($('#txtComp').val());
-								if ($("#txtCustno").val().length > 0) {
-									$("#txtStraddrno").val($("#txtCustno").val()+'-');
-									$("#txtStraddr").val("");
-								}
-							}
 						}
 						break;
 					case 'txtStraddrno':
@@ -143,6 +134,7 @@
 			}
 			function getDriverprice(){
 				t_addrno = $.trim($('#txtStraddrno').val());
+				t_addrno = t_addrno.length>0?t_addrno:'#none';
 				t_productno = $.trim($('#txtUccno').val());
 				t_trandate = $.trim($('#txtTrandate').val());
 				Lock(1, {opacity : 0});
@@ -483,7 +475,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblStraddr" class="lbl btn">區域</a></td>
+						<td><span> </span><a id="lblXstraddr" class="lbl btn">區域</a></td>
 						<td colspan="3">
 							<input id="txtStraddrno"  type="text" style="float:left;width:30%;"/>
 							<input id="txtStraddr"  type="text" style="float:left;width:70%;"/>

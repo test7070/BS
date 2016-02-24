@@ -1,5 +1,5 @@
 getDriverprice: -- trans_bs.txt  getDriverprice
-	declare @t_addrno nvarchar(20) = [1]
+	declare @t_straddrno nvarchar(20) = [1]
 	declare @t_productno nvarchar(20) = [2]
 	declare @t_datea nvarchar(20) = [3]
 	
@@ -12,6 +12,6 @@ getDriverprice: -- trans_bs.txt  getDriverprice
 	select b.datea,b.driverprice 
 	from addr a 
 	outer apply(select top 1 DATEA,driverprice from addrs where noa=a.noa and datea<=@t_datea order by datea desc)b 
-	where a.noa=@t_addrno and a.productno=@t_productno 
+	where a.straddrno=@t_straddrno and a.productno=@t_productno 
 	
-	select * from @tmp; 
+	select * from @tmp;
