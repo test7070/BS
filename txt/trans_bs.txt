@@ -1,3 +1,26 @@
+getPrice: -- trans_bs.txt  getPrice
+	declare @t_custno nvarchar(20) = [1]
+	declare @t_productno nvarchar(20) = [2]
+	declare @t_datea nvarchar(20) = [3]
+	--------------------------------------------------
+	declare @datea nvarchar(20) = ''
+	declare @price float = ''
+	
+	select top 1 @datea=DATEA,@price=price 
+	from addr2
+	where custno=@t_custno 
+	and productno=@t_productno
+	and datea<=@t_datea  
+	order by datea desc
+	
+	declare @tmp table( 
+		datea nvarchar(20) 
+		,price float 
+	) 
+	insert into @tmp(datea,price)values(@datea,@price)
+	
+	select * from @tmp;
+	
 getDriverprice: -- trans_bs.txt  getDriverprice
 	declare @t_straddrno nvarchar(20) = [1]
 	declare @t_productno nvarchar(20) = [2]

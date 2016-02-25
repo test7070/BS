@@ -73,6 +73,7 @@
 				
 				$('#txtTrandate').change(function(e){
 					getDriverprice();
+					getPrice();
 				});
 				
 				$('#txtMount').change(function(e){
@@ -118,20 +119,28 @@
 			function q_popPost(id) {
 				switch(id) {
 					case 'txtCarno':
-						if(q_cur==1 || q_cur==2){
-						}
+						getPrice();
 						break;
 					case 'txtCustno':
-						if(q_cur==1 || q_cur==2){
-						}
+						getPrice();
 						break;
 					case 'txtStraddrno':
                         getDriverprice();
                     case 'txtUccno':
                         getDriverprice();
+                        getPrice();
 						break;
 				}
 			}
+			function getPrice(){
+				t_custno = $.trim($('#txtCustno').val());
+				t_custno  = t_custno .length>0?t_custno:'#none';
+				t_productno = $.trim($('#txtUccno').val());
+				t_trandate = $.trim($('#txtTrandate').val());
+				Lock(1, {opacity : 0});
+				q_func('qtxt.query.trans_bs_getPrice', 'trans_bs.txt,getPrice,' + encodeURI(t_custno) + ';' + encodeURI(t_productno)+ ';' + encodeURI(t_trandate));
+			}
+			
 			function getDriverprice(){
 				t_addrno = $.trim($('#txtStraddrno').val());
 				t_addrno = t_addrno.length>0?t_addrno:'#none';
@@ -142,6 +151,17 @@
 			}
 			function q_funcPost(t_func, result) {
                 switch(t_func) {
+                	case 'qtxt.query.trans_bs_getPrice':
+                        var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                            $('#txtPrice').val(as[0].price);
+                        }
+                        else{
+                            $('#txtPrice').val(0);
+                        }
+                        sum();
+                        Unlock(1);
+                        break;
                     case 'qtxt.query.trans_bs':
                         var as = _q_appendData("tmp0", "", true, true);
                         if (as[0] != undefined) {
