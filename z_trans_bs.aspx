@@ -35,31 +35,49 @@
 						type : '0', //[2]
 						name : 'db',
 						value : q_db
-					},{
-						type : '1', //
-						name : 'xtrandate'
-					},{
-						type : '1', //
-						name : 'xinvestdate'
 					}, {
-						type : '2', //
+						type : '2', //[3][4]
 						name : 'xaddr3',
 						dbf : 'addr3',
 						index : 'noa,namea',
 						src : 'addr3_bs_b.aspx'
 					}, {
-						type : '2', //
+						type : '2', //[5][6]
 						name : 'xdriver',
 						dbf : 'driver',
 						index : 'noa,namea',
 						src : 'driver_b.aspx'
+					}, {
+						type : '2', //[7][8]
+						name : 'xcust',
+						dbf : 'cust',
+						index : 'noa,comp',
+						src : 'cust_b.aspx'
+					},{
+						type : '6', //[9]
+						name : 'xtrandate'
+					},{
+						type : '1', //[10][11]
+						name : 'xinvestdate'
+					},{
+						type : '1', //[12][13]
+						name : 'ydatea'
+					},{
+						type : '1', //[14][15]
+						name : 'ytrandate'
 					}]
 				});
 				q_popAssign();
-				$('#txtXtrandate1').datepicker();
-				$('#txtXtrandate2').datepicker();
+				bbmMask = [['txtXtrandate','999/99/99'],['txtXinvestdate1','999/99/99'],['txtXinvestdate2','999/99/99']
+					,['txtYtrandate1','999/99/99'],['txtYtrandate2','999/99/99'],['txtYdatea1','999/99/99'],['txtYdatea2','999/99/99']];
+				q_mask(bbmMask);
+				$('#txtXtrandate').datepicker();
 				$('#txtXinvestdate1').datepicker();
 				$('#txtXinvestdate2').datepicker();
+				$('#txtYtrandate1').datepicker();
+				$('#txtYtrandate2').datepicker();
+				$('#txtYdatea1').datepicker();
+				$('#txtYdatea2').datepicker();
 	            var t_para = new Array();
 	            try{
 	            	t_para = JSON.parse(q_getId()[3]);
@@ -85,10 +103,13 @@
 	ondragover="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();">
 		<div id="q_menu"> </div>
+		
 		<div style="position: absolute;top: 10px;left:50px;z-index: 1;width:2000px;">
+			<div style="width:1900px;"><a>收貨到期明細表 :合約到期日太於本次收貨日的才會顯示。</a></div>
 			<div id="container">
 				<div id="q_report"> </div>
 			</div>
+			
 			<div class="prt" style="margin-left: -40px;">			
 				<!--#include file="../inc/print_ctrl.inc"-->
 			</div>

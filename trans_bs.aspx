@@ -406,7 +406,7 @@
 					<tr>
 						<td align="center" style="width:20px; color:black;"><a id="vewChk"> </a></td>
 						<td align="center" style="width:80px; color:black;"><a id="vewDatea"> </a></td>
-						<td align="center" style="width:80px; color:black;"><a id="vewTrandate"> </a></td>
+						<td align="center" style="width:80px; color:black;"><a id="vewXtrandate">收貨日期</a></td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:80px; color:black;">區域</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
@@ -451,7 +451,7 @@
 					<tr>
 						<td><span> </span><a id="lblDatea" class="lbl"> </a></td>
 						<td><input id="txtDatea"  type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblTrandate" class="lbl"> </a></td>
+						<td><span> </span><a id="lblXtrandate" class="lbl">收貨日期</a></td>
 						<td><input id="txtTrandate"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>

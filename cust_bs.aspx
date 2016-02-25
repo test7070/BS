@@ -51,6 +51,7 @@
 				
 				q_cmbParse("cmbChkstatus", ',01,02,03,04,05,06,07,08,09,10,11,12');
 				q_cmbParse("cmbChkdate", ',0@日,1@一,2@二,3@三,4@四,5@五,6@六');
+				q_cmbParse("cmbDueday", ',1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31');
 				
 				$('#txtNoa').change(function(e){
                 	$(this).val($.trim($(this).val()).toUpperCase());    	
@@ -411,7 +412,7 @@
 						<td><input id="txtNoa"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblSerial' class="lbl"> </a></td>
 						<td><input id="txtSerial"  type="text"  class="txt c1"/></td>
-						<td><span> </span><a id='lblInvestdate' class="lbl">簽約到期日 </a></td>
+						<td><span> </span><a id='lblInvestdate' class="lbl">合約到期日 </a></td>
 						<td><input id="txtInvestdate"  type="text"  class="txt c1"/></td>
 					</tr>
 					<tr>
@@ -443,17 +444,35 @@
 					<tr>
 						<td><span> </span><a class="lbl">收貨方式</a></td>
 						<td><input id="txtTrantype" type="text" class="txt c1"/></td>
-						<td><span> </span><a class="lbl">收貨週</a></td>
-						<td><select id="cmbChkstatus" class="txt c1"> </select></td>
-						<td><span> </span><a class="lbl">收貨日</a></td>
-						<td><select id="cmbChkdate" class="txt c1"> </select></td>
-					</tr>
-					<tr>
 						<td><span> </span><a id='lblDriver' class="lbl btn">司機</a></td>
 						<td colspan="2">
 							<input id="txtSalesno" type="text" class="txt" style="width:40%;"/> 
 							<input id="txtSales" type="text" class="txt" style="width:60%;"/>
 						</td>
+						
+					</tr>
+					<tr style="background-color:pink;">
+						<td> </td>
+						<td colspan="5"><a style="color:black;">方式一、方式二皆有輸入時，以方式一為主。</a></td>
+						<td class="tdZ"> </td>
+					</tr>
+					<tr style="background-color:pink;">
+						<td><span> </span><a class="lbl">方式一</a></td>
+						<td><span> </span><a class="lbl">收貨週</a></td>
+						<td><select id="cmbChkstatus" class="txt c1"> </select></td>
+						<td><span> </span><a class="lbl">收貨日</a></td>
+						<td><select id="cmbChkdate" class="txt c1"> </select></td>
+						<td> </td>
+						<td class="tdZ"> </td>
+					</tr>
+					<tr style="background-color:pink;">
+						<td><span> </span><a class="lbl">方式二</a></td>
+						<td><span> </span><a class="lbl">收貨日期</a></td>
+						<td><select id="cmbDueday" class="txt c1"> </select></td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td class="tdZ"> </td>
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">收貨備註</a></td>
