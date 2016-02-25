@@ -19,7 +19,6 @@ z_trans_bs05:--z_trans_bs05
 	declare @t_btrandate nvarchar(20) = case when '#non'=[14] then '' else [14] end
 	declare @t_etrandate nvarchar(20) = case when '#non'=[15] then char(255) else [15] end
 	----------------------------------------------------------------------------------------------------
-		
 	declare @tmp table(
 		sel int identity(1,1)
 		,recno int
@@ -45,16 +44,17 @@ z_trans_bs05:--z_trans_bs05
 		,mount2 float
 		,price2 float
 		,total2 float
+		,memo nvarchar(max)
 	)
 	insert into @tmp(recno,gno,pno,driverno,driver
 		,tranaccy,tranno,datea,trandate,custno,cust,areano,area,addr
 		,productno,product
-		,mount,price,total,mount2,price2,total2)
+		,mount,price,total,mount2,price2,total2,memo)
 	select ROW_NUMBER()over(order by ISNULL(a.trandate,''),a.noa )
 		,'1','1',a.driverno,b.namea
 		,a.accy,a.noa,a.datea,a.trandate,a.custno,a.nick,a.straddrno,a.straddr,a.saddr
 		,a.uccno,a.product
-		,a.mount,a.price,a.total,a.mount2,a.price2,a.total2
+		,a.mount,a.price,a.total,a.mount2,a.price2,a.total2,a.memo
 	from view_trans a
 	left join driver b on a.driverno=b.noa
 	where ISNULL(a.datea,'') between @t_bdate and @t_edate
@@ -84,6 +84,7 @@ z_trans_bs05:--z_trans_bs05
 		,dbo.getComma(mount2,-1) a12
 		,dbo.getComma(price2,-1) a13
 		,dbo.getComma(total2,-1) a14
+		,memo a15
 	from @tmp order by gno,recno;
 
 z_trans_bs04:--z_trans_bs04
