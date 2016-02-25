@@ -78,6 +78,10 @@
 				$('#txtYtrandate2').datepicker();
 				$('#txtYdatea1').datepicker();
 				$('#txtYdatea2').datepicker();
+				
+				$('#txtXtrandate').val(q_date());
+				$('#txtYtrandate1').val(q_date());
+				$('#txtYtrandate2').val(q_date());
 	            var t_para = new Array();
 	            try{
 	            	t_para = JSON.parse(q_getId()[3]);
