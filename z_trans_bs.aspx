@@ -19,11 +19,6 @@
             	q_getId();
                 q_gf('', 'z_trans_bs');       
             });
-            /*
-             * 收貨到期明細表  group by  區+司機
-				合約到期明細表  order by 到期日
-				司機帳款明細表、總表
-             */
             function q_gfPost() {
 				$('#q_report').q_report({
 					fileName : 'z_trans_bs',
