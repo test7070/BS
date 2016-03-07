@@ -408,6 +408,10 @@
 						<td class="tdZ"> </td>
 					</tr>
 					<tr>
+						<td><span> </span><a id='lblx' class="lbl">新編號</a></td>
+						<td><input id="txtHead"  type="text" class="txt c1"/></td>
+					</tr>
+					<tr>
 						<td><span> </span><a id='lblNoa' class="lbl"> </a></td>
 						<td><input id="txtNoa"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblSerial' class="lbl"> </a></td>
@@ -431,6 +435,8 @@
 					<tr>
 						<td><span> </span><a id='lblMobile' class="lbl"> </a></td>
 						<td colspan="2"><input id="txtMobile" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblCountry' class="lbl">縣市</a></td>
+						<td><input id="txtCountry" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblXpost' class="lbl btn">區域</a></td>

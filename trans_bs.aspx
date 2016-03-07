@@ -77,6 +77,7 @@
 				});
 				
 				$('#txtMount').change(function(e){
+					$('#txtMount2').val($('#txtMount').val());
 					sum();
 				});
 				$('#txtPrice').change(function(e){
