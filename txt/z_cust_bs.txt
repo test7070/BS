@@ -1,0 +1,80 @@
+z_cust_bs01:--z_cust_bs01	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_bcustno nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	---------------------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,recno int 
+		,gno nvarchar(10)
+		,custno nvarchar(20)
+		,cust nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		
+		,tel nvarchar(max)
+		,mobile nvarchar(max)
+		,fax nvarchar(max)
+		
+		,country nvarchar(20)
+		,postno nvarchar(20)
+		,post nvarchar(20)
+		,addr nvarchar(max)
+		
+		,trantype nvarchar(20)
+		,[week] nvarchar(20)
+		,[weekday] nvarchar(20)
+		,[day] float
+		
+		,invomemo nvarchar(max)
+		,memo nvarchar(max)
+		,memo2 nvarchar(max)
+		,investmemo  nvarchar(max)
+		
+	)
+	
+	insert into @tmp (gno,recno
+		,custno,cust,driverno,driver
+		,tel,mobile,fax
+		,country,postno,post,addr
+		,trantype,[week],[weekday],[day]
+		,invomemo,memo,memo2,investmemo)
+	select '1',ROW_NUMBER()over(order by a.noa)
+		,a.noa,a.comp,a.salesno,a.sales
+		,a.tel,a.mobile,a.fax
+		,a.country,a.ext,a.post,a.addr_fact
+		,trantype,chkstatus,chkdate,dueday
+		,a.invomemo,a.memo,a.memo2,a.investmemo
+	from cust a
+	where a.noa between @t_bcustno and @t_ecustno
+	and ISNULL(a.salesno,'') between @t_bdriverno and @t_edriverno
+	order by a.noa
+	
+	select gno
+		,recno rr
+		,"cust_bs?noa=\'"+custno+"\' and "+cast(recno as nvarchar)+"=$rr?" ghref
+		,driver a01
+		,custno a02
+		,cust a03
+		,mobile a04
+		,tel a05
+		,fax a06
+		,country a07
+		,post a08
+		,addr a09
+		
+		,trantype a10
+		,[week] a11
+		,[weekday] a12
+		,case when isnull([day],0)=0 then '' else cast([day] as nvarchar) end a13
+		
+		,replace(invomemo,'chr(10)','<br>') a14
+		,replace(memo,'chr(10)','<br>') a15
+		,replace(memo2,'chr(10)','<br>') a16
+		,replace(investmemo,'chr(10)','<br>') a17
+	from @tmp
+	order by recno;
