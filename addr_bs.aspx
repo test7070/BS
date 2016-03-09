@@ -60,10 +60,7 @@
 						q_gt('addr', t_where, 0, 0, 0, "checkAddrno_change", r_accy);
 					}
 				});
-				$('#btnPrint').bind('contextmenu', function(e) {
-					e.preventDefault();
-					q_box("z_addr2.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";;" + r_accy, 'z_addr2', "95%", "95%", q_getMsg("popPrint"));
-				});
+			
 			}
 			function q_funcPost(t_func, result) {
 				switch(t_func) {
@@ -152,7 +149,7 @@
 				$('#txtAddr').focus();
 			}
 			function btnPrint() {
-				q_box("z_addr_bs.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";;" + r_accy, 'z_addr', "95%", "95%", q_getMsg("popPrint"));
+				//q_box("z_addr_bs.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";;" + r_accy, 'z_addr', "95%", "95%", q_getMsg("popPrint"));
 			}
 			function wrServer(key_value) {
 				var i;
