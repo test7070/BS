@@ -21,7 +21,7 @@
 
 			var q_name = "trans";
 			var q_readonly = ['txtTotal','txtTotal2','txtNoa','txtWorker','txtWorker2'];
-			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
+			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtCustdiscount',10,0,1],['txtTotal',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtTotal2',10,0,1]
 			];
 			var bbmMask = [['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99'],['txtLtime','99:99'],['txtStime','99:99'],['txtDtime','99:99']];
@@ -35,7 +35,7 @@
             brwCount2 = 15;
             //不能彈出瀏覽視窗
             aPop = new Array(['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
-			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick', 'txtCustno,txtComp,txtNick', 'cust_b.aspx']
+			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact,salesno,sales', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,txtDriverno,txtDriver', 'cust_b.aspx']
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
 			,['txtUccno', 'lblUcc', 'ucc', 'noa,product', 'txtUccno,txtProduct', 'ucc_b.aspx']
@@ -83,6 +83,9 @@
 				$('#txtPrice').change(function(e){
 					sum();
 				});
+				$('#txtCustdiscount').change(function(e){
+					sum();
+				});
 				$('#txtMount2').change(function(e){
 					sum();
 				});
@@ -94,7 +97,7 @@
 			function sum() {
 				if(q_cur!=1 && q_cur!=2)
 					return;
-				$('#txtTotal').val(round(q_mul(q_float('txtMount'),q_float('txtPrice')),0));
+				$('#txtTotal').val(q_sub(round(q_mul(q_float('txtMount'),q_float('txtPrice')),0),q_float('txtCustdiscount')));
 				$('#txtTotal2').val(round(q_mul(q_float('txtMount2'),q_float('txtPrice2')),0));
 			}
 
@@ -190,6 +193,7 @@
 				if (emp($('#txtNoa').val()))
 					return;
 				_btnModi();
+				sum();
 			}
 			function btnPrint() {
 				q_box('z_trans_bs.aspx' + "?;;;;" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
@@ -220,6 +224,7 @@
                 }else{
                 	alert("error: btnok!");
                 }
+                sum();
 				var t_noa = trim($('#txtNoa').val());
 				var t_date = trim($('#txtDatea').val());
 				if (t_noa.length == 0 || t_noa == "AUTO")
@@ -434,6 +439,7 @@
 						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;">客戶數量</td>
 						<td align="center" style="width:80px; color:black;">客戶單價</td>
+						<td align="center" style="width:80px; color:black;">折讓</td>
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
 						<td align="center" style="width:80px; color:black;">司機數量</td>
 						<td align="center" style="width:80px; color:black;">司機單價</td>
@@ -449,6 +455,7 @@
 						<td id="product" style="text-align: center;">~product</td>
 						<td id="mount" style="text-align: right;">~mount</td>
 						<td id="price" style="text-align: right;">~price</td>
+						<td id="custdiscount" style="text-align: right;">~custdiscount</td>
 						<td id="total" style="text-align: right;">~total</td>
 						<td id="mount2" style="text-align: right;">~mount2</td>
 						<td id="price2" style="text-align: right;">~price2</td>
@@ -475,15 +482,7 @@
 						<td><span> </span><a id="lblXtrandate" class="lbl">收貨日期</a></td>
 						<td><input id="txtTrandate"  type="text" class="txt c1"/></td>
 					</tr>
-					<tr>
-						<td><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
-						<td><input id="txtCarno"  type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblDriver" class="lbl btn"> </a></td>
-						<td colspan="2">
-							<input id="txtDriverno"  type="text" style="float:left;width:50%;"/>
-							<input id="txtDriver"  type="text" style="float:left;width:50%;"/>
-						</td>
-					</tr>
+					
 					<tr>
 						<td><span> </span><a id="lblCust" class="lbl btn"> </a></td>
 						<td colspan="3">
@@ -508,14 +507,23 @@
 							<input id="txtSaddr"  type="text" style="float:left;width:100%;"/>
 						</td>
 					</tr>
+					<tr>
+						<td><span> </span><a id="lblDriver" class="lbl btn"> </a></td>
+						<td colspan="2">
+							<input id="txtDriverno"  type="text" style="float:left;width:50%;"/>
+							<input id="txtDriver"  type="text" style="float:left;width:50%;"/>
+						</td>
+						<td><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
+						<td><input id="txtCarno"  type="text" class="txt c1"/></td>
+					</tr>
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a id="lblMount" class="lbl"> </a></td>
 						<td><input id="txtMount"  type="text" class="txt c1 num"/></td>
 						
 						<td><span> </span><a id="lblPrice" class="lbl"> </a></td>
                         <td><input id="txtPrice"  type="text" class="txt c1 num"/></td>
-                        <td> </td>
-                        <td> </td>
+                        <td><span> </span><a id="lblCustdiscount" class="lbl">折讓</a></td>
+                        <td><input id="txtCustdiscount"  type="text" class="txt c1 num"/></td>
                         <td><span> </span><a id="lblTotal" class="lbl"> </a></td>
                         <td><input id="txtTotal"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
