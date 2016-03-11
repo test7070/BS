@@ -39,6 +39,7 @@ z_trans_bs05:--z_trans_bs05
 		,productno nvarchar(20)
 		,product nvarchar(50)
 		,mount float
+		,[weight] float
 		,price float
 		,custdiscount float
 		,total float
@@ -50,12 +51,12 @@ z_trans_bs05:--z_trans_bs05
 	insert into @tmp(recno,gno,pno,driverno,driver
 		,tranaccy,tranno,datea,trandate,custno,cust,areano,area,addr
 		,productno,product
-		,mount,price,custdiscount,total,mount2,price2,total2,memo)
+		,mount,[weight],price,custdiscount,total,mount2,price2,total2,memo)
 	select ROW_NUMBER()over(order by ISNULL(a.trandate,''),a.noa )
 		,'1','1',a.driverno,b.namea
 		,a.accy,a.noa,a.datea,a.trandate,a.custno,a.nick,a.straddrno,a.straddr,a.saddr
 		,a.uccno,a.product
-		,a.mount,a.price,a.custdiscount,a.total,a.mount2,a.price2,a.total2,a.memo
+		,a.mount,a.[weight],a.price,a.custdiscount,a.total,a.mount2,a.price2,a.total2,a.memo
 	from view_trans a
 	left join driver b on a.driverno=b.noa
 	where ISNULL(a.datea,'') between @t_bdate and @t_edate
@@ -64,9 +65,10 @@ z_trans_bs05:--z_trans_bs05
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	and ISNULL(a.straddrno,'') between @t_baddr3 and @t_eaddr3
 	--小計
-	insert into @tmp(gno,pno,mount,custdiscount,total,mount2,total2)
-	select '2','2',SUM(isnull(mount,0)),SUM(isnull(custdiscount,0)),SUM(isnull(total,0)),SUM(isnull(mount2,0)),SUM(isnull(total2,0))
+	insert into @tmp(gno,pno,mount,[weight],custdiscount,total,mount2,total2)
+	select '2','2',SUM(isnull(mount,0)),SUM(isnull([weight],0)),SUM(isnull(custdiscount,0)),SUM(isnull(total,0)),SUM(isnull(mount2,0)),SUM(isnull(total2,0))
 	from @tmp
+	update @tmp set price=CASe when [weight]=0 then 0 else round(total/[weight],2) end where gno='2'
 	
 	select gno
 		,recno rr
@@ -80,6 +82,7 @@ z_trans_bs05:--z_trans_bs05
 		,driver a07
 		,product a08
 		,dbo.getComma(mount,-1) a09
+		,dbo.getComma([weight],-1) b02
 		,dbo.getComma(price,-1) a10
 		,dbo.getComma(custdiscount,-1) b01
 		,dbo.getComma(total,-1) a11

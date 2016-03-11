@@ -21,7 +21,7 @@
 
 			var q_name = "trans";
 			var q_readonly = ['txtTotal','txtTotal2','txtNoa','txtWorker','txtWorker2'];
-			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtCustdiscount',10,0,1],['txtTotal',10,0,1]
+			var bbmNum = [['txtMount',10,2,1],['txtWeight',10,2,1],['txtPrice',10,2,1],['txtCustdiscount',10,0,1],['txtTotal',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtTotal2',10,0,1]
 			];
 			var bbmMask = [['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99'],['txtLtime','99:99'],['txtStime','99:99'],['txtDtime','99:99']];
@@ -77,6 +77,8 @@
 				});
 				
 				$('#txtMount').change(function(e){
+					//一桶18公斤
+					$('#txtWeight').val(round(q_mul(q_float('txtMount'),18),2));
 					$('#txtMount2').val($('#txtMount').val());
 					sum();
 				});
@@ -438,6 +440,7 @@
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;">客戶數量</td>
+						<td align="center" style="width:80px; color:black;">重量</td>
 						<td align="center" style="width:80px; color:black;">客戶單價</td>
 						<td align="center" style="width:80px; color:black;">折讓</td>
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
@@ -454,6 +457,7 @@
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="product" style="text-align: center;">~product</td>
 						<td id="mount" style="text-align: right;">~mount</td>
+						<td id="weight" style="text-align: right;">~weight</td>
 						<td id="price" style="text-align: right;">~price</td>
 						<td id="custdiscount" style="text-align: right;">~custdiscount</td>
 						<td id="total" style="text-align: right;">~total</td>
@@ -527,6 +531,17 @@
                         <td><span> </span><a id="lblTotal" class="lbl"> </a></td>
                         <td><input id="txtTotal"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
+					</tr>
+					<tr style="background-color: #B18904;">
+						<td><span> </span><a class="lbl">重量(公斤)</a></td>
+						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td class="tdZ"></td>
 					</tr>
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>
