@@ -177,8 +177,10 @@
                 _readonly(t_para, empty);
                 if (t_para) {
                     $('#txtInvestdate').datepicker('destroy');
+                    $('#txtGetdate').datepicker('destroy');
                 } else {	
                     $('#txtInvestdate').datepicker();
+                    $('#txtGetdate').datepicker();
                 }
             }
 
@@ -459,7 +461,7 @@
 					</tr>
 					<tr style="background-color:pink;">
 						<td> </td>
-						<td colspan="5"><a style="color:black;">方式一、方式二皆有輸入時，以方式一為主。</a></td>
+						<td colspan="5"><a style="color:black;">皆有輸入時，以方式三、方式一、方式二的順序判斷。</a></td>
 						<td class="tdZ"> </td>
 					</tr>
 					<tr style="background-color:pink;">
@@ -475,6 +477,15 @@
 						<td><span> </span><a class="lbl">方式二</a></td>
 						<td><span> </span><a class="lbl">收貨日期</a></td>
 						<td><select id="cmbDueday" class="txt c1"> </select></td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td class="tdZ"> </td>
+					</tr>
+					<tr style="background-color:pink;">
+						<td><span> </span><a class="lbl">方式三</a></td>
+						<td><span> </span><a class="lbl">叫收日期</a></td>
+						<td><input id="txtGetdate"  type="text"  class="txt c1"/></td>
 						<td> </td>
 						<td> </td>
 						<td> </td>

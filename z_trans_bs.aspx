@@ -60,7 +60,11 @@
 					},{
 						type : '1', //[14][15]
 						name : 'ytrandate'
-					}]
+					}, {/*4 [16]*/
+                        type : '8',
+                        name : 'xweekday',
+                        value : ('0@日,1@一,2@二,3@三,4@四,5@五,6@六').split(',')
+                    }]
 				});
 				q_popAssign();
 				bbmMask = [['txtXtrandate','999/99/99'],['txtXinvestdate1','999/99/99'],['txtXinvestdate2','999/99/99']
