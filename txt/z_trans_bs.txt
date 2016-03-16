@@ -446,7 +446,7 @@ z_trans_bs01:--z_trans_bs01
 	--有指定星期幾的
 	if len(@t_weekday)>0
 	begin
-		delete #z_trans_bs01 where charindex(cast(datepart(dw,dbo.ChineseEraName2AD(edate))+1 as nvarchar),@t_weekday)=0
+		delete #z_trans_bs01 where charindex(cast(datepart(dw,dbo.ChineseEraName2AD(edate))-1 as nvarchar),@t_weekday)=0
 	end
 	----------------------------------------------------------------------------------------------------
 	declare @tmp table(

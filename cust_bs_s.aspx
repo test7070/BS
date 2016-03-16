@@ -50,6 +50,8 @@
                 t_straddrno = $('#txtStraddrno').val();
                 t_straddr = $('#txtStraddr').val();
                 t_driverno = $('#txtDriverno').val();
+                t_city = $('#txtCity').val();
+                t_addr = $('#txtAddr').val();
                 
                 var t_where = " 1=1 " 
                 	+ q_sqlPara2("investdate", t_bdate, t_edate)
@@ -60,6 +62,10 @@
                     t_where += " and (charindex('" + t_comp + "',comp)>0 or charindex('" + t_comp + "',nick)>0)";
                 if (t_straddr.length > 0)
                     t_where += " and charindex('" + t_straddr + "',post)>0";
+                if (t_city.length > 0)
+                    t_where += " and charindex('" + t_city + "',country)>0";
+                if (t_addr.length > 0)
+                    t_where += " and charindex('" + t_addr + "',addr_fact)>0";
                 t_where = ' where=^^' + t_where + '^^ ';
                 return t_where;
             }
@@ -95,6 +101,12 @@
 					</td>
 				</tr>
 				<tr class='seek_tr'>
+                    <td class='seek'  style="width:20%;"><a id='lblCity'>縣市</a></td>
+                    <td>
+                    <input class="txt" id="txtCity" type="text" style="width:215px; font-size:medium;" />
+                    </td>
+                </tr>
+				<tr class='seek_tr'>
                     <td class='seek'  style="width:20%;"><a id='lblXstraddrno'>區域編號</a></td>
                     <td>
                     <input class="txt" id="txtStraddrno" type="text" style="width:215px; font-size:medium;" />
@@ -104,6 +116,12 @@
                     <td class='seek'  style="width:20%;"><a id='lblXstraddr'>區域名稱</a></td>
                     <td>
                     <input class="txt" id="txtStraddr" type="text" style="width:215px; font-size:medium;" />
+                    </td>
+                </tr>
+                <tr class='seek_tr'>
+                    <td class='seek'  style="width:20%;"><a id='lblAddr'>地址</a></td>
+                    <td>
+                    <input class="txt" id="txtAddr" type="text" style="width:215px; font-size:medium;" />
                     </td>
                 </tr>
 				<tr class='seek_tr'>
