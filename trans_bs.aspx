@@ -318,7 +318,7 @@
             }
             .dview {
                 float: left;
-                width: 100%; 
+                width: 1400px; 
                 border-width: 0px; 
             }
             .tview {
@@ -437,6 +437,7 @@
 						<td align="center" style="width:80px; color:black;"><a id="vewXtrandate">收貨日期</a></td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:80px; color:black;">區域</td>
+						<td align="center" style="width:150px; color:black;">地址</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;">客戶數量</td>
@@ -454,6 +455,7 @@
 						<td id="trandate" style="text-align: center;">~trandate</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="straddr" style="text-align: center;">~straddr</td>
+						<td id="saddr" style="text-align: center;">~saddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="product" style="text-align: center;">~product</td>
 						<td id="mount" style="text-align: right;">~mount</td>

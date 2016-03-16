@@ -419,7 +419,7 @@ z_trans_bs01:--z_trans_bs01
 		begin
 			--方式一
 			select @date = dateadd(WEEK,@week,@date)
-			select @date = dateadd(WEEKDAY,@weekday-DATEPART(weekday,@date),@date)
+			select @date = dateadd(WEEKDAY,@weekday-DATEPART(weekday,@date)+1,@date)
 			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date) where sel=@sel
 		end
 		else if @day!=0
