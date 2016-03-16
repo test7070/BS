@@ -157,6 +157,14 @@
 			}
 			function q_funcPost(t_func, result) {
                 switch(t_func) {
+                	case 'qtxt.query.trans_bs_resetDate':
+                		console.log('trans_bs_resetDate');
+                		var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                            console.log(as[0].msg);
+                        }
+                        Unlock(1);
+                		break;
                 	case 'qtxt.query.trans_bs_getPrice':
                         var as = _q_appendData("tmp0", "", true, true);
                         if (as[0] != undefined) {
@@ -203,7 +211,9 @@
 			function q_stPost() {
                 if (!(q_cur == 1 || q_cur == 2))
                     return false;
-                Unlock(1);
+                Lock(1,{opacity:0});
+                //清空叫收日期
+                q_func('qtxt.query.trans_bs_resetDate', 'trans_bs.txt,resetDate,' + encodeURI($('#txtNoa').val()));
             }
 			function btnOk() {
 				Lock(1,{opacity:0});

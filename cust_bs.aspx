@@ -22,7 +22,7 @@
             var q_name = "cust";
             var q_readonly = ['txtWorker'];
             var bbmNum = [];
-            var bbmMask = [['txtInvestdate','999/99/99']];
+            var bbmMask = [['txtInvestdate','999/99/99'],['txtGetdate','999/99/99']];
             q_sqlCount = 6;
             brwCount = 6;
             brwList = [];

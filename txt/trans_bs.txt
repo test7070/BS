@@ -1,5 +1,5 @@
 resetDate: -- trans_bs.txt resetDate  重置叫收日期
-	declare @t_noa nvarchar(20) = ''
+	declare @t_noa nvarchar(max) = [1]
 	--------------------------------------------------------------------------
 	declare @tmp table(
 		msg nvarchar(max)
@@ -14,22 +14,28 @@ resetDate: -- trans_bs.txt resetDate  重置叫收日期
 		DECLARE @chk tinyint = 0
 		Begin Transaction [Trans_Name]
 		
-		update cust set [getdate]='' where noa=@custno
-		IF @@Error <> 0 BEGIN SET @chk = 1 END
-		
-		insert into drun(datea,timea,usera,[action],tablea,title,memo)
-		select left(CONVERT(nvarchar,getdate(),111),10) ,left(CONVERT(nvarchar,getdate(),108),5)
-			,'自動產生','Update','cust','客戶主檔','出車單號【'+@t_noa+'】客戶編號【'+@custno+'】收貨日期【'+@datea+'】'
-		IF @@Error <> 0 BEGIN SET @chk = 1 END
-		
-		IF @chk <> 0 BEGIN -- 若是新增資料發生錯誤
+		begin try
+			update cust set [getdate]='' where noa=@custno
+			IF @@Error <> 0 BEGIN SET @chk = 1 END
+	
+			insert into drun(datea,timea,usera,[action],noa,tablea,accno,title,memo)
+			select left(CONVERT(nvarchar,getdate(),111),10) ,left(CONVERT(nvarchar,getdate(),108),5)
+				,'自動產生','Update',isnull(@t_noa,''),'cust','客戶主檔','','出車單號【'+isnull(@t_noa,'')+'】客戶編號【'+isnull(@custno,'')+'】收貨日期【'+isnull(@datea,'')+'】'
+			IF @@Error <> 0 BEGIN SET @chk = 1 END
+			
+			IF @chk <> 0 BEGIN -- 若是新增資料發生錯誤
+				Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+				insert into @tmp(msg)values('發生錯誤')
+			END
+			ELSE BEGIN
+				Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
+				insert into @tmp(msg)values('Done')
+			END
+		end try
+		begin catch
 			Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
-			insert into @tmp(msg)values('發生錯誤')
-		END
-		ELSE BEGIN
-			Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
-			insert into @tmp(msg)values('Done')
-		END
+				insert into @tmp(msg)values('發生錯誤2')
+		end catch
 	end
 	else
 	begin
