@@ -52,6 +52,7 @@
                 t_driverno = $('#txtDriverno').val();
                 t_city = $('#txtCity').val();
                 t_addr = $('#txtAddr').val();
+                t_tel = $('#txtTel').val();
                 
                 var t_where = " 1=1 " 
                 	+ q_sqlPara2("investdate", t_bdate, t_edate)
@@ -66,6 +67,8 @@
                     t_where += " and charindex('" + t_city + "',country)>0";
                 if (t_addr.length > 0)
                     t_where += " and charindex('" + t_addr + "',addr_fact)>0";
+                if (t_tel.length > 0)
+                    t_where += " and (charindex(replace('" + t_tel + "','-',''),replace(tel,'-',''))>0 or charindex(replace('" + t_tel + "','-',''),replace(mobile,'-',''))>0 or charindex(replace('" + t_tel + "','-',''),replace(fax,'-',''))>0)";
                 t_where = ' where=^^' + t_where + '^^ ';
                 return t_where;
             }
@@ -128,6 +131,12 @@
                     <td class='seek'  style="width:20%;"><a id='lblDriverno'>司機編號</a></td>
                     <td>
                     <input class="txt" id="txtDriverno" type="text" style="width:215px; font-size:medium;" />
+                    </td>
+                </tr>
+                <tr class='seek_tr'>
+                    <td class='seek'  style="width:20%;"><a >電話</a></td>
+                    <td>
+                    <input class="txt" id="txtTel" type="text" style="width:215px; font-size:medium;" />
                     </td>
                 </tr>
 			</table>
