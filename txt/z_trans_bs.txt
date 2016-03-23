@@ -361,6 +361,7 @@ z_trans_bs01:--z_trans_bs01
 		,[day] int--收貨日期
 		,[getdate] nvarchar(20) --叫收日期
 		,bdate nvarchar(20) --上次收貨日期
+		,bprice float --上次收貨單價
 		,edate nvarchar(20) --下次收貨日期
 		
 		,areano nvarchar(20)--區域
@@ -368,7 +369,7 @@ z_trans_bs01:--z_trans_bs01
 		,addr nvarchar(max)
 		,driverno nvarchar(20)--司機
 		,driver nvarchar(20)
-		
+		,xtype nvarchar(10) --收貨方式
 	)
 	insert into #z_trans_bs01(investdate,custno,comp,nick,trantype,[week],[weekday],[day],[getdate]
 		,areano,area,addr,driverno,driver)
@@ -385,9 +386,9 @@ z_trans_bs01:--z_trans_bs01
 	
 	------------------------------------------------------------------------------------
 	--找到上次收貨日期
-	update #z_trans_bs01 set bdate=b.trandate
+	update #z_trans_bs01 set bdate=b.trandate,bprice=b.price
 	from #z_trans_bs01 a
-	left join (select custno,MAX(trandate) trandate from view_trans group by custno) b on a.custno=b.custno 
+	outer apply(select top 1 trandate,price from view_trans where custno=a.custno order by trandate desc,noa desc) b
 	
 	--計算下次收貨日
 	----若沒有設定收貨方式就不計算
@@ -413,21 +414,21 @@ z_trans_bs01:--z_trans_bs01
 		if LEN(@getdate)>0
 		begin
 			--方式三
-			update #z_trans_bs01 set edate = @getdate where sel=@sel
+			update #z_trans_bs01 set edate = @getdate,xtype='3' where sel=@sel
 		end
 		else if not(@week=0 and @weekday=0)
 		begin
 			--方式一
 			select @date = dateadd(WEEK,@week,@date)
 			select @date = dateadd(WEEKDAY,@weekday-DATEPART(weekday,@date)+1,@date)
-			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date) where sel=@sel
+			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date),xtype='1' where sel=@sel
 		end
 		else if @day!=0
 		begin
 			--方式二
 			select @date = dateadd(MONTH,1,@date)
 			select @date = dateadd(DAY,@day-DATEPART(DAY,@date),@date)
-			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date) where sel=@sel
+			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date),xtype='2' where sel=@sel
 		end
 		else
 		begin
@@ -440,7 +441,10 @@ z_trans_bs01:--z_trans_bs01
 	close cursor_table
 	deallocate cursor_table
 
-	delete #z_trans_bs01 where not(len(edate)>0 and edate<=@t_trandate)
+	--只顯示7天內的
+	declare @t_xdate nvarchar(20) = ''
+	select @t_xdate=dbo.AD2ChineseEraName(dateadd(DD,-7,dbo.ChineseEraName2AD(@t_trandate)))
+	delete #z_trans_bs01 where not(len(edate)>0 and edate between @t_xdate and @t_trandate)
 	--超過合約日的就不顯示
 	delete #z_trans_bs01 where edate<investdate
 	--有指定星期幾的
@@ -464,11 +468,13 @@ z_trans_bs01:--z_trans_bs01
 		,investdate nvarchar(20)
 		,trantype nvarchar(20)
 		,bdate nvarchar(20)
+		,bprice float
 		,edate nvarchar(20)
+		,xtype nvarchar(10) --收貨方式
 	)
-	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,investdate,trantype,bdate,edate)
+	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,investdate,trantype,bdate,bprice,edate,xtype)
 	select ROW_NUMBER()over(partition by a.driverno order by a.areano,a.custno) 
-		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.investdate,a.trantype,a.bdate,a.edate
+		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.investdate,a.trantype,a.bdate,a.bprice,a.edate,a.xtype
 	from #z_trans_bs01 a
 	---空白行
 	declare @pagecount int = 35 --一頁幾行
@@ -494,17 +500,20 @@ z_trans_bs01:--z_trans_bs01
 	close cursor_table
 	deallocate cursor_table
 
+	declare @string nvarchar(max) = '日一二三四五六'
+
 	select gno,recno rr
 		,"cust_bs?noa=\'"+custno+"\' and "+cast(recno as nvarchar)+"=$rr?" ghref
 		,driverno a01
 		,driver a02
 		,@t_trandate a03
 		,area b01
-		,custno b02
-		,cust b03
+		,case when xtype='3' then '<a style="color:red">'+custno+'</a>' else custno end b02
+		,case when xtype='3' then '<a style="color:red">'+cust+'</a>' else cust end b03
 		,addr b04
 		,trantype b05
-		,bdate b06
-		,edate b07
+		,right(bdate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(bdate)),1)+')' b06
+		,dbo.getComma(bprice,-1) b07
+		,right(edate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(edate)),1)+')' b08
 	from @tmp order by driverno,pno,sel
 	drop table #z_trans_bs01;

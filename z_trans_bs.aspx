@@ -108,7 +108,7 @@
 		<div id="q_menu"> </div>
 		
 		<div style="position: absolute;top: 10px;left:50px;z-index: 1;width:2000px;">
-			<div style="width:1900px;"><a>收貨到期明細表 :合約到期日太於本次收貨日的才會顯示。</a></div>
+			<div style="width:1900px;"><a>收貨到期明細表 :合約到期日大於本次收貨日的才會顯示。</a></div>
 			<div id="container">
 				<div id="q_report"> </div>
 			</div>
