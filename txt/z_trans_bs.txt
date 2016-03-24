@@ -344,6 +344,7 @@ z_trans_bs01:--z_trans_bs01
 	
 	declare @t_weekday nvarchar(max) = case when '#non'=[16] then '' else [16] end
 	----------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#z_trans_bs01')is not null
 	BEGIN
 		drop table #z_trans_bs01
@@ -370,15 +371,22 @@ z_trans_bs01:--z_trans_bs01
 		,driverno nvarchar(20)--司機
 		,driver nvarchar(20)
 		,xtype nvarchar(10) --收貨方式
-	)
+		
+		,invomemo nvarchar(max)
+		,memo nvarchar(max)
+		,memo2 nvarchar(max)
+		,investmemo nvarchar(max)
+	) 
 	insert into #z_trans_bs01(investdate,custno,comp,nick,trantype,[week],[weekday],[day],[getdate]
-		,areano,area,addr,driverno,driver)
+		,areano,area,addr,driverno,driver
+		,invomemo,memo,memo2,investmemo)
 	select isnull(a.investdate,''),a.noa,a.comp,a.nick,isnull(a.trantype,'')
 		,cast(isnull(a.chkstatus,'0') as int)
 		,cast(isnull(a.chkdate,'0') as int)
 		,isnull(a.dueday,0)
 		,isnull(a.[getdate],'')
 		,ISNULL(a.ext,''),ISNULL(a.post,''),ISNULL(a.addr_fact,''),ISNULL(a.salesno,''),ISNULL(a.sales,'')
+		,ISNULL(invomemo,''),ISNULL(memo,''),ISNULL(memo2,''),ISNULL(investmemo,'')
 	from cust a
 	where a.noa between @t_bcustno and @t_ecustno
 	and isnull(a.ext,'') between @t_baddr3 and @t_eaddr3
@@ -471,10 +479,16 @@ z_trans_bs01:--z_trans_bs01
 		,bprice float
 		,edate nvarchar(20)
 		,xtype nvarchar(10) --收貨方式
+		,invomemo nvarchar(max)
+		,memo nvarchar(max)
+		,memo2 nvarchar(max)
+		,investmemo nvarchar(max)
 	)
-	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,investdate,trantype,bdate,bprice,edate,xtype)
+	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,investdate,trantype,bdate,bprice,edate,xtype
+		,invomemo,memo,memo2,investmemo)
 	select ROW_NUMBER()over(partition by a.driverno order by a.areano,a.custno) 
 		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.investdate,a.trantype,a.bdate,a.bprice,a.edate,a.xtype
+		,invomemo,memo,memo2,investmemo
 	from #z_trans_bs01 a
 	---空白行
 	declare @pagecount int = 35 --一頁幾行
@@ -515,5 +529,9 @@ z_trans_bs01:--z_trans_bs01
 		,right(bdate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(bdate)),1)+')' b06
 		,dbo.getComma(bprice,-1) b07
 		,right(edate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(edate)),1)+')' b08
+		,invomemo b09
+		,memo b10
+		,memo2 b11
+		,investmemo b12
 	from @tmp order by driverno,pno,sel
 	drop table #z_trans_bs01;
