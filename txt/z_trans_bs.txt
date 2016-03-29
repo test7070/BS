@@ -344,7 +344,6 @@ z_trans_bs01:--z_trans_bs01
 	
 	declare @t_weekday nvarchar(max) = case when '#non'=[16] then '' else [16] end
 	----------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#z_trans_bs01')is not null
 	BEGIN
 		drop table #z_trans_bs01
@@ -356,6 +355,8 @@ z_trans_bs01:--z_trans_bs01
 		,custno nvarchar(20) 
 		,comp nvarchar(50)
 		,nick nvarchar(20)
+		,tel nvarchar(max)
+		,mobile nvarchar(max)
 		,trantype nvarchar(20) --收貨方式
 		,[week] int--收貨週
 		,[weekday] int--收貨日
@@ -377,10 +378,12 @@ z_trans_bs01:--z_trans_bs01
 		,memo2 nvarchar(max)
 		,investmemo nvarchar(max)
 	) 
-	insert into #z_trans_bs01(investdate,custno,comp,nick,trantype,[week],[weekday],[day],[getdate]
+	insert into #z_trans_bs01(investdate,custno,comp,nick,tel,mobile
+		,trantype,[week],[weekday],[day],[getdate]
 		,areano,area,addr,driverno,driver
 		,invomemo,memo,memo2,investmemo)
-	select isnull(a.investdate,''),a.noa,a.comp,a.nick,isnull(a.trantype,'')
+	select isnull(a.investdate,''),a.noa,a.comp,a.nick,ISNULL(a.tel,''),ISNULL(a.mobile,'')
+		,isnull(a.trantype,'')
 		,cast(isnull(a.chkstatus,'0') as int)
 		,cast(isnull(a.chkdate,'0') as int)
 		,isnull(a.dueday,0)
@@ -449,9 +452,9 @@ z_trans_bs01:--z_trans_bs01
 	close cursor_table
 	deallocate cursor_table
 
-	--只顯示7天內的
+	--只顯示21天內的
 	declare @t_xdate nvarchar(20) = ''
-	select @t_xdate=dbo.AD2ChineseEraName(dateadd(DD,-7,dbo.ChineseEraName2AD(@t_trandate)))
+	select @t_xdate=dbo.AD2ChineseEraName(dateadd(DD,-21,dbo.ChineseEraName2AD(@t_trandate)))
 	delete #z_trans_bs01 where not(len(edate)>0 and edate between @t_xdate and @t_trandate)
 	--超過合約日的就不顯示
 	delete #z_trans_bs01 where edate<investdate
@@ -473,6 +476,8 @@ z_trans_bs01:--z_trans_bs01
 		,addr nvarchar(max)
 		,custno nvarchar(20)
 		,cust nvarchar(20)
+		,tel nvarchar(max)
+		,mobile nvarchar(max)
 		,investdate nvarchar(20)
 		,trantype nvarchar(20)
 		,bdate nvarchar(20)
@@ -484,10 +489,10 @@ z_trans_bs01:--z_trans_bs01
 		,memo2 nvarchar(max)
 		,investmemo nvarchar(max)
 	)
-	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,investdate,trantype,bdate,bprice,edate,xtype
+	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,tel,mobile,investdate,trantype,bdate,bprice,edate,xtype
 		,invomemo,memo,memo2,investmemo)
 	select ROW_NUMBER()over(partition by a.driverno order by a.areano,a.custno) 
-		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.investdate,a.trantype,a.bdate,a.bprice,a.edate,a.xtype
+		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.tel,a.mobile,a.investdate,a.trantype,a.bdate,a.bprice,a.edate,a.xtype
 		,invomemo,memo,memo2,investmemo
 	from #z_trans_bs01 a
 	---空白行
@@ -525,6 +530,8 @@ z_trans_bs01:--z_trans_bs01
 		,case when xtype='3' then '<a style="color:red">'+custno+'</a>' else custno end b02
 		,case when xtype='3' then '<a style="color:red">'+cust+'</a>' else cust end b03
 		,addr b04
+		,tel b04a
+		,mobile b04b
 		,trantype b05
 		,right(bdate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(bdate)),1)+')' b06
 		,dbo.getComma(bprice,-1) b07
