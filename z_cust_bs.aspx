@@ -45,6 +45,9 @@
 					},{
 						type : '6', //[7]
 						name : 'xtrantype'
+					},{
+						type : '6', //[8]
+						name : 'xarea'
 					}]
 				});
 				q_popAssign();

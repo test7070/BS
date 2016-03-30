@@ -7,6 +7,7 @@ z_cust_bs01:--z_cust_bs01
 	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
 	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
 	declare @t_trantype nvarchar(max) = case when '#non'=[7] then '' else [7] end
+	declare @t_area nvarchar(max) = case when '#non'=[8] then '' else [8] end
 	---------------------------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
@@ -54,6 +55,7 @@ z_cust_bs01:--z_cust_bs01
 	where a.noa between @t_bcustno and @t_ecustno
 	and ISNULL(a.salesno,'') between @t_bdriverno and @t_edriverno
 	and ( len(@t_trantype)=0 or charindex(@t_trantype,trantype)>0)
+	and ( len(@t_area)=0 or charindex(@t_area,post)>0)
 	order by a.noa
 	
 	update @tmp set trandate=isnull(b.trandate,'')
