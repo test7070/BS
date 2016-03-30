@@ -42,6 +42,9 @@
 						dbf : 'driver',
 						index : 'noa,namea',
 						src : 'driver_b.aspx'
+					},{
+						type : '6', //[7]
+						name : 'xtrantype'
 					}]
 				});
 				q_popAssign();

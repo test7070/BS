@@ -6,6 +6,7 @@ z_cust_bs01:--z_cust_bs01
 	declare @t_ecustno nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
 	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
 	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_trantype nvarchar(max) = case when '#non'=[7] then '' else [7] end
 	---------------------------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
@@ -34,7 +35,7 @@ z_cust_bs01:--z_cust_bs01
 		,memo nvarchar(max)
 		,memo2 nvarchar(max)
 		,investmemo  nvarchar(max)
-		
+		,trandate nvarchar(20)
 	)
 	
 	insert into @tmp (gno,recno
@@ -52,7 +53,12 @@ z_cust_bs01:--z_cust_bs01
 	from cust a
 	where a.noa between @t_bcustno and @t_ecustno
 	and ISNULL(a.salesno,'') between @t_bdriverno and @t_edriverno
+	and ( len(@t_trantype)=0 or charindex(@t_trantype,trantype)>0)
 	order by a.noa
+	
+	update @tmp set trandate=isnull(b.trandate,'')
+	from @tmp a
+	left join (select custno,max(trandate) trandate from view_trans group by custno) b on a.custno=b.custno
 	
 	select gno
 		,recno rr
@@ -76,5 +82,6 @@ z_cust_bs01:--z_cust_bs01
 		,replace(memo,'chr(10)','<br>') a15
 		,replace(memo2,'chr(10)','<br>') a16
 		,replace(investmemo,'chr(10)','<br>') a17
+		,trandate a18
 	from @tmp
 	order by recno;
