@@ -364,6 +364,7 @@ z_trans_bs01:--z_trans_bs01
 		,[getdate] nvarchar(20) --叫收日期
 		,bdate nvarchar(20) --上次收貨日期
 		,bprice float --上次收貨單價
+		,bmount float --上次收貨數量
 		,edate nvarchar(20) --下次收貨日期
 		
 		,areano nvarchar(20)--區域
@@ -397,9 +398,9 @@ z_trans_bs01:--z_trans_bs01
 	
 	------------------------------------------------------------------------------------
 	--找到上次收貨日期
-	update #z_trans_bs01 set bdate=b.trandate,bprice=b.price
+	update #z_trans_bs01 set bdate=b.trandate,bprice=b.price,bmount=b.mount
 	from #z_trans_bs01 a
-	outer apply(select top 1 trandate,price from view_trans where custno=a.custno order by trandate desc,noa desc) b
+	outer apply(select top 1 trandate,price,mount from view_trans where custno=a.custno order by trandate desc,noa desc) b
 	
 	--計算下次收貨日
 	----若沒有設定收貨方式就不計算
@@ -415,7 +416,7 @@ z_trans_bs01:--z_trans_bs01
 	declare cursor_table cursor for
 	select sel,[week],[weekday],[day],[getdate],isnull(bdate,'')
 	from #z_trans_bs01 a
-	where len(a.[week])>0 or len(a.[weekday])>0 or a.[day]!=0 
+	where len(a.[week])>0 or len(a.[weekday])>0 or a.[day]!=0 or len(a.[getdate])>0
 	open cursor_table
 	fetch next from cursor_table
 	into @sel,@week,@weekday,@day,@getdate,@bdate
@@ -482,6 +483,7 @@ z_trans_bs01:--z_trans_bs01
 		,trantype nvarchar(20)
 		,bdate nvarchar(20)
 		,bprice float
+		,bmount float
 		,edate nvarchar(20)
 		,xtype nvarchar(10) --收貨方式
 		,invomemo nvarchar(max)
@@ -489,10 +491,12 @@ z_trans_bs01:--z_trans_bs01
 		,memo2 nvarchar(max)
 		,investmemo nvarchar(max)
 	)
-	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,tel,mobile,investdate,trantype,bdate,bprice,edate,xtype
+	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,tel,mobile,investdate,trantype
+		,bdate,bprice,bmount,edate,xtype
 		,invomemo,memo,memo2,investmemo)
 	select ROW_NUMBER()over(partition by a.driverno order by a.areano,a.custno) 
-		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.tel,a.mobile,a.investdate,a.trantype,a.bdate,a.bprice,a.edate,a.xtype
+		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.tel,a.mobile,a.investdate,a.trantype
+		,a.bdate,a.bprice,a.bmount,a.edate,a.xtype
 		,invomemo,memo,memo2,investmemo
 	from #z_trans_bs01 a
 	---空白行
@@ -534,7 +538,8 @@ z_trans_bs01:--z_trans_bs01
 		,mobile b04b
 		,trantype b05
 		,right(bdate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(bdate)),1)+')' b06
-		,dbo.getComma(bprice,-1) b07
+		,dbo.getComma(bprice,-1) b07a
+		,dbo.getComma(bmount,-1) b07b
 		,right(edate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(edate)),1)+')' b08
 		,invomemo b09
 		,memo b10
