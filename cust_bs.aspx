@@ -42,7 +42,6 @@
                     dataErr = false;
                     return;
                 }
-                q_mask(bbmMask);
                 mainForm(0);
             }
 
