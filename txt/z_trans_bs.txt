@@ -344,6 +344,7 @@ z_trans_bs01:--z_trans_bs01
 	
 	declare @t_weekday nvarchar(max) = case when '#non'=[16] then '' else [16] end
 	----------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#z_trans_bs01')is not null
 	BEGIN
 		drop table #z_trans_bs01
@@ -396,6 +397,7 @@ z_trans_bs01:--z_trans_bs01
 	and isnull(a.ext,'') between @t_baddr3 and @t_eaddr3
 	and isnull(a.salesno,'') between @t_bdriverno and @t_edriverno
 	
+	
 	------------------------------------------------------------------------------------
 	--找到上次收貨日期
 	update #z_trans_bs01 set bdate=b.trandate,bprice=b.price,bmount=b.mount
@@ -431,7 +433,8 @@ z_trans_bs01:--z_trans_bs01
 		else if not(@week=0 and @weekday=0)
 		begin
 			--方式一
-			select @date = dateadd(WEEK,@week,@date)
+			--沒設定周別一律為一周
+			select @date = dateadd(WEEK,case when @week=0 then 1 else @week end,@date)
 			select @date = dateadd(WEEKDAY,@weekday-DATEPART(weekday,@date)+1,@date)
 			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date),xtype='1' where sel=@sel
 		end
@@ -456,9 +459,10 @@ z_trans_bs01:--z_trans_bs01
 	--只顯示21天內的
 	declare @t_xdate nvarchar(20) = ''
 	select @t_xdate=dbo.AD2ChineseEraName(dateadd(DD,-21,dbo.ChineseEraName2AD(@t_trandate)))
+	
 	delete #z_trans_bs01 where not(len(edate)>0 and edate between @t_xdate and @t_trandate)
 	--超過合約日的就不顯示
-	delete #z_trans_bs01 where edate<investdate
+	delete #z_trans_bs01 where edate>investdate
 	--有指定星期幾的
 	if len(@t_weekday)>0
 	begin
