@@ -462,7 +462,7 @@ z_trans_bs01:--z_trans_bs01
 	
 	delete #z_trans_bs01 where not(len(edate)>0 and edate between @t_xdate and @t_trandate)
 	--超過合約日的就不顯示
-	delete #z_trans_bs01 where edate>investdate
+	delete #z_trans_bs01 where edate>investdate and len(isnull(investdate,''))>0
 	--有指定星期幾的
 	if len(@t_weekday)>0
 	begin
