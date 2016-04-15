@@ -9,6 +9,7 @@ z_cust_bs01:--z_cust_bs01
 	declare @t_trantype nvarchar(max) = case when '#non'=[7] then '' else [7] end
 	declare @t_area nvarchar(max) = case when '#non'=[8] then '' else [8] end
 	---------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
 		,recno int 
@@ -36,7 +37,11 @@ z_cust_bs01:--z_cust_bs01
 		,memo nvarchar(max)
 		,memo2 nvarchar(max)
 		,investmemo  nvarchar(max)
+		,accy nvarchar(20)
+		,noa nvarchar(20)
 		,trandate nvarchar(20)
+		,mount float
+		,[money] float
 	)
 	
 	insert into @tmp (gno,recno
@@ -58,10 +63,14 @@ z_cust_bs01:--z_cust_bs01
 	and ( len(@t_area)=0 or charindex(@t_area,post)>0)
 	order by a.noa
 	
-	update @tmp set trandate=isnull(b.trandate,'')
+	update @tmp set accy=ISNULL(b.accy,'') 
+		,noa=ISNULL(b.noa,'') 
+		,trandate=isnull(b.trandate,'')
+		,[money] = ISNULL(b.total,0)
+		,mount = ISNULL(b.mount,0)
 	from @tmp a
-	left join (select custno,max(trandate) trandate from view_trans group by custno) b on a.custno=b.custno
-	
+	outer apply (select top 1 accy,noa,trandate,total,mount from view_trans where custno=a.custno order by trandate desc,noa desc)b
+
 	select gno
 		,recno rr
 		,"cust_bs?noa=\'"+custno+"\' and "+cast(recno as nvarchar)+"=$rr?" ghref
@@ -84,6 +93,9 @@ z_cust_bs01:--z_cust_bs01
 		,replace(memo,'chr(10)','<br>') a15
 		,replace(memo2,'chr(10)','<br>') a16
 		,replace(investmemo,'chr(10)','<br>') a17
-		,trandate a18
+		,case when len(noa)=0 then trandate else "<a href="+CHAR(34)+"JavaScript:q_box('trans_bs.aspx',' "+CHAR(59)+"noa=\'"+noa+"\'','95%','95%','"+accy+"')"+char(34)+">"+trandate+"</a>" end a18
+		
+		,case when mount=0 then '' else dbo.getComma(mount,-1) end a19
+		,case when [money]=0 then '' else dbo.getComma([money],-1) end a20
 	from @tmp
 	order by recno;
