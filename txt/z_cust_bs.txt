@@ -41,7 +41,7 @@ z_cust_bs01:--z_cust_bs01
 		,noa nvarchar(20)
 		,trandate nvarchar(20)
 		,mount float
-		,[money] float
+		,price float
 	)
 	
 	insert into @tmp (gno,recno
@@ -66,10 +66,10 @@ z_cust_bs01:--z_cust_bs01
 	update @tmp set accy=ISNULL(b.accy,'') 
 		,noa=ISNULL(b.noa,'') 
 		,trandate=isnull(b.trandate,'')
-		,[money] = ISNULL(b.total,0)
+		,price = ISNULL(b.price,0)
 		,mount = ISNULL(b.mount,0)
 	from @tmp a
-	outer apply (select top 1 accy,noa,trandate,total,mount from view_trans where custno=a.custno order by trandate desc,noa desc)b
+	outer apply (select top 1 accy,noa,trandate,price,mount from view_trans where custno=a.custno order by trandate desc,noa desc)b
 
 	select gno
 		,recno rr
@@ -96,6 +96,6 @@ z_cust_bs01:--z_cust_bs01
 		,case when len(noa)=0 then trandate else "<a href="+CHAR(34)+"JavaScript:q_box('trans_bs.aspx',' "+CHAR(59)+"noa=\'"+noa+"\'','95%','95%','"+accy+"')"+char(34)+">"+trandate+"</a>" end a18
 		
 		,case when mount=0 then '' else dbo.getComma(mount,-1) end a19
-		,case when [money]=0 then '' else dbo.getComma([money],-1) end a20
+		,case when price=0 then '' else dbo.getComma(price,-1) end a20
 	from @tmp
 	order by recno;
