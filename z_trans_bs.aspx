@@ -64,6 +64,10 @@
                         type : '8',
                         name : 'xweekday',
                         value : ('0@日,1@一,2@二,3@三,4@四,5@五,6@六').split(',')
+                    }, {/*4 [17]*/
+                        type : '8',
+                        name : 'xoption',
+                        value : ('01@只顯示叫收').split(',')
                     }]
 				});
 				q_popAssign();

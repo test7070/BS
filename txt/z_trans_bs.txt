@@ -343,7 +343,7 @@ z_trans_bs01:--z_trans_bs01
 	declare @t_etrandate nvarchar(20) = case when '#non'=[15] then char(255) else [15] end
 	
 	declare @t_weekday nvarchar(max) = case when '#non'=[16] then '' else [16] end
-	----------------------------------------------------------------------------------------------
+	declare @t_option nvarchar(max) = case when '#non'=[17] then '' else [17] end
 	----------------------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#z_trans_bs01')is not null
 	BEGIN
@@ -396,8 +396,10 @@ z_trans_bs01:--z_trans_bs01
 	where a.noa between @t_bcustno and @t_ecustno
 	and isnull(a.ext,'') between @t_baddr3 and @t_eaddr3
 	and isnull(a.salesno,'') between @t_bdriverno and @t_edriverno
-	
-	
+	--只顯示叫收
+	if(charindex('01',@t_option)>0)
+		delete #z_trans_bs01 where len(isnull([getdate],''))=0
+		
 	------------------------------------------------------------------------------------
 	--找到上次收貨日期
 	update #z_trans_bs01 set bdate=b.trandate,bprice=b.price,bmount=b.mount
@@ -414,7 +416,7 @@ z_trans_bs01:--z_trans_bs01
 	
 	declare @bdate nvarchar(20)
 	declare @date datetime
-	
+
 	declare cursor_table cursor for
 	select sel,[week],[weekday],[day],[getdate],isnull(bdate,'')
 	from #z_trans_bs01 a
