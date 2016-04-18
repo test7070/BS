@@ -29,6 +29,7 @@
             brwNowPage = 0;
             brwKey = 'noa';
             brwCount2 = 20;
+            q_copy = 1;
             //ajaxPath = ""; //  execute in Root
             aPop = new Array(['txtExt', 'lblXpost', 'addr3', 'noa,namea', 'txtExt,txtPost', 'addr3_bs_b.aspx'] 
             	,['txtSalesno', 'lblDriver', 'driver', 'noa,namea', 'txtSalesno,txtSales', 'driver_b.aspx']);
