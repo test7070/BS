@@ -14,15 +14,10 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"></script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
-			this.errorHandler = null;
-			function onPageError(error) {
-				alert("An error occurred:\r\n" + error.Message);
-			}
-
 			var q_name = "trans";
 			var q_readonly = ['txtTotal','txtTotal2','txtNoa','txtWorker','txtWorker2'];
 			var bbmNum = [['txtMount',10,2,1],['txtWeight',10,2,1],['txtPrice',10,2,1],['txtCustdiscount',10,0,1],['txtTotal',10,0,1]
-			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtTotal2',10,0,1]
+			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtPrice3',10,2,1],['txtTotal2',10,0,1]
 			];
 			var bbmMask = [['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99'],['txtLtime','99:99'],['txtStime','99:99'],['txtDtime','99:99']];
 			q_sqlCount = 6;
@@ -85,6 +80,12 @@
 				$('#txtPrice').change(function(e){
 					sum();
 				});
+				$('#txtWeight').change(function(e){
+					sum();
+				});
+				$('#txtPrice3').change(function(e){
+					sum();
+				});
 				$('#txtCustdiscount').change(function(e){
 					sum();
 				});
@@ -99,8 +100,14 @@
 			function sum() {
 				if(q_cur!=1 && q_cur!=2)
 					return;
-				$('#txtTotal').val(q_sub(round(q_mul(q_float('txtMount'),q_float('txtPrice')),0),q_float('txtCustdiscount')));
-				$('#txtTotal2').val(round(q_mul(q_float('txtMount2'),q_float('txtPrice2')),0));
+				var mount1=q_float('txtMount');//桶數
+				var mount2=q_float('txtWeight');//公斤
+				var price1=q_float('txtPrice');//桶數
+				var price2=q_float('txtPrice3');//公斤
+				var total = q_sub(round(q_add(q_mul(mount1,price1),q_mul(mount2,price2)),0),q_float('txtCustdiscount'));
+				var total2 = round(q_mul(q_float('txtMount2'),q_float('txtPrice2')),0);	
+				$('#txtTotal').val(total);
+				$('#txtTotal2').val(total2);
 			}
 
 			function q_boxClose(s2) {
@@ -169,9 +176,11 @@
                         var as = _q_appendData("tmp0", "", true, true);
                         if (as[0] != undefined) {
                             $('#txtPrice').val(as[0].price);
+                            $('#txtPrice3').val(as[0].price2);
                         }
                         else{
                             $('#txtPrice').val(0);
+                            $('#txtPrice3').val(0);
                         }
                         sum();
                         Unlock(1);
@@ -457,9 +466,10 @@
 						<td align="center" style="width:150px; color:black;">地址</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
-						<td align="center" style="width:80px; color:black;">客戶數量</td>
-						<td align="center" style="width:80px; color:black;">重量</td>
-						<td align="center" style="width:80px; color:black;">客戶單價</td>
+						<td align="center" style="width:80px; color:black;">數量(桶數)</td>
+						<td align="center" style="width:80px; color:black;">重量(公斤)</td>
+						<td align="center" style="width:80px; color:black;">單價(桶數)</td>
+						<td align="center" style="width:80px; color:black;">單價(公斤)</td>
 						<td align="center" style="width:80px; color:black;">折讓</td>
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
 						<td align="center" style="width:80px; color:black;">司機數量</td>
@@ -478,6 +488,7 @@
 						<td id="mount" style="text-align: right;">~mount</td>
 						<td id="weight" style="text-align: right;">~weight</td>
 						<td id="price" style="text-align: right;">~price</td>
+						<td id="price3" style="text-align: right;">~price3</td>
 						<td id="custdiscount" style="text-align: right;">~custdiscount</td>
 						<td id="total" style="text-align: right;">~total</td>
 						<td id="mount2" style="text-align: right;">~mount2</td>
@@ -540,10 +551,9 @@
 						<td><input id="txtCarno"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
-						<td><span> </span><a id="lblMount" class="lbl"> </a></td>
+						<td><span> </span><a id="lblMount_bs" class="lbl">數量(桶數)</a></td>
 						<td><input id="txtMount"  type="text" class="txt c1 num"/></td>
-						
-						<td><span> </span><a id="lblPrice" class="lbl"> </a></td>
+						<td><span> </span><a id="lblPrice_bs" class="lbl">單價(桶數)</a></td>
                         <td><input id="txtPrice"  type="text" class="txt c1 num"/></td>
                         <td><span> </span><a id="lblCustdiscount" class="lbl">折讓</a></td>
                         <td><input id="txtCustdiscount"  type="text" class="txt c1 num"/></td>
@@ -554,8 +564,8 @@
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a class="lbl">重量(公斤)</a></td>
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
-						<td> </td>
-						<td> </td>
+						<td><span> </span><a id="lblPrice3_bs" class="lbl">單價(公斤)</a></td>
+                        <td><input id="txtPrice3"  type="text" class="txt c1 num"/></td>
 						<td> </td>
 						<td> </td>
 						<td> </td>

@@ -63,14 +63,17 @@ z_cust_bs01:--z_cust_bs01
 	and ( len(@t_area)=0 or charindex(@t_area,post)>0)
 	order by a.noa
 	
+	--找到上次收貨日期
+	--有單價(KG)代表是依公斤收
 	update @tmp set accy=ISNULL(b.accy,'') 
 		,noa=ISNULL(b.noa,'') 
 		,trandate=isnull(b.trandate,'')
-		,price = ISNULL(b.price,0)
-		,mount = ISNULL(b.mount,0)
+		,price= case when isnull(b.price3,0)!=0 then b.price3 else isnull(b.price,0) end
+		,mount= case when isnull(b.price3,0)!=0 then isnull(b.[weight],0) else isnull(b.[mount],0) end
 	from @tmp a
-	outer apply (select top 1 accy,noa,trandate,price,mount from view_trans where custno=a.custno order by trandate desc,noa desc)b
+	outer apply (select top 1 accy,noa,trandate,price,mount,price3,[weight] from view_trans where custno=a.custno order by trandate desc,noa desc)b
 
+	
 	select gno
 		,recno rr
 		,"cust_bs?noa=\'"+custno+"\' and "+cast(recno as nvarchar)+"=$rr?" ghref

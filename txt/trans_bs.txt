@@ -50,9 +50,10 @@ getPrice: -- trans_bs.txt  getPrice
 	declare @t_datea nvarchar(20) = [3]
 	--------------------------------------------------
 	declare @datea nvarchar(20) = ''
-	declare @price float = ''
+	declare @price float = 0
+	declare @price2 float = 0
 	
-	select top 1 @datea=DATEA,@price=price 
+	select top 1 @datea=DATEA,@price=price,@price2=price2
 	from addr2
 	where custno=@t_custno 
 	and productno=@t_productno
@@ -62,8 +63,9 @@ getPrice: -- trans_bs.txt  getPrice
 	declare @tmp table( 
 		datea nvarchar(20) 
 		,price float 
+		,price2 float 
 	) 
-	insert into @tmp(datea,price)values(@datea,@price)
+	insert into @tmp(datea,price,price2)values(@datea,@price,@price2)
 	
 	select * from @tmp;
 	

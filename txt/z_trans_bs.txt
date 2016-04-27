@@ -41,6 +41,7 @@ z_trans_bs05:--z_trans_bs05
 		,mount float
 		,[weight] float
 		,price float
+		,price3 float
 		,custdiscount float
 		,total float
 		,mount2 float
@@ -51,12 +52,12 @@ z_trans_bs05:--z_trans_bs05
 	insert into @tmp(recno,gno,pno,driverno,driver
 		,tranaccy,tranno,datea,trandate,custno,cust,areano,area,addr
 		,productno,product
-		,mount,[weight],price,custdiscount,total,mount2,price2,total2,memo)
+		,mount,[weight],price,price3,custdiscount,total,mount2,price2,total2,memo)
 	select ROW_NUMBER()over(order by ISNULL(a.trandate,''),a.noa )
 		,'1','1',a.driverno,b.namea
 		,a.accy,a.noa,a.datea,a.trandate,a.custno,a.nick,a.straddrno,a.straddr,a.saddr
 		,a.uccno,a.product
-		,a.mount,a.[weight],a.price,a.custdiscount,a.total,a.mount2,a.price2,a.total2,a.memo
+		,a.mount,a.[weight],a.price,a.price3,a.custdiscount,a.total,a.mount2,a.price2,a.total2,a.memo
 	from view_trans a
 	left join driver b on a.driverno=b.noa
 	where ISNULL(a.datea,'') between @t_bdate and @t_edate
@@ -68,8 +69,8 @@ z_trans_bs05:--z_trans_bs05
 	insert into @tmp(gno,pno,mount,[weight],custdiscount,total,mount2,total2)
 	select '2','2',SUM(isnull(mount,0)),SUM(isnull([weight],0)),SUM(isnull(custdiscount,0)),SUM(isnull(total,0)),SUM(isnull(mount2,0)),SUM(isnull(total2,0))
 	from @tmp
-	update @tmp set price=CASe when [weight]=0 then 0 else round(total/[weight],2) end where gno='2'
-	
+	update @tmp set price3=CASe when [weight]=0 then 0 else round(total/[weight],2) end 
+
 	select gno
 		,recno rr
 		,"trans_bs?noa=\'"+tranno+"\' and "+cast(recno as nvarchar)+"=$rr?"+tranaccy ghref 
@@ -84,6 +85,7 @@ z_trans_bs05:--z_trans_bs05
 		,dbo.getComma(mount,-1) a09
 		,dbo.getComma([weight],-1) b02
 		,dbo.getComma(price,-1) a10
+		,dbo.getComma(price3,-1) b02
 		,dbo.getComma(custdiscount,-1) b01
 		,dbo.getComma(total,-1) a11
 		,dbo.getComma(mount2,-1) a12
@@ -402,9 +404,12 @@ z_trans_bs01:--z_trans_bs01
 		
 	------------------------------------------------------------------------------------
 	--找到上次收貨日期
-	update #z_trans_bs01 set bdate=b.trandate,bprice=b.price,bmount=b.mount
+	--有單價(KG)代表是依公斤收
+	update #z_trans_bs01 set bdate=b.trandate
+		,bprice= case when isnull(b.price3,0)!=0 then b.price3 else isnull(b.price,0) end
+		,bmount= case when isnull(b.price3,0)!=0 then isnull(b.[weight],0) else isnull(b.[mount],0) end
 	from #z_trans_bs01 a
-	outer apply(select top 1 trandate,price,mount from view_trans where custno=a.custno order by trandate desc,noa desc) b
+	outer apply(select top 1 trandate,price,mount,price3,[weight] from view_trans where custno=a.custno order by trandate desc,noa desc) b
 	
 	--計算下次收貨日
 	----若沒有設定收貨方式就不計算

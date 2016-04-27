@@ -16,7 +16,7 @@
         <script type="text/javascript">
 			var q_name = "addr2";
 			var q_readonly = ['txtNoa'];
-			var bbmNum = [['txtPrice',10,2,1]];
+			var bbmNum = [['txtPrice',10,2,1],['txtPrice2',10,2,1]];
 			var bbmMask = [['txtDatea','999/99/99']];
 			q_sqlCount = 6;
 			brwCount = 6;
@@ -192,7 +192,7 @@
             }
             .dview {
                 float: left;
-                width: 500px;
+                width: 600px;
                 border-width: 0px;
             }
             .tview {
@@ -329,7 +329,8 @@
                         <td align="center" style="width:130px; color:black;"><a>客戶</a></td>
                         <td align="center" style="width:130px; color:black;"><a>品名</a></td>
                         <td align="center" style="width:100px; color:black;"><a>生效日</a></td>
-                        <td align="center" style="width:80px; color:black;"><a>單價</a></td>
+                        <td align="center" style="width:80px; color:black;"><a>單價(桶數)</a></td>
+                        <td align="center" style="width:80px; color:black;"><a>單價(公斤)</a></td>
                     </tr>
                     <tr>
                         <td><input id="chkBrow.*" type="checkbox" /></td>
@@ -337,6 +338,7 @@
                         <td id="product" style="text-align: center;">~product</td>
                         <td id="datea" style="text-align: center;">~datea</td>
                         <td id="price" style="text-align: center;">~price</td>
+                        <td id="price2" style="text-align: center;">~price2</td>
                     </tr>
                 </table>
             </div>
@@ -373,8 +375,12 @@
                         <td><input id="txtDatea" type="text" class="txt t1" /></td>
                     </tr>
                     <tr>
-                    	<td><span> </span><a id="lblPrice" class="lbl">單價</a></td>
+                    	<td><span> </span><a id="lblPrice" class="lbl">單價(桶數)</a></td>
                         <td><input id="txtPrice" type="text" class="txt t1 num" /></td>
+                    </tr>
+                    <tr>
+                    	<td><span> </span><a id="lblPrice2" class="lbl">單價(公斤)</a></td>
+                        <td><input id="txtPrice2" type="text" class="txt t1 num" /></td>
                     </tr>
                 </table>
             </div>
