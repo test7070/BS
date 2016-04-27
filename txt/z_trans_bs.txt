@@ -69,7 +69,7 @@ z_trans_bs05:--z_trans_bs05
 	insert into @tmp(gno,pno,mount,[weight],custdiscount,total,mount2,total2)
 	select '2','2',SUM(isnull(mount,0)),SUM(isnull([weight],0)),SUM(isnull(custdiscount,0)),SUM(isnull(total,0)),SUM(isnull(mount2,0)),SUM(isnull(total2,0))
 	from @tmp
-	update @tmp set price3=CASe when [weight]=0 then 0 else round(total/[weight],2) end 
+	update @tmp set price3=CASe when [weight]=0 then 0 else round(total/[weight],2) end where gno='2'
 
 	select gno
 		,recno rr
@@ -85,7 +85,7 @@ z_trans_bs05:--z_trans_bs05
 		,dbo.getComma(mount,-1) a09
 		,dbo.getComma([weight],-1) b02
 		,dbo.getComma(price,-1) a10
-		,dbo.getComma(price3,-1) b02
+		,dbo.getComma(price3,-1) b03
 		,dbo.getComma(custdiscount,-1) b01
 		,dbo.getComma(total,-1) a11
 		,dbo.getComma(mount2,-1) a12
