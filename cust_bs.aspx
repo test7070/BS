@@ -20,7 +20,7 @@
             }
 
             var q_name = "cust";
-            var q_readonly = ['txtWorker'];
+            var q_readonly = ['txtWorker','textArea','textDriver','textArea2','textDriver2'];
             var bbmNum = [];
             var bbmMask = [['txtInvestdate','999/99/99'],['txtGetdate','999/99/99']];
             q_sqlCount = 6;
@@ -32,7 +32,12 @@
             q_copy = 1;
             //ajaxPath = ""; //  execute in Root
             aPop = new Array(['txtExt', 'lblXpost', 'addr3', 'noa,namea', 'txtExt,txtPost', 'addr3_bs_b.aspx'] 
-            	,['txtSalesno', 'lblDriver', 'driver', 'noa,namea', 'txtSalesno,txtSales', 'driver_b.aspx']);
+            	,['txtSalesno', 'lblDriver', 'driver', 'noa,namea', 'txtSalesno,txtSales', 'driver_b.aspx']
+            	,['textAreano', 'labelArea', 'addr3', 'noa,namea', 'textAreano,textArea', 'addr3_bs_b.aspx']
+            	,['textAreano2', 'labelArea2', 'addr3', 'noa,namea', 'textAreano2,textArea2', 'addr3_bs_b.aspx']
+            	,['textDriverno', 'labelDriver', 'driver', 'noa,namea', 'textDriverno,textDriver', 'driver_b.aspx']
+            	,['textDriverno2', 'labelDriver2', 'driver', 'noa,namea', 'textDriverno2,textDriver2', 'driver_b.aspx']
+            	);
             $(document).ready(function() {
                 bbmKey = ['noa'];
                 q_brwCount();
@@ -68,8 +73,42 @@
 	            		Unlock();
 	            	}
                 });
+                
+                $('#buttonTran').click(function(e){
+                	Lock(2);
+                	q_cur=2;
+                	$('#divTran').show();
+                });
+                $('#buttonCancel').click(function(e){
+                	Unlock(2);
+                	q_cur=1;
+                	$('#divTran').hide();
+                });
+                $('#buttonTranX').click(function(e){
+                	t_areano = $.trim($('#textAreano').val());
+                	t_driverno = $.trim($('#textDriverno').val()); 
+                	t_areano2 = $.trim($('#textAreano2').val());
+                	t_driverno2 = $.trim($('#textDriverno2').val()); 
+                	
+                	if(t_areano.length==0 || t_driverno.length==0 || t_areano2.length==0 || t_driverno2.length==0){
+                		alert('請輸入轉換的區域、司機');
+                		return;
+                	}
+                	q_func('qtxt.query.cust_bs', 'cust.txt,cust_bs,' + encodeURI(t_areano) + ';' + encodeURI(t_driverno) + ';' + encodeURI(t_areano2) + ';' + encodeURI(t_driverno2)); 	
+                });
             }
-            
+            function q_funcPost(t_func, result) {
+                switch(t_func) {	
+                	case 'qtxt.query.cust_bs':
+                		var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                            alert(as[0].msg);
+                        }
+                		break;
+                    default:
+                        break;
+                }
+            }
             function q_boxClose(s2) {
                 var ret;
                 switch (b_pop) {
@@ -178,9 +217,12 @@
                 if (t_para) {
                     $('#txtInvestdate').datepicker('destroy');
                     $('#txtGetdate').datepicker('destroy');
+                    $('#buttonTran').removeAttr('disabled');
+                    
                 } else {	
                     $('#txtInvestdate').datepicker();
                     $('#txtGetdate').datepicker();
+                    $('#buttonTran').attr('disabled','disabled');
                 }
             }
 
@@ -382,10 +424,60 @@
 	ondragover="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	>
+		<div id="divTran" style="z-index: 1000;position:absolute; top:300px; left:300px; display:none; width:400px; height:250px; background-color: #cad3ff; border: 5px solid gray;">
+			<table style="width:100%;">
+				<tr style="height:1px;">
+					<td style="width:150px;"> </td>
+					<td style="width:80px;"> </td>
+					<td style="width:80px;"> </td>
+					<td style="width:80px;"> </td>
+					<td style="width:80px;"> </td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="labelArea" style="float:right; color: blue; font-size: medium;">區域</a></td>
+					<td colspan="4">
+						<input id="textAreano" type="text" style="float:left; width:100px; font-size: medium;"/>
+						<input id="textArea"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="labelDriver" style="float:right; color: blue; font-size: medium;">司機</a></td>
+					<td colspan="4">
+						<input id="textDriverno" type="text" style="float:left; width:100px; font-size: medium;"/>
+						<input id="textDriver"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td> </td>
+					<td><a style="font-size:24;color:red;">轉換  ↓↓↓</a></td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="labelArea2" style="float:right; color: blue; font-size: medium;">區域</a></td>
+					<td colspan="4">
+						<input id="textAreano2" type="text" style="float:left; width:100px; font-size: medium;"/>
+						<input id="textArea2"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="labelDriver2" style="float:right; color: blue; font-size: medium;">司機</a></td>
+					<td colspan="4">
+						<input id="textDriverno2" type="text" style="float:left; width:100px; font-size: medium;"/>
+						<input id="textDriver2"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td> </td>
+					<td><input id="buttonTranX" type="button" value="轉換"/></td>
+					<td> </td>
+					<td> </td>
+					<td><input id="buttonCancel" type="button" value="關閉"/></td>
+				</tr>
+			</table>
+		</div>
 		<!--#include file="../inc/toolbar.inc"-->
 		<div id='dmain'>
 			<div class="dview" id="dview">
-				<table class="tview" id="tview">
+				<table class="tview" id="tview" >
 					<tr>
 						<td align="center" style="width:20px; color:black;"><a id='vewChk'> </a></td>
 						<td align="center" style="width:80px; color:black;"><a id='vewNoa'> </a></td>
@@ -412,6 +504,10 @@
 					<tr>
 						<td><span> </span><a id='lblx' class="lbl">新編號</a></td>
 						<td><input id="txtHead"  type="text" class="txt c1"/></td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td><input id="buttonTran" type="button" value="區域、司機轉換"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblNoa' class="lbl"> </a></td>
