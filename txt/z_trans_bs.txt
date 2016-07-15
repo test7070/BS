@@ -463,9 +463,9 @@ z_trans_bs01:--z_trans_bs01
 	close cursor_table
 	deallocate cursor_table
 
-	--只顯示60天內的
+	--只顯示120天內的    2016/07/15
 	declare @t_xdate nvarchar(20) = ''
-	select @t_xdate=dbo.AD2ChineseEraName(dateadd(DD,-60,dbo.ChineseEraName2AD(@t_trandate)))
+	select @t_xdate=dbo.AD2ChineseEraName(dateadd(DD,-120,dbo.ChineseEraName2AD(@t_trandate)))
 	
 	delete #z_trans_bs01 where not(len(edate)>0 and edate between @t_xdate and @t_trandate)
 	--超過合約日的就不顯示
