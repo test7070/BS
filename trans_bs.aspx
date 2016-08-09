@@ -99,8 +99,8 @@
 				if(q_getPara('sys.project').toUpperCase()=='DH'){
 					
 					$('.AT').hide();
-					$('#lblMount').text('數量');
-					$('#lblPrice').text('單價');
+					$('#lblMount_bs').text('數量');
+					$('#lblPrice_bs').text('單價');
 				}
 			}
 
