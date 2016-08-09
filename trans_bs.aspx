@@ -222,7 +222,17 @@
 				sum();
 			}
 			function btnPrint() {
-				q_box('z_trans_bs.aspx' + "?;;;;" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
+				switch(q_getPara('sys.project').toUpperCase()=='DH'){
+					case 'DH':
+						q_box('z_transp_dh.aspx?' + r_userno + ";" + r_name + ";" + q_time + ";" + JSON.stringify({
+		                    noa : trim($('#txtNoa').val())
+		                }) + ";" + r_accy + "_" + r_cno, 'trans', "95%", "95%", m_print);
+						break;
+					default:
+						q_box('z_trans_bs.aspx' + "?;;;;" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
+						break;
+				}
+				
 			}
 			function q_stPost() {
                 if (!(q_cur == 1 || q_cur == 2))
