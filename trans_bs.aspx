@@ -95,6 +95,13 @@
 				$('#txtPrice2').change(function(e){
 					sum();
 				});
+				
+				if(q_getPara('sys.project').toUpperCase()=='DH'){
+					
+					$('.AT').hide();
+					$('#lblMount').text('數量');
+					$('#lblPrice').text('單價');
+				}
 			}
 
 			function sum() {
@@ -561,7 +568,7 @@
                         <td><input id="txtTotal"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
 					</tr>
-					<tr style="background-color: #B18904;">
+					<tr class="AT" style="background-color: #B18904;">
 						<td><span> </span><a class="lbl">重量(公斤)</a></td>
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a id="lblPrice3_bs" class="lbl">單價(公斤)</a></td>
