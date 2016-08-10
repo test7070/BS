@@ -95,12 +95,13 @@
 				$('#txtPrice2').change(function(e){
 					sum();
 				});
-				
+				//----------------------------------------------------------
 				if(q_getPara('sys.project').toUpperCase()=='DH'){
-					
 					$('.AT').hide();
 					$('#lblMount_bs').text('數量');
 					$('#lblPrice_bs').text('單價');
+					$('#viewMount').text('數量');
+					$('#viewPrice').text('單價');
 				}
 			}
 
@@ -232,14 +233,17 @@
 						q_box('z_trans_bs.aspx' + "?;;;;" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
 						break;
 				}
-				
 			}
 			function q_stPost() {
                 if (!(q_cur == 1 || q_cur == 2))
                     return false;
-                Lock(1,{opacity:0});
-                //清空叫收日期
-                q_func('qtxt.query.trans_bs_resetDate', 'trans_bs.txt,resetDate,' + encodeURI($('#txtNoa').val()));
+                switch(q_getPara('sys.project').toUpperCase()=='DH'){
+                	default:
+                		Lock(1,{opacity:0});
+                		//清空叫收日期
+               	 		q_func('qtxt.query.trans_bs_resetDate', 'trans_bs.txt,resetDate,' + encodeURI($('#txtNoa').val()));
+            			break;
+            	}
             }
 			function btnOk() {
 				Lock(1,{opacity:0});
@@ -483,10 +487,10 @@
 						<td align="center" style="width:150px; color:black;">地址</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
-						<td align="center" style="width:80px; color:black;">數量(桶數)</td>
-						<td align="center" style="width:80px; color:black;">重量(公斤)</td>
-						<td align="center" style="width:80px; color:black;">單價(桶數)</td>
-						<td align="center" style="width:80px; color:black;">單價(公斤)</td>
+						<td align="center" style="width:80px; color:black;"><a id="viewMount">數量(桶數)</a></td>
+						<td align="center" style="width:80px; color:black;" class="AT">重量(公斤)</td>
+						<td align="center" style="width:80px; color:black;"><a id="viewPrice">單價(桶數)</a></td>
+						<td align="center" style="width:80px; color:black;" class="AT">單價(公斤)</td>
 						<td align="center" style="width:80px; color:black;">折讓</td>
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
 						<td align="center" style="width:80px; color:black;">司機數量</td>
@@ -503,9 +507,9 @@
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="product" style="text-align: center;">~product</td>
 						<td id="mount" style="text-align: right;">~mount</td>
-						<td id="weight" style="text-align: right;">~weight</td>
+						<td id="weight" style="text-align: right;" class="AT">~weight</td>
 						<td id="price" style="text-align: right;">~price</td>
-						<td id="price3" style="text-align: right;">~price3</td>
+						<td id="price3" style="text-align: right;" class="AT">~price3</td>
 						<td id="custdiscount" style="text-align: right;">~custdiscount</td>
 						<td id="total" style="text-align: right;">~total</td>
 						<td id="mount2" style="text-align: right;">~mount2</td>
@@ -578,8 +582,8 @@
                         <td><input id="txtTotal"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
 					</tr>
-					<tr class="AT" style="background-color: #B18904;">
-						<td><span> </span><a class="lbl">重量(公斤)</a></td>
+					<tr style="background-color: #B18904;" class="AT">
+						<td><span> </span><a id="lblWeight_bs" class="lbl">重量(公斤)</a></td>
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a id="lblPrice3_bs" class="lbl">單價(公斤)</a></td>
                         <td><input id="txtPrice3"  type="text" class="txt c1 num"/></td>
