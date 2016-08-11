@@ -36,6 +36,7 @@
 			,['txtUccno', 'lblUcc', 'ucc', 'noa,product', 'txtUccno,txtProduct', 'ucc_b.aspx']
 			,['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx']
 			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
+			,['txtEndaddrno', 'lblXendaddr', 'addr3', 'noa,namea', 'txtEndaddrno,txtEndaddr', 'addr3_bs_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			);
             	
@@ -97,11 +98,21 @@
 				});
 				//----------------------------------------------------------
 				if(q_getPara('sys.project').toUpperCase()=='DH'){
-					$('.AT').hide();
+					
 					$('#lblMount_bs').text('數量');
 					$('#lblPrice_bs').text('單價');
-					$('#viewMount').text('數量');
-					$('#viewPrice').text('單價');
+					
+					//$('#vewStraddr').text('起點');
+					$('#vewEndaddr').show();
+					$('#endaddr').show();
+					$('#saddr').hide();
+					
+					$('#lblXstraddr').text('起點');
+					$('#lblSaddr').hide();
+					$('#lblXendaddr').show();
+					$('#txtSaddr').hide();
+					$('#txtEndaddrno').show();
+					$('#txtEndaddr').show();
 				}
 			}
 
@@ -283,6 +294,13 @@
 
 			function refresh(recno) {
 				_refresh(recno);
+				
+				if(q_getPara('sys.project').toUpperCase() == 'DH'){
+					$('.DH').hide();
+					$('#vewStraddr').text('起點');
+					$('#viewMount').text('數量');
+					$('#viewPrice').text('單價');
+				}
 			}
 
 			function readonly(t_para, empty) {
@@ -483,14 +501,15 @@
 						<td align="center" style="width:80px; color:black;"><a id="vewDatea"> </a></td>
 						<td align="center" style="width:80px; color:black;"><a id="vewXtrandate">收貨日期</a></td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
-						<td align="center" style="width:80px; color:black;">區域</td>
-						<td align="center" style="width:150px; color:black;">地址</td>
+						<td align="center" style="width:80px; color:black;"><a id="vewStraddr">區域</a></td>
+						<td align="center" style="width:80px; color:black; display:none;"><a id="vewEndaddr">區域</a></td>
+						<td align="center" style="width:150px; color:black; display:none;"><a id="vewAddr">地址</a></td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;"><a id="viewMount">數量(桶數)</a></td>
-						<td align="center" style="width:80px; color:black;" class="AT">重量(公斤)</td>
+						<td align="center" style="width:80px; color:black;" class="DH">重量(公斤)</td>
 						<td align="center" style="width:80px; color:black;"><a id="viewPrice">單價(桶數)</a></td>
-						<td align="center" style="width:80px; color:black;" class="AT">單價(公斤)</td>
+						<td align="center" style="width:80px; color:black;" class="DH">單價(公斤)</td>
 						<td align="center" style="width:80px; color:black;">折讓</td>
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
 						<td align="center" style="width:80px; color:black;">司機數量</td>
@@ -503,13 +522,14 @@
 						<td id="trandate" style="text-align: center;">~trandate</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="straddr" style="text-align: center;">~straddr</td>
-						<td id="saddr" style="text-align: center;">~saddr</td>
+						<td id="endaddr" style="text-align: center;display:none;">~endaddr</td>
+						<td id="saddr" style="text-align: center;display:none;">~saddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="product" style="text-align: center;">~product</td>
 						<td id="mount" style="text-align: right;">~mount</td>
-						<td id="weight" style="text-align: right;" class="AT">~weight</td>
+						<td id="weight" style="text-align: right;" class="DH">~weight</td>
 						<td id="price" style="text-align: right;">~price</td>
-						<td id="price3" style="text-align: right;" class="AT">~price3</td>
+						<td id="price3" style="text-align: right;" class="DH">~price3</td>
 						<td id="custdiscount" style="text-align: right;">~custdiscount</td>
 						<td id="total" style="text-align: right;">~total</td>
 						<td id="mount2" style="text-align: right;">~mount2</td>
@@ -557,9 +577,14 @@
 							<input id="txtStraddrno"  type="text" style="float:left;width:30%;"/>
 							<input id="txtStraddr"  type="text" style="float:left;width:70%;"/>
 						</td>
-						<td><span> </span><a id="lblSaddr" class="lbl">地址</a></td>
+						<td><span> </span>
+							<a id="lblSaddr" class="lbl">地址</a>
+							<a id="lblXendaddr" class="lbl btn" style="display:none;">迄點</a>
+						</td>
 						<td colspan="3">
 							<input id="txtSaddr"  type="text" style="float:left;width:100%;"/>
+							<input id="txtEndaddrno"  type="text" style="float:left;width:30%;display:none;"/>
+							<input id="txtEndaddr"  type="text" style="float:left;width:70%;display:none;"/>
 						</td>
 					</tr>
 					<tr>
@@ -582,7 +607,7 @@
                         <td><input id="txtTotal"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
 					</tr>
-					<tr style="background-color: #B18904;" class="AT">
+					<tr style="background-color: #B18904;" class="DH">
 						<td><span> </span><a id="lblWeight_bs" class="lbl">重量(公斤)</a></td>
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a id="lblPrice3_bs" class="lbl">單價(公斤)</a></td>

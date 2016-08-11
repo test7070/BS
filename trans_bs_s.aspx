@@ -17,6 +17,7 @@
 			aPop = new Array(['txtCustno', 'lblCust', 'cust', 'noa,nick', 'txtCustno', 'cust_b.aspx'],
 		    ['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno', 'driver_b.aspx'], 
 		    ['txtStraddrno', 'lblStraddr', 'addr3', 'noa,namea', 'txtStraddrno', 'addr3_bs_b.aspx'],
+		    ['txtEndaddrno', 'lblEndaddr', 'addr3', 'noa,namea', 'txtEndaddrno', 'addr3_bs_b.aspx'],
             ['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno', 'car2_b.aspx']);
             $(document).ready(function() {
                 main();
@@ -38,6 +39,11 @@
 				$('#txtBtrandate').datepicker();
 				$('#txtEtrandate').datepicker(); 
                 $('#txtNoa').focus();
+                
+                if(q_getPara('sys.project').toUpperCase()=='DH'){
+                	$('#lblStraddr').text('起點');
+                	$('.DH_show').show();
+                }
             }
 
             function q_gtPost(t_name) {
@@ -55,6 +61,7 @@
 		        t_comp = $.trim($('#txtComp').val());
 		        t_carno = $.trim($('#txtCarno').val());
 		        t_straddrno = $.trim($('#txtStraddrno').val());
+		        t_endaddrno = $.trim($('#txtEndaddrno').val());
 
 		        t_bdate = $('#txtBdate').val();
 		        t_edate = $('#txtEdate').val();
@@ -68,6 +75,7 @@
 		        + q_sqlPara2("driverno", t_driverno) 
 		        + q_sqlPara2("custno", t_custno) 
 		        + q_sqlPara2("straddrno", t_straddrno) 
+		        + q_sqlPara2("endaddrno", t_endaddrno) 
 		        + q_sqlPara2("carno", t_carno) ;
 		        if (t_comp.length>0)
                     t_where += " and charindex('" + t_comp + "',comp)>0";
@@ -152,7 +160,12 @@
 					<input class="txt" id="txtStraddrno" type="text" style="width:215px; font-size:medium;" />
 					</td>
 				</tr>
-				
+				<tr class='seek_tr DH_show' style="display:none;">
+					<td class='seek'  style="width:20%;"><a id='lblEndaddr'>迄點</a></td>
+					<td>
+					<input class="txt" id="txtEndaddrno" type="text" style="width:215px; font-size:medium;" />
+					</td>
+				</tr>
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->
 		</div>
