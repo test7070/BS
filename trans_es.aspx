@@ -559,6 +559,16 @@
 						<td><span> </span><a id="lblXdtime" class="lbl">取貨時間</a></td>
 						<td><input id="txtDtime"  type="text" class="txt c1"/></td>
 					</tr>
+					<tr>
+						<td><span> </span><a id="lblMount3" class="lbl"> </a></td>
+						<td><input id="txtMount3"  type="text" class="txt c1 num"/></td>
+						<td><span> </span><a id="lblMount4" class="lbl"> </a></td>
+						<td><input id="txtMount4"  type="text" class="txt c1 num"/></td>
+						<td><span> </span><a id="lblWeight2" class="lbl"> </a></td>
+						<td><input id="txtWeight2"  type="text" class="txt c1 num"/></td>
+						<td><span> </span><a id="lblWeight" class="lbl"> </a></td>
+						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
+					</tr>
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a id="lblXmount" class="lbl">數量</a></td>
 						<td><input id="txtMount"  type="text" class="txt c1 num"/></td>
