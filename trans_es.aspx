@@ -560,13 +560,13 @@
 						<td><input id="txtDtime"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblMount3" class="lbl"> </a></td>
+						<td><span> </span><a class="lbl">才數</a></td>
 						<td><input id="txtMount3"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblMount4" class="lbl"> </a></td>
+						<td><span> </span><a class="lbl">件數</a></td>
 						<td><input id="txtMount4"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblWeight2" class="lbl"> </a></td>
+						<td><span> </span><a class="lbl">板數</a></td>
 						<td><input id="txtWeight2"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblWeight" class="lbl"> </a></td>
+						<td><span> </span><a class="lbl">KG</a></td>
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
