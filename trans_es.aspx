@@ -565,32 +565,32 @@
 						<td><span> </span><a class="lbl">件數</a></td>
 						<td><input id="txtMount4"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a class="lbl">板數</a></td>
-						<td><input id="txtWeight2"  type="text" class="txt c1 num"/></td>
+						<td><input id="txtStatus"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a class="lbl">KG</a></td>
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
-						<td><span> </span><a id="lblXmount" class="lbl">數量</a></td>
+						<td><span> </span><a class="lbl">數量</a></td>
 						<td><input id="txtMount"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblXunit" class="lbl">單位</a></td>
-                        <td><input id="txtUnit"  type="text" class="txt c1 num"/></td>
-                        <td><span> </span><a id="lblXprice" class="lbl">單價</a></td>
-						<td><input id="txtPrice"  type="text" class="txt c1 num"/></td>
-                        <td><span> </span><a id="lblXtotal" class="lbl">應收金額</a></td>
-                        <td><input id="txtTotal"  type="text" class="txt c1 num"/></td>
+                        <td><span> </span><a class="lbl">單價</a></td>
+						<td><input id="txtPrice" type="text" class="txt c1 num"/></td>
+                        <td><span> </span><a class="lbl">應收金額</a></td>
+                        <td><input id="txtTotal" type="text" class="txt c1 num"/></td>
+                        <td><span> </span><a class="lbl">稅額</a></td>
+                        <td><input id="txtReserve" type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
 					</tr>
 					<tr style="background-color: pink;">
 						<td><span> </span><a id="lblMount2" class="lbl"> </a></td>
 						<td><input id="txtMount2"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblXunit2" class="lbl">單位</a></td>
-                        <td><input id="txtUnit2"  type="text" class="txt c1 num"/></td>
-						<td><span> </span><a id="lblPrice2" class="lbl"> </a></td>
+						<td><span> </span><a class="lbl">司機運費</a></td>
 						<td>
 							<input id="txtPrice2"  type="text" class="txt c1 num"/>
 							<input id="txtPrice3"  type="text" class="txt c1 num" style="display:none;"/>
 						</td>
-                        <td><span> </span><a id="lblTotal2" class="lbl" style="display:none;"> </a></td>
+						<td><span> </span><a class="lbl">佣金</a></td>
+						<td><input id="txtDiscount"  type="text" class="txt c1 num"/></td>
+                        <td><span> </span><a class="lbl">司機淨付額</a></td>
                         <td><input id="txtTotal2"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
 					</tr>
