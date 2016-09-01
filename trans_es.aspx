@@ -97,8 +97,9 @@
 				var mount2=q_float('txtMount2');								
 				var price2=q_float('txtPrice2');
 				var price3=q_float('txtPrice3');
+				var discount=q_float('txtDiscount');
 				var total = round(q_mul(mount1,price1),0);
-				var total2 = round(q_mul(mount2,q_add(price2,price3)),0);	
+				var total2 = round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0);	
 				$('#txtTotal').val(total);
 				$('#txtTotal2').val(total2);
 			}
