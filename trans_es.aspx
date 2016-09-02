@@ -212,7 +212,7 @@
 			function btnPrint() {
 				switch(q_getPara('sys.project').toUpperCase()){
 					default:
-						q_box('z_trans_bs.aspx' + "?;;;;" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
+						q_box('z_trans_ds.aspx' + "?;;;;" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
 						break;
 				}
 			}
