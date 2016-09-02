@@ -474,6 +474,10 @@
 						<td align="center" style="width:80px; color:black;">回單日期</td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:80px; color:black;">區域</td>
+						<td align="center" style="width:80px; color:black;">才數</td>
+						<td align="center" style="width:80px; color:black;">件數</td>
+						<td align="center" style="width:80px; color:black;">板數</td>
+						<td align="center" style="width:80px; color:black;">重量</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;">數量</td>
@@ -490,6 +494,12 @@
 						<td id="datea" style="text-align: center;">~datea</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="straddr" style="text-align: center;">~straddr</td>
+						
+						<td id="mount3" style="text-align: center;">~mount3</td>
+						<td id="mount4" style="text-align: center;">~mount4</td>
+						<td id="status" style="text-align: center;">~status</td>
+						<td id="weight" style="text-align: center;">~weight</td>
+						
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="product" style="text-align: center;">~product</td>
 						<td id="mount" style="text-align: right;">~mount</td>
