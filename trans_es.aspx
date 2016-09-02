@@ -37,6 +37,7 @@
 			,['txtSalesno', 'lblXsales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx']
 			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
+			, ['txtSaddr', '', 'view_road', 'memo', '0txtSaddr', 'road_b.aspx']
 			);
             	
 			$(document).ready(function() {
@@ -474,14 +475,14 @@
 						<td align="center" style="width:80px; color:black;">回單日期</td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:80px; color:black;">區域</td>
+						<td align="center" style="width:80px; color:black;">司機</td>
+						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;">才數</td>
 						<td align="center" style="width:80px; color:black;">件數</td>
 						<td align="center" style="width:80px; color:black;">板數</td>
 						<td align="center" style="width:80px; color:black;">重量</td>
-						<td align="center" style="width:80px; color:black;">司機</td>
-						<td align="center" style="width:80px; color:black;">品名</td>
+						
 						<td align="center" style="width:80px; color:black;">數量</td>
-						<td align="center" style="width:80px; color:black;">單位</td>
 						<td align="center" style="width:80px; color:black;">單價</td>
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
 						<td align="center" style="width:80px; color:black;">司機數量</td>
@@ -494,16 +495,16 @@
 						<td id="datea" style="text-align: center;">~datea</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="straddr" style="text-align: center;">~straddr</td>
+						<td id="driver" style="text-align: center;">~driver</td>
+						<td id="product" style="text-align: center;">~product</td>
 						
 						<td id="mount3" style="text-align: center;">~mount3</td>
 						<td id="mount4" style="text-align: center;">~mount4</td>
 						<td id="status" style="text-align: center;">~status</td>
 						<td id="weight" style="text-align: center;">~weight</td>
 						
-						<td id="driver" style="text-align: center;">~driver</td>
-						<td id="product" style="text-align: center;">~product</td>
+						
 						<td id="mount" style="text-align: right;">~mount</td>
-						<td id="unit" style="text-align: right;">~unit</td>
 						<td id="price" style="text-align: right;">~price</td>
 						<td id="total" style="text-align: right;">~total</td>
 						<td id="mount2" style="text-align: right;">~mount2</td>
