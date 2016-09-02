@@ -589,7 +589,7 @@
 							<input id="txtPrice2"  type="text" class="txt c1 num"/>
 							<input id="txtPrice3"  type="text" class="txt c1 num" style="display:none;"/>
 						</td>
-						<td><span> </span><a class="lbl">佣金</a></td>
+						<td><span> </span><a class="lbl">折扣</a></td>
 						<td><input id="txtDiscount"  type="text" class="txt c1 num"/></td>
                         <td><span> </span><a class="lbl">司機淨付額</a></td>
                         <td><input id="txtTotal2"  type="text" class="txt c1 num"/></td>
