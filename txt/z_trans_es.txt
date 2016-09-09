@@ -1,0 +1,92 @@
+z_trans_es01:--z_trans_es01 	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_btrandate nvarchar(20) = '105/01/01'
+	declare @t_etrandate nvarchar(20) = '105/08/31'
+	declare @t_bdate nvarchar(20) = ''
+	declare @t_edate nvarchar(20) = char(255)
+	declare @t_bcustno nvarchar(20) = ''
+	declare @t_ecustno nvarchar(20) = char(255)
+	declare @t_bdriverno nvarchar(20) = ''
+	declare @t_edriverno nvarchar(20) = char(255)
+	declare @t_carno nvarchar(max) = ''
+	declare @t_baddrno nvarchar(20) = ''
+	declare @t_eaddrno nvarchar(20) = char(255)
+	-----------------------------------------------------------------------------
+	
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,trandate nvarchar(20)
+		,datea nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(max)
+		,driverno nvarchar(20)
+		,driver nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(50)
+		,carno nvarchar(20)
+		,straddrno nvarchar(20)
+		,straddr nvarchar(50)
+		
+		,inmount float
+		,pton float
+		,mount float
+		,price float
+		,total float
+		
+		,outmount float
+		,pton2 float
+		,mount2 float
+		,price2 float
+		,price3 float
+		,discount float
+		,total2 float
+		
+		,mount3 float
+		,mount4 float
+		,[status] float
+		,[weight] float
+	)
+	insert into @tmp(gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
+	,straddrno,straddr,inmount,pton,mount,price,total,outmount,pton2,mount2,price2,price3,discount,total2
+	,mount3,mount4,[status],[weight])
+	select '1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
+	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.outmount,a.pton2,a.mount2,a.price2,a.price3
+	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight]
+	from view_trans a
+	where a.trandate between @t_btrandate and @t_etrandate
+	and a.datea between @t_bdate and @t_edate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
+	and ISNULL(a.straddrno,'') between @t_baddrno and @t_eaddrno
+	order by a.accy,a.noa,a.noq
+	
+	
+	select gno
+		,sel rr
+		,trandate a01
+		,cust a02
+		,driver a03
+		,carno a04
+		,product a05
+		,straddr a06
+		,dbo.getComma(mount3,-1) a07
+		,dbo.getComma(mount4,-1) a08
+		,[status] a09
+		,dbo.getComma([weight],-1) a10
+		
+		,dbo.getComma([inmount],-1) a11
+		,dbo.getComma([pton],-1) a11
+		,dbo.getComma([mount],-1) a11
+		,dbo.getComma([price],-1) a11
+		,dbo.getComma([total],-1) a11
+		
+		,dbo.getComma([outmount],-1) a11
+	from @tmp
+	order by sel;
