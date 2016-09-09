@@ -31,10 +31,10 @@
 						name : 'db',
 						value : q_db
 					},{
-						type : '1', //[14][15]
+						type : '1', //[3][4]
 						name : 'xtrandate'
 					},{
-						type : '1', //[12][13]
+						type : '1', //[5][6]
 						name : 'xdatea'
 					}, {
 						type : '2', //[7][8]
@@ -43,16 +43,16 @@
 						index : 'noa,comp',
 						src : 'cust_b.aspx'
 					}, {
-						type : '2', //[5][6]
+						type : '2', //[9][10]
 						name : 'xdriver',
 						dbf : 'driver',
 						index : 'noa,namea',
 						src : 'driver_b.aspx'
 					},{
-						type : '6', //[15]
+						type : '6', //[11]
 						name : 'xcarno'
 					}, {
-						type : '2', //[3][4]
+						type : '2', //[12][13]
 						name : 'xaddr3',
 						dbf : 'addr3',
 						index : 'noa,namea',
