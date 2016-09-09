@@ -21,9 +21,9 @@
             q_tables = 's';
             var q_name = "trd";
             var q_readonly = ['txtTax', 'txtNoa', 'txtMoney', 'txtTotal','txtWorker2','txtWorker', 'txtMount','txtStraddr', 'txtEndaddr', 'txtPlusmoney', 'txtMinusmoney', 'txtVccano', 'txtCustchgno','txtAccno','txtAccno2','txtYear2','txtYear1'];
-            var q_readonlys = ['txtTranno', 'txtTrannoq','txtTrandate','txtStraddr','txtEndaddr','txtProduct','txtCarno','txtCustorde','txtCaseno','txtMount','txtPrice','txtCustdiscount','txtTotal','txtTranmoney'];
+            var q_readonlys = ['txtTranno', 'txtTrannoq','txtTrandate','txtStraddr','txtEndaddr','txtProduct','txtCarno','txtCustorde','txtCaseno','txtMount','txtPrice','txtCustdiscount','txtTotal'];
             var bbmNum = [['txtMoney', 10, 0,1], ['txtTax', 10, 0,1], ['txtTotal', 10, 0,1], ['txtMount', 10, 3,1], ['txtPlusmoney', 10, 0,1], ['txtMinusmoney', 10, 0,1]];
-            var bbsNum = [['txtTranmoney', 10, 0,1], ['txtOverweightcost', 10, 0,1], ['txtOthercost', 10, 0,1], ['txtMount', 10, 3,1], ['txtPrice', 10, 3,1], ['txtTotal', 10, 0,1]];
+            var bbsNum = [ ['txtOverweightcost', 10, 0,1], ['txtOthercost', 10, 0,1], ['txtMount', 10, 3,1], ['txtPrice', 10, 3,1], ['txtTotal', 10, 0,1]];
             var bbmMask = [];
             var bbsMask = [];
             q_sqlCount = 6;
@@ -35,7 +35,27 @@
             q_xchg = 1;
             brwCount2 = 20;
             aPop = new Array();
-
+			
+			function sum() {
+                if (!(q_cur == 1 || q_cur == 2))
+                    return;
+               	//小數 可能會有問題需注意
+                var t_money = 0,t_mount = 0;
+                for ( i = 0; i < q_bbsCount; i++) {
+                    t_money = q_add(t_money,q_float('txtTotal_' + i));
+                    t_mount = q_add(t_mount,q_float('txtMount_' + i));
+                }
+				var t_plusmoney = q_float('txtPlusmoney');
+				var t_minusmoney = q_float('txtMinusmoney');
+				var t_tax = q_float('txtTax'); 
+				
+				var t_total = q_add(q_sub(q_add(t_money,t_plusmoney),t_minusmoney),t_tax);
+               
+                $('#txtMoney').val(FormatNumber(t_money));
+                $('#txtTotal').val(FormatNumber(t_total));
+                $('#txtMount').val(FormatNumber(t_mount));
+            }
+            
             $(document).ready(function() {
                 //q_bbsShow = -1;
                 bbmKey = ['noa'];
@@ -88,49 +108,21 @@
                 	var t_where = "where=^^ noa='"+$('#txtCustno').val()+"' ^^";
                 	q_gt('cust', t_where, 0, 0, 0, "");
                 });
-                $('#btnTrans').click(function(e) {
-                	if (!(q_cur == 1 || q_cur == 2))
-                		return;
-                	Lock(1,{opacity:0});
-                	if ($.trim($('#txtCustno').val()) == 0) {
-                        alert('請輸入客戶');
-                        Unlock(1);
-                        return false;
-                    }
-                	var t_noa = $.trim($('#txtNoa').val());
-                	var t_custno = $.trim($('#txtCustno').val());
-                	var t_bdate = $.trim($('#txtBdate').val());
-                	var t_edate = $.trim($('#txtEdate').val());
-                	var t_btrandate = $.trim($('#txtBtrandate').val());
-                	var t_etrandate = $.trim($('#txtEtrandate').val());
-                	var t_baddrno = $.trim($('#txtStraddrno').val());
-                	var t_eaddrno = $.trim($('#txtEndaddrno').val());
-                	var t_where = "(b.noa is null or b.noa='"+t_noa+"')";
-                	t_where += " and a.custno='"+t_custno+"'";
-                	t_where += t_bdate.length>0?" and a.datea>='"+t_bdate+"'":"";
-                	t_where += t_edate.length>0?" and a.datea<='"+t_edate+"'":"";
-                	t_where += t_btrandate.length>0?" and a.trandate>='"+t_btrandate+"'":"";
-                	t_where += t_etrandate.length>0?" and a.trandate<='"+t_etrandate+"'":"";
-                	if(q_getPara('sys.project').toUpperCase()=='DH'){
-                		t_where += t_baddrno.length>0?" and a.straddrno='"+t_baddrno+"'":"";
-                		t_where += t_eaddrno.length>0?" and a.endaddrno='"+t_eaddrno+"'":"";
-                	}else{
-                		t_where += t_baddrno.length>0?" and a.straddrno>='"+t_baddrno+"'":"";
-                		t_where += t_eaddrno.length>0?" and a.straddrno<='"+t_eaddrno+"'":"";
-                	}
-                	var t_po = "";
-                	if ($.trim($('#txtPo').val()).length > 0) {
-                        var tmp = $.trim($('#txtPo').val()).split(',');
-                        t_po = ' and (';
-                        for (var i in tmp)
-                        t_po += (i == 0 ? '' : ' or ') + "a.po='" + tmp[i] + "'";
-                        t_po += ')';
-                        t_where += t_po;
-                    }
-                	t_where = "where=^^"+t_where+"^^";
-                	q_gt('trd_tran', t_where, 0, 0, 0, "", r_accy);
-                	
+                
+                $('#btnImport').click(function(e){
+                	$('#divImport').show();
                 });
+                $('#btnCancel_import').click(function(e){
+                	$('#divImport').hide();
+                });
+               	$('#btnImport_trans').click(function(e){
+               		var t_noa = $.trim($('#txtNoa').val());
+                	var t_custno = $.trim($('#txtCustno').val());
+                	var t_bdate =$.trim($('#txtBdate_import').val());
+                	var t_edate =$.trim($('#txtEdate_import').val());
+                	var t_where ='';
+                	q_box("trd_es_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+";"+JSON.stringify({noa:t_noa,custno:t_custno,bdate:t_bdate,edate:t_edate}), "trd_es", "95%", "95%", '');
+               	});	
                 $("#btnCustchg").click(function(e) {
                 	Lock(1,{opacity:0});
                     if ($('#txtCustno').val().length == 0) {
@@ -154,15 +146,6 @@
                     t_where = "  buyerno='" + $('#txtCustno').val() + "' and (trdno='" + $('#txtNoa').val() + "' or len(isnull(trdno,''))=0) ";
                     q_box("vcca_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where + ";;" + t_vccano + ";", 'vcca1', "95%", "650px", q_getMsg('popVcca'));
                 });
-                
-				
-				//----------------------------------------------------------
-				if(q_getPara('sys.project').toUpperCase()=='DH'){
-					$('.DH_hide').hide();
-					$('.DH_show').show();
-					$('#lblMount_bs').text('數量');
-					$('#lblPrice_bs').text('單價');
-				}	
             }
 
             function q_gtPost(t_name) {
@@ -242,20 +225,6 @@
                         sum();
                         Unlock(1);
                         break;
-                    case 'trd_tran':
-                        var as = _q_appendData("view_trans", "", true);
-                        q_gridAddRow(bbsHtm, 'tbbs', 'txtPrice,txtTranaccy,txtTrandate,txtTranno,txtTrannoq,txtCarno,txtStraddr,txtEndaddr,txtTranmoney,txtCaseno,txtMount,txtCustdiscount,txtTotal,txtCustorde,txtProduct,txtMemo'
-                        , as.length, as, 'price,accy,trandate,noa,noq,carno,straddr,endaddr,total,caseno,mount,custdiscount,total,custorde,product,memo', '','');
-                        for ( i = 0; i < q_bbsCount; i++) {
-                            if (i < as.length) {
-                            }else{
-                            	_btnMinus("btnMinus_" + i);
-                            }
-                        }
-                        sum();
-                        Unlock(1);
-                        $('#txtCustno').focus();
-                        break;
                     case q_name:
                         if (q_cur == 4)
                             q_Seek_gtPost();
@@ -266,6 +235,16 @@
             function q_boxClose(s2) {
                 var ret;
                 switch (b_pop) {
+                	case 'trd_es':
+                        if (b_ret != null) {
+                        	as = b_ret;
+                    		q_gridAddRow(bbsHtm, 'tbbs', 'txtTrandate,txtProduct,txtStraddr,txtCarno,txtMount,txtPrice,txtTotal,txtOthercost,txtMemo,txtTranaccy,txtTranno,txtTrannoq'
+                        	, as.length, as, 'trandate,product,straddr,carno,mount,price,total,tax,memo,accy,noa,noq', 'txtTranno','');             	
+                        	sum();
+                        }else{
+                        	Unlock(1);
+                        }
+                        break;
                     case 'custchg':
                         if (b_ret != null) {
                             var t_where = '1!=1'; 
@@ -371,21 +350,15 @@
                     $('#txtTranno_'+i).bind('contextmenu',function(e) {
                         /*滑鼠右鍵*/
                         e.preventDefault();
-                        var n = $(this).attr('id').replace('txtTranno_','');
+                        var n = $(this).attr('id').replace(/^(.*)_(\d+)$/,'$2');
                         var t_accy = $('#txtTranaccy_'+n).val();
                         var t_noa = $(this).val();
-                        var t_aspx = r_comp.indexOf('金勇')>=0?'trans_at.aspx':'trans_ds.aspx';
                         if(t_noa.length>0 ){
-                            q_box(t_aspx+"?" + r_userno + ";" + r_name + ";" + q_time + "; noa='" + t_noa + "';" + t_accy, 'trans', "95%", "95%", q_getMsg("popTrans"));
+                            q_box("trans_es.aspx?" + r_userno + ";" + r_name + ";" + q_time + "; noa='" + t_noa + "';" + t_accy, 'trans', "95%", "95%", q_getMsg("popTrans"));
                         }
                     });
                 }
                 _bbsAssign();
-                if(q_getPara('sys.project').toUpperCase()=='DH'){
-					$('.DH_hide').hide();
-					$('.DH_show').show();
-					$('#lblCustdiscount_s').text('折讓');
-				}	
             }
 
             function btnIns() {
@@ -438,40 +411,22 @@
                 return true;
             }
 
-            function sum() {
-                if (!(q_cur == 1 || q_cur == 2))
-                    return;
-               	//小數 可能會有問題需注意
-                var t_money = 0,t_mount = 0;
-                for ( i = 0; i < q_bbsCount; i++) {
-                    t_money = t_money.add(q_float('txtTranmoney_' + i));
-                    
-                    t_mount = t_mount.add(q_float('txtMount_' + i));
-                }
-                t_mount = t_mount.round(3);
-				var t_plusmoney = q_float('txtPlusmoney');
-				var t_minusmoney = q_float('txtMinusmoney');
-				var t_tax = q_float('txtTax'); 
-				
-				var t_total = t_money.add(t_plusmoney).sub(t_minusmoney).add(t_tax);
-               
-                $('#txtMoney').val(FormatNumber(t_money));
-                $('#txtTotal').val(FormatNumber(t_total));
-                $('#txtMount').val(FormatNumber(t_mount));
-            }
+            
             function refresh(recno) {
                 _refresh(recno);
             }
             function readonly(t_para, empty) {
                 _readonly(t_para, empty);
                 if (q_cur == 1 || q_cur == 2) {
-                    $('#btnTrans').removeAttr('disabled');
-                    $('#btnCustchg').removeAttr('disabled');
-                    $('#btnVcca').removeAttr('disabled');
+                    $('#btnImport_trans').removeAttr('disabled');
+                    $('#txtDatea').datepicker();
+                    $('#txtBdate_import').datepicker();
+                    $('#txtEdate_import').datepicker();
                 } else {
-                    $('#btnTrans').attr('disabled', 'disabled');
-                    $('#btnCustchg').attr('disabled', 'disabled');
-                    $('#btnVcca').attr('disabled', 'disabled');
+                    $('#btnImport_trans').attr('disabled', 'disabled');
+                    $('#txtDatea').datepicker('destroy');
+                    $('#txtBdate_import').datepicker('destroy');
+                    $('#txtEdate_import').datepicker('destroy');
                 }
                 
             }
@@ -663,6 +618,32 @@
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	>
 		<!--#include file="../inc/toolbar.inc"-->
+		<div id="divImport" style="position:absolute; top:250px; left:600px; display:none; width:400px; height:200px; background-color: #cad3ff; border: 5px solid gray;">
+			<table style="width:100%;">
+				<tr style="height:1px;">
+					<td style="width:150px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a style="float:right; color: blue; font-size: medium;">取貨日期</a></td>
+					<td colspan="4">
+					<input id="txtBdate_import"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					<span style="float:left; display:block; width:25px;"><a>～</a></span>
+					<input id="txtEdate_import"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td> </td>
+					<td><input id="btnImport_trans" type="button" value="匯入"/></td>
+					<td> </td>
+					<td> </td>
+					<td><input id="btnCancel_import" type="button" value="關閉"/></td>
+				</tr>
+			</table>
+		</div>
 		<div id="dmain">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
