@@ -87,3 +87,35 @@ z_trans_es01:--z_trans_es01
 		,dbo.getComma([total2],-1) a15
 	from @tmp
 	order by sel;
+---------------------------------------------------------------------------------------------------------------------
+z_trans_es02:--z_trans_es2 	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_noa varchar(100)= case when '#non'=[14] then '' else [14] end
+	
+	declare @tmp table(
+		gno nvarchar(1),
+		noa nvarchar(100),
+		datea nvarchar(10),
+		custno nvarchar(100),
+		comp nvarchar(200),
+		tel nvarchar(100),
+		cartel nvarchar(100),
+		baddr nvarchar(max),
+		eaddr nvarchar(max),
+		namea nvarchar(100),
+		price float
+	)
+	 insert @tmp
+	 select '0',a.noa,a.datea,a.custno,a.comp,b.tel,case when c.tel1!='' then c.tel1 else d.mobile end,a.straddr,a.saddr,a.driver,a.total+a.reserve
+	 from view_trans a left join cust b on a.custno=b.noa
+	 left join cardeal c on a.cardeal=c.noa
+	 left join driver d on a.driverno=d.noa
+	 where @t_noa=a.noa
+	 
+	 select 
+	 LEFT(datea,3) yy,
+	 SUBSTRING(datea, 5, 2) mm,
+	 right(datea,2) dd,
+	 * from @tmp
+;
+	 

@@ -57,6 +57,9 @@
 						dbf : 'addr3',
 						index : 'noa,namea',
 						src : 'addr3_bs_b.aspx'
+					},{
+						type : '6', //[14]
+						name : 'noa'
 					}]
 				});
 				q_popAssign();
