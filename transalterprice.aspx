@@ -145,6 +145,7 @@
             }
 			function btnIns() {
 				_btnIns();
+				$('#txtDatea').val(q_date());
 				$('#txtNoa').focus();
 			}
 			function btnModi() {
@@ -152,6 +153,7 @@
 					return;
 				_btnModi();
 				$('#txtDatea').focus();
+				$('#txtNoa').attr('readonly','readonly').css('background-color','RGB(237,237,237)').css('color','green');
 			}
 			function btnPrint() {
 				//q_box("z_addr_bs.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";;" + r_accy, 'z_addr', "95%", "95%", q_getMsg("popPrint"));
@@ -176,17 +178,11 @@
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
 				if(t_para){
-					$('#txtNoa').attr('readonly','readonly').css('background-color','RGB(237,237,237)').css('color','green');
 					$('#txtDatea').datepicker('destroy');
 					for(var i=0;i<q_bbsCount;i++){
 						$('#txtDatea_'+i).datepicker('destroy');
 					}
 				}else{
-					if(q_cur==1)
-						$('#txtNoa').removeAttr('readonly').css('background-color','RGB(255,255,255)').css('color','black');
-					else
-						$('#txtNoa').attr('readonly','readonly').css('background-color','RGB(237,237,237)').css('color','green');
-					
 					$('#txtDatea').datepicker();
 					for(var i=0;i<q_bbsCount;i++){
 						$('#txtDatea_'+i).datepicker();
