@@ -1,0 +1,104 @@
+z_cust_bs01:--z_cust_bs01	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_bcustno nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_trantype nvarchar(max) = case when '#non'=[7] then '' else [7] end
+	declare @t_area nvarchar(max) = case when '#non'=[8] then '' else [8] end
+	---------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,recno int 
+		,gno nvarchar(10)
+		,custno nvarchar(20)
+		,cust nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		
+		,tel nvarchar(max)
+		,mobile nvarchar(max)
+		,fax nvarchar(max)
+		
+		,country nvarchar(20)
+		,postno nvarchar(20)
+		,post nvarchar(20)
+		,addr nvarchar(max)
+		
+		,trantype nvarchar(20)
+		,[week] nvarchar(20)
+		,[weekday] nvarchar(20)
+		,[day] float
+		
+		,invomemo nvarchar(max)
+		,memo nvarchar(max)
+		,memo2 nvarchar(max)
+		,investmemo  nvarchar(max)
+		,accy nvarchar(20)
+		,noa nvarchar(20)
+		,trandate nvarchar(20)
+		,mount float
+		,price float
+	)
+	
+	insert into @tmp (gno,recno
+		,custno,cust,driverno,driver
+		,tel,mobile,fax
+		,country,postno,post,addr
+		,trantype,[week],[weekday],[day]
+		,invomemo,memo,memo2,investmemo)
+	select '1',ROW_NUMBER()over(order by a.noa)
+		,a.noa,a.comp,a.salesno,a.sales
+		,a.tel,a.mobile,a.fax
+		,a.country,a.ext,a.post,a.addr_fact
+		,trantype,chkstatus,chkdate,dueday
+		,a.invomemo,a.memo,a.memo2,a.investmemo
+	from cust a
+	where a.noa between @t_bcustno and @t_ecustno
+	and ISNULL(a.salesno,'') between @t_bdriverno and @t_edriverno
+	and ( len(@t_trantype)=0 or charindex(@t_trantype,trantype)>0)
+	and ( len(@t_area)=0 or charindex(@t_area,post)>0)
+	order by a.noa
+	
+	--找到上次收貨日期
+	--有單價(KG)代表是依公斤收
+	update @tmp set accy=ISNULL(b.accy,'') 
+		,noa=ISNULL(b.noa,'') 
+		,trandate=isnull(b.trandate,'')
+		,price= case when isnull(b.price3,0)!=0 then b.price3 else isnull(b.price,0) end
+		,mount= case when isnull(b.price3,0)!=0 then isnull(b.[weight],0) else isnull(b.[mount],0) end
+	from @tmp a
+	outer apply (select top 1 accy,noa,trandate,price,mount,price3,[weight] from view_trans where custno=a.custno order by trandate desc,noa desc)b
+
+	
+	select gno
+		,recno rr
+		,"cust_bs?noa=\'"+custno+"\' and "+cast(recno as nvarchar)+"=$rr?" ghref
+		,driver a01
+		,custno a02
+		,cust a03
+		,mobile a04
+		,tel a05
+		,fax a06
+		,country a07
+		,post a08
+		,addr a09
+		
+		,trantype a10
+		,[week] a11
+		,[weekday] a12
+		,case when isnull([day],0)=0 then '' else cast([day] as nvarchar) end a13
+		
+		,replace(invomemo,'chr(10)','<br>') a14
+		,replace(memo,'chr(10)','<br>') a15
+		,replace(memo2,'chr(10)','<br>') a16
+		,replace(investmemo,'chr(10)','<br>') a17
+		,case when len(noa)=0 then trandate else "<a href="+CHAR(34)+"JavaScript:q_box('trans_bs.aspx',' "+CHAR(59)+"noa=\'"+noa+"\'','95%','95%','"+accy+"')"+char(34)+">"+trandate+"</a>" end a18
+		
+		,case when mount=0 then '' else dbo.getComma(mount,-1) end a19
+		,case when price=0 then '' else dbo.getComma(price,-1) end a20
+	from @tmp
+	order by recno;

@@ -1,0 +1,47 @@
+alter  function [dbo].[trans_trd](@t_trdno nvarchar(max), @t_custno nvarchar(max),@t_btrandate nvarchar(max),@t_etrandate nvarchar(max))
+returns @tmp table(
+		sel int identity(1,1)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,trandate nvarchar(20)
+		,datea nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(100)
+		,straddrno nvarchar(20)
+		,straddr nvarchar(50)
+		,carno nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(100)
+		
+		,count1 float
+		,count2 float
+		,count3 float
+		,count4 float
+		
+		,mount float
+		,price float
+		,total float
+		,tax float
+		,memo nvarchar(max)
+) as
+begin
+	insert into @tmp(accy,noa,noq,trandate,datea,custno,cust,straddrno,straddr,carno,driverno,productno,product
+		,count1,count2,count3,count4,mount,price,total,tax,memo)
+	select accy,noa,noq,trandate,datea,custno,nick,straddrno,straddr,carno,driverno,uccno,product
+		,mount3,mount4,[status],[weight],mount,price,total,reserve,memo
+	from view_trans 
+	where custno=@t_custno
+	and ISNULL(trandate,'') between @t_btrandate 
+	and @t_etrandate
+	order by accy,noa,noq
+	
+	delete @tmp 
+	from @tmp a
+	left join view_trds b on a.noa=b.tranno and a.noq=b.trannoq
+	where not ( b.noa is null or (b.noa=@t_trdno and b.noa is not null)) 
+	
+return
+end

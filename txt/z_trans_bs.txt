@@ -1,0 +1,560 @@
+z_trans_bs05:--z_trans_bs05
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	
+	declare @t_baddr3 nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_eaddr3 nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	
+	declare @t_trandate nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_binvestdate nvarchar(20) = case when '#non'=[10] then '' else [10] end
+	declare @t_einvestdate nvarchar(20) = case when '#non'=[11] then char(255) else [11] end	
+	
+	declare @t_bdate nvarchar(20) = case when '#non'=[12] then '' else [12] end
+	declare @t_edate nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_btrandate nvarchar(20) = case when '#non'=[14] then '' else [14] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[15] then char(255) else [15] end
+	----------------------------------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,recno int
+		,gno nvarchar(20)
+		,pno nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		
+		,tranaccy nvarchar(20)
+		,tranno nvarchar(20)
+		,datea nvarchar(20)
+		,trandate nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(20)
+		,areano nvarchar(20)
+		,area nvarchar(50)
+		,addr nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(50)
+		,mount float
+		,[weight] float
+		,price float
+		,price3 float
+		,custdiscount float
+		,total float
+		,mount2 float
+		,price2 float
+		,total2 float
+		,memo nvarchar(max)
+	)
+	insert into @tmp(recno,gno,pno,driverno,driver
+		,tranaccy,tranno,datea,trandate,custno,cust,areano,area,addr
+		,productno,product
+		,mount,[weight],price,price3,custdiscount,total,mount2,price2,total2,memo)
+	select ROW_NUMBER()over(order by ISNULL(a.trandate,''),a.noa )
+		,'1','1',a.driverno,b.namea
+		,a.accy,a.noa,a.datea,a.trandate,a.custno,a.nick,a.straddrno,a.straddr,a.saddr
+		,a.uccno,a.product
+		,a.mount,a.[weight],a.price,a.price3,a.custdiscount,a.total,a.mount2,a.price2,a.total2,a.memo
+	from view_trans a
+	left join driver b on a.driverno=b.noa
+	where ISNULL(a.datea,'') between @t_bdate and @t_edate
+	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	and ISNULL(a.straddrno,'') between @t_baddr3 and @t_eaddr3
+	--小計
+	insert into @tmp(gno,pno,mount,[weight],custdiscount,total,mount2,total2)
+	select '2','2',SUM(isnull(mount,0)),SUM(isnull([weight],0)),SUM(isnull(custdiscount,0)),SUM(isnull(total,0)),SUM(isnull(mount2,0)),SUM(isnull(total2,0))
+	from @tmp
+	update @tmp set price3=CASe when [weight]=0 then 0 else round(total/[weight],2) end where gno='2'
+
+	select gno
+		,recno rr
+		,"trans_bs?noa=\'"+tranno+"\' and "+cast(recno as nvarchar)+"=$rr?"+tranaccy ghref 
+		,datea a01
+		,trandate a02
+		,custno a03
+		,cust a04
+		,area a05
+		,addr a06
+		,driver a07
+		,product a08
+		,dbo.getComma(mount,-1) a09
+		,dbo.getComma([weight],-1) b02
+		,dbo.getComma(price,-1) a10
+		,dbo.getComma(price3,-1) b03
+		,dbo.getComma(custdiscount,-1) b01
+		,dbo.getComma(total,-1) a11
+		,dbo.getComma(mount2,-1) a12
+		,dbo.getComma(price2,-1) a13
+		,dbo.getComma(total2,-1) a14
+		,memo a15
+	from @tmp order by gno,recno;
+
+z_trans_bs04:--z_trans_bs04
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	
+	declare @t_baddr3 nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_eaddr3 nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	
+	declare @t_trandate nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_binvestdate nvarchar(20) = case when '#non'=[10] then '' else [10] end
+	declare @t_einvestdate nvarchar(20) = case when '#non'=[11] then char(255) else [11] end	
+	
+	declare @t_bdate nvarchar(20) = case when '#non'=[12] then '' else [12] end
+	declare @t_edate nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_btrandate nvarchar(20) = case when '#non'=[14] then '' else [14] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[15] then char(255) else [15] end
+	----------------------------------------------------------------------------------------------------
+	
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(20)
+		,pno nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,mount2 float
+		,price2 float
+		,total2 float
+	)
+	insert into @tmp(gno,pno,driverno,driver,mount2,total2)
+	select'1','1',a.driverno,b.namea
+		,sum(isnull(a.mount2,0))
+		,sum(isnull(a.total2,0))
+	from view_trans a
+	left join driver b on a.driverno=b.noa
+	where ISNULL(a.datea,'') between @t_bdate and @t_edate
+	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	and ISNULL(a.straddrno,'') between @t_baddr3 and @t_eaddr3
+	group by a.driverno,b.namea
+	--小計
+	insert into @tmp(gno,pno,mount2,total2)
+	select '2','2',SUM(isnull(mount2,0)),SUM(isnull(total2,0))
+	from @tmp
+
+	select gno
+		,ROW_NUMBER()over(order by pno,driverno ) rr
+		,driverno a01
+		,driver a02
+		,dbo.getComma(mount2,-1) a03
+		,dbo.getComma(total2,-1) a04
+	from @tmp order by pno,driverno;
+	
+z_trans_bs03:--z_trans_bs03
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	
+	declare @t_baddr3 nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_eaddr3 nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	
+	declare @t_trandate nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_binvestdate nvarchar(20) = case when '#non'=[10] then '' else [10] end
+	declare @t_einvestdate nvarchar(20) = case when '#non'=[11] then char(255) else [11] end	
+	
+	declare @t_bdate nvarchar(20) = case when '#non'=[12] then '' else [12] end
+	declare @t_edate nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_btrandate nvarchar(20) = case when '#non'=[14] then '' else [14] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[15] then char(255) else [15] end
+	----------------------------------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,recno int
+		,gno nvarchar(20)
+		,pno nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		
+		,tranaccy nvarchar(20)
+		,tranno nvarchar(20)
+		,datea nvarchar(20)
+		,trandate nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(20)
+		,areano nvarchar(20)
+		,area nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(50)
+		,mount2 float
+		,price2 float
+		,total2 float
+	)
+	insert into @tmp(recno,gno,pno,driverno,driver
+		,tranaccy,tranno,datea,trandate,custno,cust,areano,area
+		,productno,product,mount2,price2,total2)
+	select ROW_NUMBER()over(partition by ISNULL(a.driverno,'') order by ISNULL(a.trandate,''),a.noa )
+		,'1','1',a.driverno,b.namea
+		,a.accy,a.noa,a.datea,a.trandate,a.custno,a.nick,a.straddrno,a.straddr
+		,a.uccno,a.product,a.mount2,a.price2,a.total2
+	from view_trans a
+	left join driver b on a.driverno=b.noa
+	where ISNULL(a.datea,'') between @t_bdate and @t_edate
+	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	and ISNULL(a.straddrno,'') between @t_baddr3 and @t_eaddr3
+	--小計
+	insert into @tmp(gno,pno,driverno,driver,mount2,total2)
+	select '2','2',driverno,driver,SUM(isnull(mount2,0)),SUM(isnull(total2,0))
+	from @tmp
+	group by driverno,driver
+	
+	---空白行
+	declare @pagecount int = 35 --一頁幾行
+	declare @driverno nvarchar(20)
+	declare @n int
+	
+	declare cursor_table cursor for
+	select driverno,count(1) n from @tmp group by driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @driverno,@n
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		while @n%@pagecount>0
+		begin
+			insert into @tmp(gno,pno,driverno)values('3','3',@driverno)
+			set @n=@n+1
+		end
+		
+		fetch next from cursor_table
+		into @driverno,@n
+	end
+	close cursor_table
+	deallocate cursor_table
+	select gno
+		,recno rr
+		,"trans_bs?noa=\'"+tranno+"\' and "+cast(recno as nvarchar)+"=$rr?"+tranaccy ghref 
+		,driverno a01
+		,driver a02
+		,trandate b01
+		,area b02
+		,cust b03
+		,product b04
+		,dbo.getComma(mount2,-1) b05
+		,dbo.getComma(price2,-1) b06
+		,dbo.getComma(total2,-1) b07
+	from @tmp order by driverno,pno,recno;
+	
+	
+z_trans_bs02:--z_trans_bs02
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	
+	declare @t_baddr3 nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_eaddr3 nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	
+	declare @t_trandate nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_binvestdate nvarchar(20) = case when '#non'=[10] then '' else [10] end
+	declare @t_einvestdate nvarchar(20) = case when '#non'=[11] then char(255) else [11] end	
+	
+	declare @t_bdate nvarchar(20) = case when '#non'=[12] then '' else [12] end
+	declare @t_edate nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_btrandate nvarchar(20) = case when '#non'=[14] then '' else [14] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[15] then char(255) else [15] end
+	----------------------------------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(20)
+		,recno int
+		,investdate nvarchar(20)
+		,custno nvarchar(20) 
+		,comp nvarchar(50)
+		,nick nvarchar(20)
+		,trantype nvarchar(20) --收貨方式
+		,[week] int--收貨週
+		,[weekday] int--收貨日
+		,[day] int--收貨日期
+		
+		,areano nvarchar(20)--區域
+		,area nvarchar(20)
+		,addr nvarchar(max)
+		,driverno nvarchar(20)--司機
+		,driver nvarchar(20)
+		
+	)
+	insert into @tmp(gno,recno,investdate,custno,comp,nick,trantype,[week],[weekday],[day]
+		,areano,area,addr,driverno,driver)
+	select '1',ROW_NUMBER()over(order by isnull(a.investdate,''),a.noa) 
+		,isnull(a.investdate,''),a.noa,a.comp,a.nick,isnull(a.trantype,'')
+		,cast(isnull(a.chkstatus,'0') as int)
+		,cast(isnull(a.chkdate,'0') as int)
+		,isnull(a.dueday,0)
+		,ISNULL(a.ext,''),ISNULL(a.post,''),ISNULL(a.addr_fact,''),ISNULL(a.salesno,''),ISNULL(a.sales,'')
+	from cust a
+	where a.noa between @t_bcustno and @t_ecustno
+	and isnull(a.ext,'') between @t_baddr3 and @t_eaddr3
+	and isnull(a.salesno,'') between @t_bdriverno and @t_edriverno
+	and ISNULL(a.investdate,'') between @t_binvestdate and @t_einvestdate
+	
+	select gno
+		,'合約到期日：'+case when @t_binvestdate=@t_einvestdate then @t_binvestdate else @t_binvestdate+'～'+@t_einvestdate end titlea
+		,recno rr
+		,"cust_bs?noa=\'"+custno+"\' and "+cast(recno as nvarchar)+"=$rr?" ghref
+		,investdate a01
+		,custno a02
+		,nick a03
+		,area a04
+		,addr a05
+		,driver a06
+		,trantype a07
+		,case when [week]=0 then '' else CAST([week] as nvarchar) end a08
+		,case when [weekday]=0 then '' else CAST([weekday] as nvarchar) end a09
+		,case when [day]=0 then '' else CAST([day] as nvarchar) end a10
+	from @tmp order by recno;
+
+z_trans_bs01:--z_trans_bs01	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	
+	declare @t_baddr3 nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_eaddr3 nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	
+	declare @t_trandate nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_binvestdate nvarchar(20) = case when '#non'=[10] then '' else [10] end
+	declare @t_einvestdate nvarchar(20) = case when '#non'=[11] then char(255) else [11] end
+	
+	declare @t_bdate nvarchar(20) = case when '#non'=[12] then '' else [12] end
+	declare @t_edate nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_btrandate nvarchar(20) = case when '#non'=[14] then '' else [14] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[15] then char(255) else [15] end
+	
+	declare @t_weekday nvarchar(max) = case when '#non'=[16] then '' else [16] end
+	declare @t_option nvarchar(max) = case when '#non'=[17] then '' else [17] end
+	----------------------------------------------------------------------------------------------
+	IF OBJECT_ID('tempdb..#z_trans_bs01')is not null
+	BEGIN
+		drop table #z_trans_bs01
+	END
+	
+	create table #z_trans_bs01(
+		sel int identity(1,1)
+		,investdate nvarchar(20)
+		,custno nvarchar(20) 
+		,comp nvarchar(50)
+		,nick nvarchar(20)
+		,tel nvarchar(max)
+		,mobile nvarchar(max)
+		,trantype nvarchar(20) --收貨方式
+		,[week] int--收貨週
+		,[weekday] int--收貨日
+		,[day] int--收貨日期
+		,[getdate] nvarchar(20) --叫收日期
+		,bdate nvarchar(20) --上次收貨日期
+		,bprice float --上次收貨單價
+		,bmount float --上次收貨數量
+		,edate nvarchar(20) --下次收貨日期
+		
+		,areano nvarchar(20)--區域
+		,area nvarchar(20)
+		,addr nvarchar(max)
+		,driverno nvarchar(20)--司機
+		,driver nvarchar(20)
+		,xtype nvarchar(10) --收貨方式
+		
+		,invomemo nvarchar(max)
+		,memo nvarchar(max)
+		,memo2 nvarchar(max)
+		,investmemo nvarchar(max)
+	) 
+	insert into #z_trans_bs01(investdate,custno,comp,nick,tel,mobile
+		,trantype,[week],[weekday],[day],[getdate]
+		,areano,area,addr,driverno,driver
+		,invomemo,memo,memo2,investmemo)
+	select isnull(a.investdate,''),a.noa,a.comp,a.nick,ISNULL(a.tel,''),ISNULL(a.mobile,'')
+		,isnull(a.trantype,'')
+		,cast(isnull(a.chkstatus,'0') as int)
+		,cast(isnull(a.chkdate,'0') as int)
+		,isnull(a.dueday,0)
+		,isnull(a.[getdate],'')
+		,ISNULL(a.ext,''),ISNULL(a.post,''),ISNULL(a.addr_fact,''),ISNULL(a.salesno,''),ISNULL(a.sales,'')
+		,ISNULL(invomemo,''),ISNULL(memo,''),ISNULL(memo2,''),ISNULL(investmemo,'')
+	from cust a
+	where a.noa between @t_bcustno and @t_ecustno
+	and isnull(a.ext,'') between @t_baddr3 and @t_eaddr3
+	and isnull(a.salesno,'') between @t_bdriverno and @t_edriverno
+	--只顯示叫收
+	if(charindex('01',@t_option)>0)
+		delete #z_trans_bs01 where len(isnull([getdate],''))=0
+		
+	------------------------------------------------------------------------------------
+	--找到上次收貨日期
+	--有單價(KG)代表是依公斤收
+	update #z_trans_bs01 set bdate=b.trandate
+		,bprice= case when isnull(b.price3,0)!=0 then b.price3 else isnull(b.price,0) end
+		,bmount= case when isnull(b.price3,0)!=0 then isnull(b.[weight],0) else isnull(b.[mount],0) end
+	from #z_trans_bs01 a
+	outer apply(select top 1 trandate,price,mount,price3,[weight] from view_trans where custno=a.custno order by trandate desc,noa desc) b
+	
+	--計算下次收貨日
+	----若沒有設定收貨方式就不計算
+	declare @sel int
+	declare @week int
+	declare @weekday int
+	declare @day int
+	declare @getdate nvarchar(20)
+	
+	declare @bdate nvarchar(20)
+	declare @date datetime
+
+	declare cursor_table cursor for
+	select sel,[week],[weekday],[day],[getdate],isnull(bdate,'')
+	from #z_trans_bs01 a
+	where len(a.[week])>0 or len(a.[weekday])>0 or a.[day]!=0 or len(a.[getdate])>0
+	open cursor_table
+	fetch next from cursor_table
+	into @sel,@week,@weekday,@day,@getdate,@bdate
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		select @date = dbo.ChineseEraName2AD(case when len(@bdate)=0 then '100/01/01' else @bdate end)
+		if LEN(@getdate)>0
+		begin
+			--方式三
+			update #z_trans_bs01 set edate = @getdate,xtype='3' where sel=@sel
+		end
+		else if not(@week=0 and @weekday=0)
+		begin
+			--方式一
+			--沒設定周別一律為一周
+			select @date = dateadd(WEEK,case when @week=0 then 1 else @week end,@date)
+			select @date = dateadd(WEEKDAY,@weekday-DATEPART(weekday,@date)+1,@date)
+			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date),xtype='1' where sel=@sel
+		end
+		else if @day!=0
+		begin
+			--方式二
+			select @date = dateadd(MONTH,1,@date)
+			select @date = dateadd(DAY,@day-DATEPART(DAY,@date),@date)
+			update #z_trans_bs01 set edate = dbo.AD2ChineseEraName(@date),xtype='2' where sel=@sel
+		end
+		else
+		begin
+			update #z_trans_bs01 set edate = '' where sel=@sel
+		end
+		
+		fetch next from cursor_table
+		into @sel,@week,@weekday,@day,@getdate,@bdate
+	end
+	close cursor_table
+	deallocate cursor_table
+
+	--只顯示120天內的    2016/07/15
+	declare @t_xdate nvarchar(20) = ''
+	select @t_xdate=dbo.AD2ChineseEraName(dateadd(DD,-120,dbo.ChineseEraName2AD(@t_trandate)))
+	
+	delete #z_trans_bs01 where not(len(edate)>0 and edate between @t_xdate and @t_trandate)
+	--超過合約日的就不顯示
+	delete #z_trans_bs01 where edate>investdate and len(isnull(investdate,''))>0
+	--有指定星期幾的
+	if len(@t_weekday)>0
+	begin
+		delete #z_trans_bs01 where charindex(cast(datepart(dw,dbo.ChineseEraName2AD(edate))-1 as nvarchar),@t_weekday)=0
+	end
+	----------------------------------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,recno int
+		,gno nvarchar(20)
+		,pno nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,areano nvarchar(20)
+		,area nvarchar(20)
+		,addr nvarchar(max)
+		,custno nvarchar(20)
+		,cust nvarchar(20)
+		,tel nvarchar(max)
+		,mobile nvarchar(max)
+		,investdate nvarchar(20)
+		,trantype nvarchar(20)
+		,bdate nvarchar(20)
+		,bprice float
+		,bmount float
+		,edate nvarchar(20)
+		,xtype nvarchar(10) --收貨方式
+		,invomemo nvarchar(max)
+		,memo nvarchar(max)
+		,memo2 nvarchar(max)
+		,investmemo nvarchar(max)
+	)
+	insert into @tmp(recno,gno,pno,driverno,driver,areano,area,addr,custno,cust,tel,mobile,investdate,trantype
+		,bdate,bprice,bmount,edate,xtype
+		,invomemo,memo,memo2,investmemo)
+	select ROW_NUMBER()over(partition by a.driverno order by a.areano,a.custno) 
+		,'1','1',a.driverno,a.driver,a.areano,a.area,a.addr,a.custno,a.nick,a.tel,a.mobile,a.investdate,a.trantype
+		,a.bdate,a.bprice,a.bmount,a.edate,a.xtype
+		,invomemo,memo,memo2,investmemo
+	from #z_trans_bs01 a
+	---空白行
+	declare @pagecount int = 35 --一頁幾行
+	declare @driverno nvarchar(20)
+	declare @n int
+	
+	declare cursor_table cursor for
+	select driverno,count(1) n from @tmp group by driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @driverno,@n
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		while @n%@pagecount>0
+		begin
+			insert into @tmp(gno,pno,driverno)values('2','2',@driverno)
+			set @n=@n+1
+		end
+		
+		fetch next from cursor_table
+		into @driverno,@n
+	end
+	close cursor_table
+	deallocate cursor_table
+
+	declare @string nvarchar(max) = '日一二三四五六'
+
+	select gno,recno rr
+		,"cust_bs?noa=\'"+custno+"\' and "+cast(recno as nvarchar)+"=$rr?" ghref
+		,driverno a01
+		,driver a02
+		,@t_trandate a03
+		,area b01
+		,case when xtype='3' then '<a style="color:red">'+custno+'</a>' else custno end b02
+		,case when xtype='3' then '<a style="color:red">'+cust+'</a>' else cust end b03
+		,addr b04
+		,tel b04a
+		,mobile b04b
+		,trantype b05
+		,right(bdate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(bdate)),1)+')' b06
+		,dbo.getComma(bprice,-1) b07a
+		,dbo.getComma(bmount,-1) b07b
+		,right(edate,5)+'('+SUBSTRING(@string,datepart(WEEKDAY,dbo.ChineseEraName2AD(edate)),1)+')' b08
+		,invomemo b09
+		,memo b10
+		,memo2 b11
+		,investmemo b12
+	from @tmp order by driverno,pno,sel
+	drop table #z_trans_bs01;
