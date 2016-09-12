@@ -1,0 +1,88 @@
+resetDate: -- trans_bs.txt resetDate  重置叫收日期
+	declare @t_noa nvarchar(max) = [1]
+	--------------------------------------------------------------------------
+	declare @tmp table(
+		msg nvarchar(max)
+	)
+	
+	declare @custno nvarchar(20) = ''
+	declare @datea nvarchar(20) = ''  --收貨日期
+	select @custno=custno,@datea=trandate from view_trans where noa=@t_noa
+	
+	if exists(select * from cust where noa=@custno and len(ISNULL([getdate],''))>0 and [getdate]<=@datea)
+	begin
+		DECLARE @chk tinyint = 0
+		Begin Transaction [Trans_Name]
+		
+		begin try
+			update cust set [getdate]='' where noa=@custno
+			IF @@Error <> 0 BEGIN SET @chk = 1 END
+	
+			insert into drun(datea,timea,usera,[action],noa,tablea,accno,title,memo)
+			select left(CONVERT(nvarchar,getdate(),111),10) ,left(CONVERT(nvarchar,getdate(),108),5)
+				,'自動產生','Update',isnull(@t_noa,''),'cust','客戶主檔','','出車單號【'+isnull(@t_noa,'')+'】客戶編號【'+isnull(@custno,'')+'】收貨日期【'+isnull(@datea,'')+'】'
+			IF @@Error <> 0 BEGIN SET @chk = 1 END
+			
+			IF @chk <> 0 BEGIN -- 若是新增資料發生錯誤
+				Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+				insert into @tmp(msg)values('發生錯誤')
+			END
+			ELSE BEGIN
+				Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
+				insert into @tmp(msg)values('Done')
+			END
+		end try
+		begin catch
+			Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+				insert into @tmp(msg)values('發生錯誤2')
+		end catch
+	end
+	else
+	begin
+		insert into @tmp(msg)values('')
+	end
+	select * from @tmp;
+	
+
+getPrice: -- trans_bs.txt  getPrice
+	declare @t_custno nvarchar(20) = [1]
+	declare @t_productno nvarchar(20) = [2]
+	declare @t_datea nvarchar(20) = [3]
+	--------------------------------------------------
+	declare @datea nvarchar(20) = ''
+	declare @price float = 0
+	declare @price2 float = 0
+	
+	select top 1 @datea=DATEA,@price=price,@price2=price2
+	from addr2
+	where custno=@t_custno 
+	and productno=@t_productno
+	and datea<=@t_datea  
+	order by datea desc
+	
+	declare @tmp table( 
+		datea nvarchar(20) 
+		,price float 
+		,price2 float 
+	) 
+	insert into @tmp(datea,price,price2)values(@datea,@price,@price2)
+	
+	select * from @tmp;
+	
+getDriverprice: -- trans_bs.txt  getDriverprice
+	declare @t_straddrno nvarchar(20) = [1]
+	declare @t_productno nvarchar(20) = [2]
+	declare @t_datea nvarchar(20) = [3]
+	
+	declare @tmp table( 
+		datea nvarchar(20) 
+		,price float 
+	) 
+	
+	insert into @tmp(datea,price) 
+	select b.datea,b.driverprice 
+	from addr a 
+	outer apply(select top 1 DATEA,driverprice from addrs where noa=a.noa and datea<=@t_datea order by datea desc)b 
+	where a.straddrno=@t_straddrno and a.productno=@t_productno 
+	
+	select * from @tmp;
