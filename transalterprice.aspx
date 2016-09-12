@@ -84,14 +84,15 @@
 						}
 						break;
 					case 'checkAddrno_btnOk':
-						var as = _q_appendData("addr", "", true);
+						/*var as = _q_appendData("addr", "", true);
 						if (as[0] != undefined) {
 							alert('已存在 ' + as[0].noa + ' ' + as[0].addr);
 							Unlock(1);
 							return;
 						} else {
 							wrServer($('#txtNoa').val());
-						}
+						}*/
+						wrServer($('#txtNoa').val());
 						break;
 					case q_name:
 						if (q_cur == 4)
@@ -144,7 +145,6 @@
             }
 			function btnIns() {
 				_btnIns();
-				refreshBbm();
 				$('#txtNoa').focus();
 			}
 			function btnModi() {
