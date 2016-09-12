@@ -18,19 +18,19 @@
 			var q_name = "transalterprice";
 			var q_readonly = [];
 			var q_readonlys = [];
-			var bbmNum = [];
-			var bbsNum = [['txtDriverprice', 10, 3]];
+			var bbmNum = [['txtBprice', 10, 3],['txtEprice', 10, 3]];
+			var bbsNum = [['txtPrice', 10, 3]];
 			var bbmMask = [];
 			var bbsMask = [];
 			q_sqlCount = 6;
 			brwCount = 6;
 			brwList = [];
 			brwNowPage = 0;
-			brwKey = 'Datea';
+			brwKey = 'Noa';
 			aPop = new Array(['txtCustno', 'lblCust', 'cust', 'noa,comp,nick', 'txtCustno,txtCust', 'cust_b.aspx']
 				, ['txtAddrno_', 'btnAddr_', 'addr3', 'noa,namea', 'txtAddrno_,txtAddr_', 'addr3_bs_b.aspx']
 				);
-			
+			q_desc = 1;
 			function sum() {
 			}
 			
@@ -49,6 +49,7 @@
 			}
 			function mainPost() {
 				q_getFormat();
+				bbmMask = [['txtDatea', r_picd]];
 				q_mask(bbmMask);
 				bbsMask = [['txtDatea', r_picd]];
 				$('#txtNoa').change(function(e) {
@@ -108,18 +109,32 @@
 			function btnOk() {
 				Lock(1,{opacity:0});
 				$('#txtNoa').val($.trim($('#txtNoa').val()));
-				if($('#txtNoa').val().length==0){
+				/*if($('#txtNoa').val().length==0){
 					alert('請輸入編號!');
 					Unlock(1);
 					return;
-				}
+				}*/
+				/*if($('#txtNoa').val().length==0 || $('#txtNoa').val().toUpperCase()=='AUTO'){
+					
+					
+				}else{
+					wrServer($('#txtNoa').val());
+				}*/
+				var t_noa = trim($('#txtNoa').val());
+				var t_date = trim($('#txtDatea').val());
+				if (q_cur ==1 && (t_noa.length==0 || t_noa.toUpperCase()=='AUTO'))
+					q_gtnoa(q_name, replaceAll((t_date.length == 0 ? q_date() : t_date), '/', ''));
+				else
+					wrServer(t_noa);
 				
-				if (q_cur == 1) {
+				
+				
+				/*if (q_cur == 1) {
 					t_where = "where=^^ noa='" + $('#txtNoa').val() + "'^^";
 					q_gt('addr', t_where, 0, 0, 0, "checkAddrno_btnOk", r_accy);
 				} else {
 					wrServer($('#txtNoa').val());
-				}
+				}*/
 			}
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)
@@ -139,13 +154,14 @@
 	                });
                 }
                 _bbsAssign();
-                for(var i=0;i<q_bbsCount;i++){
+                /*for(var i=0;i<q_bbsCount;i++){
 					$('#txtDatea_'+i).datepicker();
-				}
+				}*/
             }
 			function btnIns() {
 				_btnIns();
 				$('#txtDatea').val(q_date());
+				$('#txtNoa').val('AUTO');
 				$('#txtNoa').focus();
 			}
 			function btnModi() {
@@ -179,14 +195,14 @@
 				_readonly(t_para, empty);
 				if(t_para){
 					$('#txtDatea').datepicker('destroy');
-					for(var i=0;i<q_bbsCount;i++){
+					/*for(var i=0;i<q_bbsCount;i++){
 						$('#txtDatea_'+i).datepicker('destroy');
-					}
+					}*/
 				}else{
 					$('#txtDatea').datepicker();
-					for(var i=0;i<q_bbsCount;i++){
+					/*for(var i=0;i<q_bbsCount;i++){
 						$('#txtDatea_'+i).datepicker();
-					}
+					}*/
 				}
 			}
 			function btnMinus(id) {
@@ -393,9 +409,9 @@
                     <tr>
                         <td><span> </span><a id='lblPirce' class="lbl">油價區間</a></td>
                         <td colspan="3">
-                        	<input id="txtBprice" type="text" style="float:left; width:45%;"/>
+                        	<input id="txtBprice" type="text" style="float:left; width:45%;text-align:right;"/>
                         	<span style="float:left;display:block;width:5%;">~</span>
-                        	<input id="txtEprice" type="text" style="float:left; width:45%;"/>
+                        	<input id="txtEprice" type="text" style="float:left; width:45%;text-align:right;"/>
                         </td>
                     </tr>
                     <tr>
