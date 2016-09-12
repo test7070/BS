@@ -176,11 +176,17 @@
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
 				if(t_para){
+					$('#txtNoa').attr('readonly','readonly').css('background-color','RGB(237,237,237)').css('color','green');
 					$('#txtDatea').datepicker('destroy');
 					for(var i=0;i<q_bbsCount;i++){
 						$('#txtDatea_'+i).datepicker('destroy');
 					}
 				}else{
+					if(q_cur==1)
+						$('#txtNoa').removeAttr('readonly').css('background-color','RGB(255,255,255)').css('color','black');
+					else
+						$('#txtNoa').attr('readonly','readonly').css('background-color','RGB(237,237,237)').css('color','green');
+					
 					$('#txtDatea').datepicker();
 					for(var i=0;i<q_bbsCount;i++){
 						$('#txtDatea_'+i).datepicker();
@@ -350,7 +356,7 @@
                 <table class="tview" id="tview">
                     <tr>
                         <td align="center" style="width:20px; color:black;"><a id='vewChk'> </a></td>
-                        <td align="center" style="width:100px; color:black;"><a id='vewNoa'> </a></td>
+                        <td align="center" style="width:100px; color:black;"><a id='vewNoa'>單據編號</a></td>
                         <td align="center" style="width:100px; color:black;"><a>客戶</a></td>
                         <td align="center" style="width:100px; color:black;"><a>油價</a></td>
                         <td align="center" style="width:100px; color:black;"><a>品項</a></td>
@@ -374,11 +380,11 @@
                         <td class="tdZ"></td>
                     </tr>
                     <tr>
-                        <td><span> </span><a id='lblNoa' class="lbl"> </a></td>
+                        <td><span> </span><a id='lblNoa' class="lbl">單據編號</a></td>
                         <td colspan="2"><input id="txtNoa" type="text" class="txt c1" /> </td>
                     </tr>
                     <tr>
-                        <td><span> </span><a id='lblDatea' class="lbl"> </a></td>
+                        <td><span> </span><a id='lblDatea' class="lbl">登錄日期</a></td>
                         <td colspan="2"><input id="txtDatea" type="text" class="txt c1" /> </td>
                     </tr>
                     <tr>
@@ -397,13 +403,13 @@
                         </td>
                     </tr>
                     <tr>
-                        <td><span> </span><a id='lblMemo' class="lbl"> </a></td>
+                        <td><span> </span><a id='lblMemo' class="lbl">備註</a></td>
                         <td colspan="3"><textarea id="txtMemo" rows="3" class="txt c1"> </textarea></td>
                     </tr>
                     <tr>
-                        <td><span> </span><a id='lblWorker' class="lbl"> </a></td>
+                        <td><span> </span><a id='lblWorker' class="lbl">製單員</a></td>
                         <td><input id="txtWorker" type="text" class="txt c1" /> </td>
-                        <td><span> </span><a id='lblWorker2' class="lbl"> </a></td>
+                        <td><span> </span><a id='lblWorker2' class="lbl">修改人</a></td>
                         <td><input id="txtWorker2" type="text" class="txt c1" /> </td>
                     </tr>
                 </table>
