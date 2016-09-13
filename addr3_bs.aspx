@@ -23,8 +23,9 @@
 			brwList = [];
 			brwNowPage = 0;
 			brwKey = 'noa';
-			q_desc = 1;
-			brwCount2 = 8;
+		
+			brwCount2 = 20;
+			
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				q_brwCount();
