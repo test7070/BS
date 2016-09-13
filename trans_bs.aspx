@@ -113,6 +113,7 @@
 					$('#txtSaddr').hide();
 					$('#txtEndaddrno').show();
 					$('#txtEndaddr').show();
+					
 				}
 			}
 
@@ -226,6 +227,7 @@
 				_btnIns();
 				$('#txtNoa').val('AUTO');
 				$('#txtNoq').val('001');
+				$('#txtTrandate').focus();
 			}
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
