@@ -371,14 +371,14 @@
                         <td align="center" style="width:100px; color:black;"><a id='vewNoa'>單據編號</a></td>
                         <td align="center" style="width:100px; color:black;"><a>客戶</a></td>
                         <td align="center" style="width:100px; color:black;"><a>油價</a></td>
-                        <td align="center" style="width:100px; color:black;"><a>品項</a></td>
+                        <td align="center" style="width:100px; color:black;"><a>油價</a></td>
                     </tr>
                     <tr>
                         <td><input id="chkBrow.*" type="checkbox" /></td>
                         <td style="text-align: center;" id='noa'>~noa</td>
-                        <td style="text-align: left;" id='addr'>~addr</td>
-                        <td style="text-align: left;" id='straddr'>~straddr</td>
-                        <td style="text-align: left;" id='product'>~product</td>
+                        <td style="text-align: left;" id='cust'>~cust</td>
+                        <td style="text-align: left;" id='bprice'>~bprice</td>
+                        <td style="text-align: left;" id='eprice'>~eprice</td>
                     </tr>
                 </table>
             </div>

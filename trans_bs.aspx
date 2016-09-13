@@ -260,11 +260,14 @@
             }
 			function btnOk() {
 				Lock(1,{opacity:0});
+				//旺梨  DATEA等司機交單時才會輸入,所以電腦編號改由TRANDATE決定
 				//日期檢查
-				if($('#txtDatea').val().length == 0 || !q_cd($('#txtDatea').val())){
-					alert(q_getMsg('lblDatea')+'錯誤。');
-            		Unlock(1);
-            		return;
+				if(q_getPara('sys.project').toUpperCase()!='DH'){
+					if($('#txtDatea').val().length == 0 || !q_cd($('#txtDatea').val())){
+						alert(q_getMsg('lblDatea')+'錯誤。');
+	            		Unlock(1);
+	            		return;
+					}	
 				}
 				if($('#txtTrandate').val().length == 0 || !q_cd($('#txtTrandate').val())){
 					alert(q_getMsg('lblTrandate')+'錯誤。');
@@ -282,6 +285,9 @@
                 sum();
 				var t_noa = trim($('#txtNoa').val());
 				var t_date = trim($('#txtDatea').val());
+				if(q_getPara('sys.project').toUpperCase()=='DH'){
+					t_date = trim($('#txtTrandate').val());
+				}
 				if (t_noa.length == 0 || t_noa == "AUTO")
 					q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
 				else
