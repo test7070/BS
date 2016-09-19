@@ -64,11 +64,7 @@
 			}
 			function q_funcPost(t_func, result) {
 				switch(t_func) {
-					case 'tre.import':
-						if (result.length == 0)
-							alert('No data!');
-						else
-							location.reload();
+					default:
 						break;
 				}
 			}
