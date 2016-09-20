@@ -1,3 +1,165 @@
+z_trans_es04:--z_trans_es04 	
+	SET QUOTED_IDENTIFIER OFF	
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
+		
+	declare @tmp table(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,datea nvarchar(20)
+		,trandate nvarchar(20)
+		,salesno nvarchar(20)
+		,sales nvarchar(20)
+		,straddrno nvarchar(20)
+		,straddr nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(50)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,conn nvarchar(max)
+		,saddr nvarchar(max)
+		,dtime nvarchar(20)
+		,mount1 float --才數
+		,mount2 float --件數
+		,mount3 float --重量
+		,mount4 nvarchar(50) --板數
+		
+		,eaddr nvarchar(max)
+		,eaddress nvarchar(max)
+		,stime nvarchar(20)
+		,sender nvarchar(50)
+		,stel nvarchar(50)
+		,paytype nvarchar(20)
+		,tranmoney float
+		,carno nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,drivermobile nvarchar(max)
+	
+	)
+	insert into @tmp(noa,datea,trandate,salesno,sales,straddrno,straddr
+		,productno,product
+		,custno,cust,conn,saddr,dtime,mount1,mount2,mount3,mount4
+		,eaddr,eaddress,stime,sender,stel
+		,paytype,tranmoney,carno,driverno,driver,drivermobile)
+	select a.noa,a.datea,a.trandate,a.salesno,a.sales,a.straddrno,a.straddr,a.uccno,a.product
+		,a.custno,a.comp,'' conn,a.saddr,a.dtime,a.mount3,a.mount4,a.[weight],a.status
+		,a.aaddr,a.addressee,a.stime,a.sender,a.stel
+		,'' paytype,a.total,a.carno,a.driverno,a.driver,'' drivermobile
+	from view_trans a
+	left join car2 b on a.carno=b.carno
+	where a.noa=@t_noa
+	-------------------------------------------------------------------------------------------------
+	
+	update @tmp set conn=ISNULL(b.namea,'')+' '+ISNULL(b.tel,'')
+	from @tmp a
+	outer apply(select top 1 * from conn where noa=a.custno order by noq) b
+	
+	update @tmp set paytype=ISNULL(b.paytype,'')
+	from @tmp a
+	left join cust b on a.custno=b.noa
+	
+	update @tmp set drivermobile=ISNULL(b.mobile,ISNULL(b.tel,''))
+	from @tmp a
+	left join driver b on a.driverno=b.noa 
+	----------------------------------------------------------------------------
+	declare @address nvarchar(max) = ''
+	declare @tel nvarchar(max) = ''
+	declare @fax nvarchar(max) = ''
+	select top 1 @address=ltrim(rtrim(addr)),@tel=ltrim(rtrim(tel)),@fax=ltrim(rtrim(fax)) 
+	from acomp order by noa 
+	
+	select '1' gno 
+	,@address
+	+case when len(@tel)>0 then '　電話：'+@tel else '' end
+	+case when len(@fax)>0 then '　傳真：'+@fax else '' end a01
+	,'單號：'+noa a02 
+	,'日期：' a03
+	
+	,trandate b01
+	,sales b02
+	,straddr b03
+	,product b04
+	,cust b05 
+	,conn b06
+	,saddr b07
+	,dtime b08
+	,dbo.getComma(mount2,-1) + '件' b09a
+	,dbo.getComma(mount1,-1) + '才' b09b
+	,mount4 +'板' b09c
+	,dbo.getComma(mount3,-1) + 'KG' b09e
+	,eaddr b10
+	,eaddress b11	
+	,stime b12
+	,sender b13
+	,stel b14
+	,'' b15
+	,dbo.getComma(tranmoney,-1) b16
+	,carno b17
+	,driver b18
+	,drivermobile b19
+	from @tmp;
+
+
+z_trans_es03:--z_trans_es03 	
+	SET QUOTED_IDENTIFIER OFF	
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
+	
+	declare @tmp table(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,datea nvarchar(20)
+		,trandate nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,saddr nvarchar(50)
+		,eaddr nvarchar(50)
+		,memo nvarchar(max)
+		,mount1 float --才數
+		,mount2 float --件數
+		,mount3 float --重量
+		,mount4 nvarchar(50) --板數
+		,cartype nvarchar(50) -- car2.carspecno
+		,driverno nvarchar(20)
+		,driver nvarchar(50)
+		,carno nvarchar(20)
+		,tranmoney float
+	)
+	insert into @tmp(noa,datea,trandate,custno,cust,saddr,eaddr,memo,mount1,mount2,mount3,mount4,cartype
+		,driverno,driver,carno,tranmoney)
+	select a.noa,a.datea,a.trandate,a.custno,a.comp,a.saddr,a.aaddr,a.memo
+		,a.mount3,a.mount4,a.[status],a.[weight],b.carspecno
+		,a.driverno,a.driver,a.carno,a.total
+	from view_trans a
+	left join car2 b on a.carno=b.carno
+	where a.noa=@t_noa
+	---------------------------------------------------------------------
+	declare @address nvarchar(max) = ''
+	declare @tel nvarchar(max) = ''
+	declare @fax nvarchar(max) = ''
+	select top 1 @address=ltrim(rtrim(addr)),@tel=ltrim(rtrim(tel)),@fax=ltrim(rtrim(fax)) 
+	from acomp order by noa 
+
+	select '0' gno 
+		,@address
+		+case when len(@tel)>0 then '　電話：'+@tel else '' end
+		+case when len(@fax)>0 then '　傳真：'+@fax else '' end a01
+		,'單號：'+noa a02 
+		,'日期：'+trandate a03
+		,cust b01
+		,saddr b02
+		,eaddr b03
+		,memo b04
+		,'' b05
+		,dbo.getComma(mount1,-1) b06
+		,dbo.getComma(mount2,-1) b07
+		,dbo.getComma(mount3,-1) b08
+		,mount4 b09
+		,cartype b10
+		,dbo.getComma(tranmoney,-1) b11
+		,'司機：'+ISNULL(driver,'') c01
+		,'車牌：'+ISNULL(carno,'') c02
+	from @tmp;
+
 z_trans_es01:--z_trans_es01 	
 	SET QUOTED_IDENTIFIER OFF
 	declare @t_path nvarchar(max) = '[1]'
