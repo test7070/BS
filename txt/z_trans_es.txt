@@ -86,7 +86,7 @@ z_trans_es04:--z_trans_es04
 	,dbo.getComma(mount2,-1) + '件' b09a
 	,dbo.getComma(mount1,-1) + '才' b09b
 	,mount4 +'板' b09c
-	,dbo.getComma(mount3,-1) + 'KG' b09e
+	,dbo.getComma(mount3,-1) + 'KG' b09d
 	,eaddr b10
 	,eaddress b11	
 	,stime b12
@@ -176,6 +176,7 @@ z_trans_es01:--z_trans_es01
 	declare @t_baddrno nvarchar(20) = case when '#non'=[12] then '' else [12] end
 	declare @t_eaddrno nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
 	-----------------------------------------------------------------------------
+	-----------------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
 		,gno nvarchar(10)
@@ -227,9 +228,15 @@ z_trans_es01:--z_trans_es01
 	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
 	and ISNULL(a.straddrno,'') between @t_baddrno and @t_eaddrno
 	order by a.accy,a.noa,a.noq
+
+	insert into @tmp(gno,total,total2)
+	select '2',SUM(ISNULL(total,0)),SUM(ISNULL(total2,0))
+	from @tmp
+	where gno='1'
 	
 	select gno
 		,sel rr
+		,"trans_es?noa=\'"+noa+"\' and "+cast(sel as nvarchar)+"=$rr?"+accy ghref
 		,trandate a01
 		,cust a02
 		,driver a03
@@ -248,7 +255,8 @@ z_trans_es01:--z_trans_es01
 		,dbo.getComma([discount],-1) a14
 		,dbo.getComma([total2],-1) a15
 	from @tmp
-	order by sel;
+	order by gno,sel;
+
 ---------------------------------------------------------------------------------------------------------------------
 z_trans_es02:--z_trans_es2 	
 	SET QUOTED_IDENTIFIER OFF
