@@ -125,7 +125,8 @@
 				var price1=q_float('txtPrice');//桶數
 				var price2=q_float('txtPrice3');//公斤
 				var total = q_sub(round(q_add(q_mul(mount1,price1),q_mul(mount2,price2)),0),q_float('txtCustdiscount'));
-				var total2 = round(q_mul(q_float('txtMount2'),q_float('txtPrice2')),0);	
+				var discount = q_float('txtDiscount')==0?1:q_float('txtDiscount');
+				var total2 = round(q_mul(q_mul(q_float('txtMount2'),q_float('txtPrice2')),discount),0);	
 				$('#txtTotal').val(total);
 				$('#txtTotal2').val(total2);
 			}
@@ -153,6 +154,9 @@
 				switch(id) {
 					case 'txtCarno':
 						getPrice();
+						if(q_getPara('sys.project').toUpperCase()=='DH'){
+							
+						}
 						break;
 					case 'txtCustno':
 						getPrice();
@@ -638,9 +642,8 @@
 						<td><input id="txtMount2"  type="text" class="txt c1 num"/></td>
 						<td><span> </span><a id="lblPrice2" class="lbl"> </a></td>
 						<td><input id="txtPrice2"  type="text" class="txt c1 num"/></td>
-						
-						<td> </td>
-                        <td> </td>
+						<td><span> </span><a id="lblDiscount" class="lbl"> </a></td>
+						<td><input id="txtDiscount"  type="text" class="txt c1 num"/></td>
                         <td><span> </span><a id="lblTotal2" class="lbl"> </a></td>
                         <td><input id="txtTotal2"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
