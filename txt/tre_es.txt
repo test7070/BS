@@ -58,6 +58,22 @@ import:--import
 	outer apply (select noa from view_tres where tranno=a.tranno and trannoq=a.trannoq) b
 	where b.noa is not null
 	---------------------------------------------------------------------------------------------------
+	--加減項
+	declare @tmpcarchg table(
+		sel int identity(1,1)
+		,carno nvarchar(20)
+		,noa nvarchar(20)
+		,plusmoney float
+		,minusmoney float
+	)
+	insert into @tmpcarchg(carno,noa,plusmoney,minusmoney)
+	select a.carno,a.noa,a.plusmoney,a.minusmoney
+	from carchg a
+	outer apply (select top 1 * from view_tre where CHARINDEX(','+a.noa+',',','+carchgno+',')>0) b
+	where b.noa is null
+	and a.datea between @t_bdate and @t_edate
+	
+	---------------------------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#tre_es')is not null
 	BEGIN
 		drop table #tre_es
@@ -119,7 +135,11 @@ import:--import
 	declare @maxno2 nvarchar(20)
 	
 	declare cursor_table cursor for
-	select carno from @tmp group by carno
+	select carno
+	from(select carno from @tmp 
+	union all 
+	select carno from @tmpcarchg) a
+	group by carno
 	open cursor_table
 	fetch next from cursor_table
 	into @carno
@@ -129,11 +149,8 @@ import:--import
 		
 		declare cursor_table2 cursor for
 		select a.noa,a.plusmoney,a.minusmoney
-		from carchg a
-		outer apply (select top 1 * from view_tre where CHARINDEX(','+a.noa+',',','+carchgno+',')>0) b
+		from @tmpcarchg a
 		where a.carno=@carno
-		and a.datea between @t_bdate and @t_edate
-		and b.noa is null
 		open cursor_table2
 		fetch next from cursor_table2
 		into @noa,@plus,@minus
@@ -149,7 +166,7 @@ import:--import
 		deallocate cursor_table2	
 	
 		select @money=SUM(ISNULL([money],0)) from #tres_es where carno=@carno
-		select @total = @money + @plusmoney - @minusmoney
+		select @total = isnull(@money,0) + isnull(@plusmoney,0) - isnull(@minusmoney,0)
 		-----------------------------------------------------
 		select @noa='',@maxno1='',@maxno2=''
 		select top 1 @maxno1 = noa from view_tre where noa like @t_key+REPLACE(@t_datea,'/','')+'[0-9,A-Z][0-9][0-9]' order by noa desc
