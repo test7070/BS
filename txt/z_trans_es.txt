@@ -73,7 +73,7 @@ z_trans_es04:--z_trans_es04
 	+case when len(@tel)>0 then '　電話：'+@tel else '' end
 	+case when len(@fax)>0 then '　傳真：'+@fax else '' end a01
 	,'單號：'+noa a02 
-	,'日期：' a03
+	,'日期：'+datea a03
 	
 	,trandate b01
 	,sales b02
