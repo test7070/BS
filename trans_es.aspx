@@ -34,7 +34,6 @@
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
 			,['txtUccno', 'lblXproduct', 'ucc', 'noa,product', 'txtUccno,txtProduct', 'ucc_b.aspx']
-			,['txtSalesno', 'lblXsales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx']
 			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			, ['txtSaddr', '', 'view_road', 'memo', '0txtSaddr', 'road_b.aspx']
@@ -241,10 +240,13 @@
             		Unlock(1);
             		return;
 				}
-				if($('#txtDatea').val().length == 0 || !q_cd($('#txtDatea').val())){
-					alert('回單日期異常。');
-            		Unlock(1);
-            		return;
+				//再興   會先依日報輸入出車單,所以DATEA可先不輸入
+				if(q_getPara('sys.project').toUpperCase()!='DH'){
+					if($('#txtDatea').val().length == 0 || !q_cd($('#txtDatea').val())){
+						alert('回單日期異常。');
+	            		Unlock(1);
+	            		return;
+					}
 				}
 				
 				
@@ -258,6 +260,9 @@
                 sum();
 				var t_noa = trim($('#txtNoa').val());
 				var t_date = trim($('#txtDatea').val());
+				if(q_getPara('sys.project').toUpperCase()=='ES'){
+					t_date = trim($('#txtTrandate').val());
+				}
 				if (t_noa.length == 0 || t_noa == "AUTO")
 					q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
 				else
@@ -357,7 +362,7 @@
 		</script>
 		<style type="text/css">
 			#dmain {
-                overflow: hidden;
+                /*overflow: hidden;*/
             }
             .dview {
                 float: left;
@@ -478,19 +483,16 @@
 						<td align="center" style="width:20px; color:black;"><a id="vewChk"> </a></td>
 						<td align="center" style="width:80px; color:black;">取貨日期</td>
 						<td align="center" style="width:80px; color:black;">回單日期</td>
+						<td align="center" style="width:120px; color:black;">單號</td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:80px; color:black;">區域</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
-						<td align="center" style="width:80px; color:black;">品名</td>
 						<td align="center" style="width:80px; color:black;">才數</td>
 						<td align="center" style="width:80px; color:black;">件數</td>
 						<td align="center" style="width:80px; color:black;">板數</td>
 						<td align="center" style="width:80px; color:black;">重量</td>
 						
-						<td align="center" style="width:80px; color:black;">數量</td>
-						<td align="center" style="width:80px; color:black;">單價</td>
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
-						<td align="center" style="width:80px; color:black;">司機數量</td>
 						<td align="center" style="width:80px; color:black;">司機單價</td>
 						<td align="center" style="width:80px; color:black;">司機金額</td>
 					</tr>
@@ -498,21 +500,17 @@
 						<td ><input id="chkBrow.*" type="checkbox"/></td>
 						<td id="trandate" style="text-align: center;">~trandate</td>
 						<td id="datea" style="text-align: center;">~datea</td>
+						<td id="noa" style="text-align: center;">~noa</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="straddr" style="text-align: center;">~straddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
-						<td id="product" style="text-align: center;">~product</td>
 						
 						<td id="mount3" style="text-align: center;">~mount3</td>
 						<td id="mount4" style="text-align: center;">~mount4</td>
 						<td id="status" style="text-align: center;">~status</td>
 						<td id="weight" style="text-align: center;">~weight</td>
 						
-						
-						<td id="mount" style="text-align: right;">~mount</td>
-						<td id="price" style="text-align: right;">~price</td>
 						<td id="total" style="text-align: right;">~total</td>
-						<td id="mount2" style="text-align: right;">~mount2</td>
 						<td id="price2" style="text-align: right;">~price2</td>
 						<td id="total2" style="text-align: right;">~total2</td>
 					</tr>
@@ -536,11 +534,6 @@
 						<td><input id="txtTrandate"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblXdatea" class="lbl">回單日期</a></td>
 						<td><input id="txtDatea"  type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblXsales" class="lbl btn">業務</a></td>
-						<td colspan="3">
-							<input id="txtSalesno"  type="text" style="float:left;width:30%;"/>
-							<input id="txtSales"  type="text" style="float:left;width:70%;"/>
-						</td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCust" class="lbl btn"> </a></td>
@@ -573,8 +566,6 @@
 							<input id="txtDriver"  type="text" style="float:left;width:50%;"/>
 						</td>
 						<td> </td>
-						<td><span> </span><a id="lblXdtime" class="lbl">取貨時間</a></td>
-						<td><input id="txtDtime"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">才數</a></td>
