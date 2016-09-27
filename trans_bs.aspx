@@ -142,6 +142,16 @@
 
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'getCartype':
+						var as = _q_appendData("car2", "", true);
+                        if (as[0] != undefined) {
+                        	if(as[0].cartype =='2') //公司車
+                        		$("#txtDiscount").val(0.2);
+                        	else
+                        		$("#txtDiscount").val(0.95);
+                    		sum();
+                        }
+						break;
 					case q_name:
 						if (q_cur == 4)
 							q_Seek_gtPost();
@@ -154,8 +164,8 @@
 				switch(id) {
 					case 'txtCarno':
 						getPrice();
-						if(q_getPara('sys.project').toUpperCase()=='DH'){
-							
+						if(q_getPara('sys.project').toUpperCase()=='DH' && $('#txtCarno').val().length>0){
+							q_gt('car2', "where=^^ carno='"+$('#txtCarno').val()+"'^^", 0, 0, 0, "getCartype");	
 						}
 						break;
 					case 'txtCustno':
