@@ -64,6 +64,14 @@
                         type : '5', //[15] 
                         name : 'paytype',
                         value : [q_getPara('report.all')].concat("月結,現金,回收".split(','))
+                    },{
+                        type : '5', //[16] 
+                        name : 'xistrd',
+                        value : [q_getPara('report.all')].concat("1@已立帳,0@未立帳".split(','))
+                    },{
+                        type : '5', //[17] 
+                        name : 'xistre',
+                        value : [q_getPara('report.all')].concat("1@已立帳,0@未立帳".split(','))
                     }]
 				});
 				q_popAssign();

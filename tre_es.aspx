@@ -42,6 +42,10 @@
                 isLoad : false,
                 carchgno : new Array()
             };
+            
+            function sum(){
+            	
+            }
 
             $(document).ready(function() {
                 bbmKey = ['noa'];
@@ -699,8 +703,8 @@
 					<td align="center" style="width:80px;"><a id='lblCustno_s'> </a></td>
 
 					<td align="center" style="width:200px;"><a id='lblStraddr_s'> </a></td>
-					<td align="center" style="width:200px;"><a id='lblProduct_s'> </a></td>
-					<td align="center" style="width:100px;"><a id='lblMount_s'> </a></td>
+					<td align="center" style="width:200px;display:none;"><a id='lblProduct_s'> </a></td>
+					<td align="center" style="width:100px;display:none;"><a id='lblMount_s'> </a></td>
 					<td align="center" style="width:100px;"><a id='lblPrice_s'> </a></td>
 					<td align="center" style="width:100px;"><a id='lblDiscount_s'> </a></td>
 					<td align="center" style="width:100px;"><a id='lblMoney_s'> </a></td>
@@ -720,8 +724,8 @@
 					</td>
 					<td><input type="text" id="txtComp.*" style="width:95%;" /></td>
 					<td><input type="text" id="txtStraddr.*" style="width:95%;" /></td>
-					<td><input type="text" id="txtProduct.*" style="width:95%;" /></td>
-					<td><input type="text" id="txtMount.*" style="width:95%;text-align: right;" /></td>
+					<td style="display:none;"><input type="text" id="txtProduct.*" style="width:95%;" /></td>
+					<td style="display:none;"><input type="text" id="txtMount.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtPrice.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtDiscount.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtMoney.*" style="width:95%;text-align: right;" /></td>
