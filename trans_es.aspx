@@ -15,7 +15,7 @@
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
 			var q_name = "trans";
-			var q_readonly = ['txtTotal','txtTotal2','txtNoa','txtWorker','txtWorker2'];
+			var q_readonly = ['txtTotal','txtTotal2','txtWorker','txtWorker2','txtReserve'];
 			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtPrice3',10,2,1],['txtTotal2',10,0,1]
 			];
@@ -27,10 +27,10 @@
 			brwKey = 'noa';
 			q_desc = 1;
             q_xchg = 1;
-            brwCount2 = 15;
+            brwCount2 = 20;
             //不能彈出瀏覽視窗
             aPop = new Array(['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
-			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact,paytype', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,txtShip', 'cust_b.aspx']
+			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr', 'cust_b.aspx']
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
 			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
@@ -55,19 +55,24 @@
 			function mainPost() {
 				q_mask(bbmMask);
                 
-				$("#txtStraddrno").focus(function() {
+                q_cmbParse("cmbShip", "@,月結,現金,回收");
+                q_cmbParse("cmbRs", "@,Y@是,N@否");
+                
+				/*$("#txtStraddrno").focus(function() {
 					var input = document.getElementById ("txtStraddrno");
 		            if (typeof(input.selectionStart) != 'undefined' ) {	  
 		                input.selectionStart =  $(input).val().replace(/^(\w+\u002D).*$/g,'$1').length;
 		                input.selectionEnd = $(input).val().length;
 		            }
-				});
+				});*/
 				
 				/*$('#txtTrandate').change(function(e){
 					getDriverprice();
 					getPrice();
 				});*/
-				
+				$('#cmbRs').change(function(e){
+					sum();
+				});
 				$('#txtMount').change(function(e){
 					sum();
 				});
@@ -101,6 +106,12 @@
 				var total2 = round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0);	
 				$('#txtTotal').val(total);
 				$('#txtTotal2').val(total2);
+				
+				if($('#cmbRs').val()=='Y'){
+					$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
+				}else{
+					$('#txtReserve').val(0);
+				}
 			}
 
 			function q_boxClose(s2) {
@@ -119,8 +130,13 @@
                         if(as[0]!=undefined){
                         	if(as[0].cartype=='2')//公司車
                         		$('#txtDiscount').val(1);
-                        	else
-                        		$('#txtDiscount').val(0.8);
+                        	else{
+                        		//現金&沒開發票  10% , 其餘都 20%
+                        		if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y')
+                        			$('#txtDiscount').val(0.9);
+                        		else
+                        			$('#txtDiscount').val(0.8);
+                        	}
                         }else{
                         	$('#txtDiscount').val(1);
                         }
@@ -214,6 +230,8 @@
 				_btnIns();
 				$('#txtNoa').val('AUTO');
 				$('#txtNoq').val('001');
+				$('#txtMount').val(1);
+				$('#txtMount2').val(1);
 			}
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
@@ -253,15 +271,6 @@
             		Unlock(1);
             		return;
 				}
-				//再興   會先依日報輸入出車單,所以DATEA可先不輸入
-				if(q_getPara('sys.project').toUpperCase()!='DH'){
-					if($('#txtDatea').val().length == 0 || !q_cd($('#txtDatea').val())){
-						alert('回單日期異常。');
-	            		Unlock(1);
-	            		return;
-					}
-				}
-				
 				
 				if(q_cur ==1){
                 	$('#txtWorker').val(r_name);
@@ -272,10 +281,7 @@
                 }
                 sum();
 				var t_noa = trim($('#txtNoa').val());
-				var t_date = trim($('#txtDatea').val());
-				if(q_getPara('sys.project').toUpperCase()=='ES'){
-					t_date = trim($('#txtTrandate').val());
-				}
+				var t_date = trim($('#txtTrandate').val());
 				if (t_noa.length == 0 || t_noa == "AUTO")
 					q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
 				else
@@ -307,6 +313,11 @@
 				}else{
 					$('#txtDatea').datepicker();
 					$('#txtTrandate').datepicker();
+					if(q_cur==2){
+						$('#txtNoa').attr('readonly','readonly').css('color','green').css('background-color','rgb(237,237,237)');
+					}else if(q_cur==1){
+						$('#txtNoa').css('color','black').css('background-color','white');
+					}
 				}
 			}
 
@@ -558,7 +569,9 @@
 							<input id="txtNick" type="text" style="display:none;"/>
 						</td>
 						<td><span> </span><a class="lbl">結帳方式</a></td>
-						<td><input id="txtShip"  type="text" class="txt c1"/></td>
+						<td><select id="cmbShip" class="txt c1" > </select></td>
+						<td><span> </span><a class="lbl">發票</a></td>
+						<td><select id="cmbRs" class="txt c1" > </select></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblXstraddr" class="lbl btn">區域</a></td>
