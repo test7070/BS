@@ -56,7 +56,7 @@
 				q_mask(bbmMask);
                 
                 q_cmbParse("cmbShip", "@,月結,現金,回收");
-                q_cmbParse("cmbRs", "@,Y@是,N@否");
+                q_cmbParse("cmbRs", "@,Y@是");
                 
 				/*$("#txtStraddrno").focus(function() {
 					var input = document.getElementById ("txtStraddrno");
