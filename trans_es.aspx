@@ -30,10 +30,9 @@
             brwCount2 = 15;
             //不能彈出瀏覽視窗
             aPop = new Array(['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
-			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact,salesno,sales', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,txtDriverno,txtDriver', 'cust_b.aspx']
+			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact,paytype', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,txtShip', 'cust_b.aspx']
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
-			,['txtUccno', 'lblXproduct', 'ucc', 'noa,product', 'txtUccno,txtProduct', 'ucc_b.aspx']
 			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			, ['txtSaddr', '', 'view_road', 'memo', '0txtSaddr', 'road_b.aspx']
@@ -64,10 +63,10 @@
 		            }
 				});
 				
-				$('#txtTrandate').change(function(e){
+				/*$('#txtTrandate').change(function(e){
 					getDriverprice();
 					getPrice();
-				});
+				});*/
 				
 				$('#txtMount').change(function(e){
 					sum();
@@ -125,7 +124,7 @@
 			}
 			function q_popPost(id) {
 				switch(id) {
-					case 'txtCarno':
+					/*case 'txtCarno':
 						getPrice();
 						break;
 					case 'txtCustno':
@@ -136,7 +135,7 @@
                     case 'txtUccno':
                         getDriverprice();
                         getPrice();
-						break;
+						break;*/
 				}
 			}
 			function getPrice(){
@@ -485,6 +484,7 @@
 						<td align="center" style="width:80px; color:black;">回單日期</td>
 						<td align="center" style="width:120px; color:black;">單號</td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
+						<td align="center" style="width:60px; color:black;">收款<BR>方式</td>
 						<td align="center" style="width:80px; color:black;">區域</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">才數</td>
@@ -502,6 +502,7 @@
 						<td id="datea" style="text-align: center;">~datea</td>
 						<td id="noa" style="text-align: center;">~noa</td>
 						<td id="nick" style="text-align: center;">~nick</td>
+						<td id="ship" style="text-align: center;">~ship</td>
 						<td id="straddr" style="text-align: center;">~straddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
 						
@@ -542,11 +543,8 @@
 							<input id="txtComp"  type="text" style="float:left;width:70%;"/>
 							<input id="txtNick" type="text" style="display:none;"/>
 						</td>
-						<td><span> </span><a id="lblXproduct" class="lbl btn">拖運物品</a></td>
-						<td colspan="3">
-							<input id="txtUccno"  type="text" style="float:left;width:30%;"/>
-							<input id="txtProduct"  type="text" style="float:left;width:70%;"/>
-						</td>
+						<td><span> </span><a class="lbl">結帳方式</a></td>
+						<td><input id="txtShip"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblXstraddr" class="lbl btn">區域</a></td>
