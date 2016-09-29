@@ -114,6 +114,18 @@
 
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'getCar2':
+                        var as = _q_appendData("car2", "", true);
+                        if(as[0]!=undefined){
+                        	if(as[0].cartype=='2')//公司車
+                        		$('#txtDiscount').val(1);
+                        	else
+                        		$('#txtDiscount').val(0.8);
+                        }else{
+                        	$('#txtDiscount').val(1);
+                        }
+                        sum();
+                        break;
 					case q_name:
 						if (q_cur == 4)
 							q_Seek_gtPost();
@@ -124,10 +136,12 @@
 			}
 			function q_popPost(id) {
 				switch(id) {
-					/*case 'txtCarno':
-						getPrice();
+					case 'txtCarno':
+						var t_carno = $.trim($('#txtCarno').val());
+						if(t_carno.length>0)
+							q_gt('car2', "where=^^ carno='"+t_carno+"' ^^", 0, 0, 0, "getCar2");
 						break;
-					case 'txtCustno':
+					/*case 'txtCustno':
 						getPrice();
 						break;
 					case 'txtStraddrno':
@@ -576,8 +590,8 @@
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
-						<td><span> </span><a class="lbl">數量</a></td>
-						<td><input id="txtMount"  type="text" class="txt c1 num"/></td>
+						<td><span> </span><a class="lbl" style="display:none;">數量</a></td>
+						<td><input id="txtMount"  type="text" class="txt c1 num" style="display:none;"/></td>
                         <td><span> </span><a class="lbl">單價</a></td>
 						<td><input id="txtPrice" type="text" class="txt c1 num"/></td>
                         <td><span> </span><a class="lbl">應收金額</a></td>
@@ -587,8 +601,8 @@
 						<td class="tdZ"> </td>
 					</tr>
 					<tr style="background-color: pink;">
-						<td><span> </span><a id="lblMount2" class="lbl"> </a></td>
-						<td><input id="txtMount2"  type="text" class="txt c1 num"/></td>
+						<td><span> </span><a id="lblMount2" class="lbl" style="display:none;"> </a></td>
+						<td><input id="txtMount2"  type="text" class="txt c1 num" style="display:none;"/></td>
 						<td><span> </span><a class="lbl">司機運費</a></td>
 						<td>
 							<input id="txtPrice2"  type="text" class="txt c1 num"/>
