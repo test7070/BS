@@ -60,7 +60,11 @@
 					},{
 						type : '6', //[14]
 						name : 'noa'
-					}]
+					},{
+                        type : '5', //[15] 
+                        name : 'paytype',
+                        value : [q_getPara('report.all')].concat("月結,現金,回收".split(','))
+                    }]
 				});
 				q_popAssign();
 				q_langShow();

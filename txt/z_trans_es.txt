@@ -175,10 +175,14 @@ z_trans_es01:--z_trans_es01
 	declare @t_carno nvarchar(max) = case when '#non'=[11] then '' else [11] end
 	declare @t_baddrno nvarchar(20) = case when '#non'=[12] then '' else [12] end
 	declare @t_eaddrno nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
+	declare @t_paytype nvarchar(max)=case when '#non'=[15] then '' else [15] end
 	-----------------------------------------------------------------------------
+	-- 尚未立帳   報表顯示紅色提醒
 	-----------------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
+		,pno int
 		,gno nvarchar(10)
 		,accy nvarchar(10)
 		,noa nvarchar(20)
@@ -211,15 +215,18 @@ z_trans_es01:--z_trans_es01
 		
 		,mount3 float
 		,mount4 float
-		,[status] float
+		,[status] nvarchar(20)
 		,[weight] float
+		
+		,istrd int
+		,ship nvarchar(20) --收款方式
 	)
-	insert into @tmp(gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
+	insert into @tmp(pno,gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
 	,straddrno,straddr,inmount,pton,mount,price,total,outmount,pton2,mount2,price2,price3,discount,total2
-	,mount3,mount4,[status],[weight])
-	select '1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
+	,mount3,mount4,[status],[weight],ship)
+	select 1,'1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
 	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.outmount,a.pton2,a.mount2,a.price2,a.price3
-	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight]
+	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship
 	from view_trans a
 	where a.trandate between @t_btrandate and @t_etrandate
 	and a.datea between @t_bdate and @t_edate
@@ -227,16 +234,25 @@ z_trans_es01:--z_trans_es01
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
 	and ISNULL(a.straddrno,'') between @t_baddrno and @t_eaddrno
+	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
 	order by a.accy,a.noa,a.noq
+	
+	update @tmp set istrd=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
+	from @tmp a
+	left join view_trds b on a.noa=b.tranno and a.noq=b.trannoq
 
-	insert into @tmp(gno,total,total2)
-	select '2',SUM(ISNULL(total,0)),SUM(ISNULL(total2,0))
+	update @tmp set gno='3' where istrd=1
+
+	insert into @tmp(pno,gno,total,total2)
+	select 2,'2',SUM(ISNULL(total,0)),SUM(ISNULL(total2,0))
 	from @tmp
-	where gno='1'
+	where pno=1
 	
 	select gno
 		,sel rr
 		,"trans_es?noa=\'"+noa+"\' and "+cast(sel as nvarchar)+"=$rr?"+accy ghref
+		,noa b01
+		,ship b02
 		,trandate a01
 		,cust a02
 		,driver a03
@@ -255,7 +271,7 @@ z_trans_es01:--z_trans_es01
 		,dbo.getComma([discount],-1) a14
 		,dbo.getComma([total2],-1) a15
 	from @tmp
-	order by gno,sel;
+	order by pno,sel;
 
 ---------------------------------------------------------------------------------------------------------------------
 z_trans_es02:--z_trans_es2 	
