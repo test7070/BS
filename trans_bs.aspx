@@ -98,7 +98,7 @@
 				});
 				//----------------------------------------------------------
 				if(q_getPara('sys.project').toUpperCase()=='DH'){
-					
+					$('.DH_show').show();
 					$('#lblMount_bs').text('數量');
 					$('#lblPrice_bs').text('單價');
 					
@@ -143,14 +143,31 @@
 			function q_gtPost(t_name) {
 				switch (t_name) {
 					case 'getCartype':
+						//公司車22%, 外車匯款的95%,支票100%
 						var as = _q_appendData("car2", "", true);
                         if (as[0] != undefined) {
-                        	if(as[0].cartype =='2') //公司車
-                        		$("#txtDiscount").val(0.2);
+                        	if(as[0].cartype =='2'){
+                        		//公司車
+                        		$("#txtDiscount").val(0.22);
+                        		sum();
+                        	} 
                         	else
-                        		$("#txtDiscount").val(0.95);
-                    		sum();
+                        		q_gt('driver', "where=^^ noa='"+$('#txtDriverno').val()+"'^^", 0, 0, 0, "getDriver");	
+                        }else{
+                        	sum();
                         }
+						break;
+					case 'getDriver':
+						//公司車22%, 外車匯款的95%,支票100%
+						var as = _q_appendData("driver", "", true);
+                        if (as[0] != undefined) {
+                        	var t_account = $.trim(as[0].account);
+                        	if(t_account.length>0)
+                        		$("#txtDiscount").val(0.95);
+                        	else
+                        		$("#txtDiscount").val(1);
+                        }
+                        sum();
 						break;
 					case q_name:
 						if (q_cur == 4)
@@ -164,6 +181,11 @@
 				switch(id) {
 					case 'txtCarno':
 						getPrice();
+						if(q_getPara('sys.project').toUpperCase()=='DH' && $('#txtCarno').val().length>0){
+							q_gt('car2', "where=^^ carno='"+$('#txtCarno').val()+"'^^", 0, 0, 0, "getCartype");	
+						}
+						break;
+					case 'txtDriverno':
 						if(q_getPara('sys.project').toUpperCase()=='DH' && $('#txtCarno').val().length>0){
 							q_gt('car2', "where=^^ carno='"+$('#txtCarno').val()+"'^^", 0, 0, 0, "getCartype");	
 						}
@@ -241,6 +263,8 @@
 				_btnIns();
 				$('#txtNoa').val('AUTO');
 				$('#txtNoq').val('001');
+				$('#txtMount').val(1);
+				$('#txtMount2').val(1);
 				$('#txtTrandate').focus();
 			}
 			function btnModi() {
@@ -538,6 +562,7 @@
 						<td align="center" style="width:80px; color:black;">客戶金額</td>
 						<td align="center" style="width:80px; color:black;">司機數量</td>
 						<td align="center" style="width:80px; color:black;">司機單價</td>
+						<td align="center" style="width:80px; color:black;">折扣</td>
 						<td align="center" style="width:80px; color:black;">司機金額</td>
 					</tr>
 					<tr>
@@ -558,6 +583,7 @@
 						<td id="total" style="text-align: right;">~total</td>
 						<td id="mount2" style="text-align: right;">~mount2</td>
 						<td id="price2" style="text-align: right;">~price2</td>
+						<td id="discount" style="text-align: right;">~discount</td>
 						<td id="total2" style="text-align: right;">~total2</td>
 					</tr>
 				</table>
@@ -612,13 +638,13 @@
 						</td>
 					</tr>
 					<tr>
+						<td style="display:none;" class="DH_show"><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
+						<td style="display:none;" class="DH_show"><input id="txtCarno"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblDriver" class="lbl btn"> </a></td>
 						<td colspan="2">
 							<input id="txtDriverno"  type="text" style="float:left;width:50%;"/>
 							<input id="txtDriver"  type="text" style="float:left;width:50%;"/>
 						</td>
-						<td><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
-						<td><input id="txtCarno"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a id="lblMount_bs" class="lbl">數量(桶數)</a></td>
