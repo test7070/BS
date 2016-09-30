@@ -40,10 +40,8 @@
 				$('#txtEtrandate').datepicker(); 
                 $('#txtNoa').focus();
                 
-                if(q_getPara('sys.project').toUpperCase()=='DH'){
-                	$('#lblStraddr').text('起點');
-                	$('.DH_show').show();
-                }
+                q_cmbParse("cmbShip", "@,月結,現金,回收");
+                q_cmbParse("cmbRs", "@,Y@是,N@否");
             }
 
             function q_gtPost(t_name) {
@@ -66,7 +64,11 @@
 		        t_edate = $('#txtEdate').val();
 		        t_btrandate = $('#txtBtrandate').val();
 		        t_etrandate = $('#txtEtrandate').val();
-
+		        
+		        t_aaddr = $.trim($('#txtAaddr').val());
+				t_ship = $.trim($('#cmbShip').val());
+				t_rs = $.trim($('#cmbRs').val());
+				
 		        var t_where = " 1=1 " 
 		        + q_sqlPara2("noa", t_noa) 
 		        + q_sqlPara2("datea", t_bdate, t_edate) 
@@ -79,7 +81,15 @@
                     t_where += " and charindex('" + t_comp + "',comp)>0";
                 if (t_driver.length>0)
                     t_where += " and charindex('" + t_driver + "',driver)>0";
-		       	
+		       	if (t_aaddr.length>0)
+                    t_where += " and charindex('" + t_aaddr + "',aaddr)>0";
+                if (t_ship.length>0)
+                    t_where += " and charindex('" + t_ship + "',ship)>0";
+                if (t_rs == 'Y')
+                    t_where += " and rs='Y'";
+                if (t_rs == 'N')
+                    t_where += " and len(isnull(rs,''))=0";   
+                            
 		        t_where = ' where=^^' + t_where + '^^ ';
 		        return t_where;
             }
@@ -153,9 +163,23 @@
 					</td>
 				</tr>
 				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a>結帳方式</a></td>
+					<td><select id="cmbShip" style="width:215px; font-size:medium;"> </select></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a>發票</a></td>
+					<td><select id="cmbRs" style="width:215px; font-size:medium;"> </select></td>
+				</tr>
+				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblXstraddr'>運送區域</a></td>
 					<td>
 					<input class="txt" id="txtStraddrno" type="text" style="width:215px; font-size:medium;" />
+					</td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblXaaddr'>卸貨地點</a></td>
+					<td>
+					<input class="txt" id="txtAaddr" type="text" style="width:215px; font-size:medium;" />
 					</td>
 				</tr>
 			</table>

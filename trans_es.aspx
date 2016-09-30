@@ -509,8 +509,9 @@
 						<td align="center" style="width:80px; color:black;">回單日期</td>
 						<td align="center" style="width:120px; color:black;">單號</td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
-						<td align="center" style="width:60px; color:black;">收款<BR>方式</td>
-						<td align="center" style="width:80px; color:black;">區域</td>
+						<td align="center" style="width:50px; color:black;">結帳<BR>方式</td>
+						<td align="center" style="width:50px; color:black;">發票</td>
+						<td align="center" style="width:80px; color:black;">卸貨地點</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">才數</td>
 						<td align="center" style="width:80px; color:black;">件數</td>
@@ -528,7 +529,8 @@
 						<td id="noa" style="text-align: center;">~noa</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="ship" style="text-align: center;">~ship</td>
-						<td id="straddr" style="text-align: center;">~straddr</td>
+						<td id="rs" style="text-align: center;">~rs</td>
+						<td id="aaddr" style="text-align: center;">~aaddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
 						
 						<td id="mount3" style="text-align: center;">~mount3</td>
