@@ -177,8 +177,10 @@ z_trans_es01:--z_trans_es01
 	declare @t_eaddrno nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
 	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
 	declare @t_paytype nvarchar(max)=case when '#non'=[15] then '' else [15] end
-	declare @t_istrd nvarchar(max)=case when '#non'=[16] then '' else [16] end
-	declare @t_istre nvarchar(max)=case when '#non'=[17] then '' else [17] end
+	declare @t_isinvo nvarchar(max)=case when '#non'=[16] then '' else [16] end
+	declare @t_istrd nvarchar(max)=case when '#non'=[17] then '' else [17] end
+	declare @t_istre nvarchar(max)=case when '#non'=[18] then '' else [18] end
+	declare @t_aaddr nvarchar(max)=case when '#non'=[19] then '' else [19] end
 	-----------------------------------------------------------------------------
 	-- 尚未立帳   報表顯示紅色提醒
 	-----------------------------------------------------------------------------
@@ -223,13 +225,15 @@ z_trans_es01:--z_trans_es01
 		,istrd int
 		,istre int
 		,ship nvarchar(20) --收款方式
+		,rs nvarchar(20)
+		,aaddr nvarchar(max)
 	)
 	insert into @tmp(pno,gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
 	,straddrno,straddr,inmount,pton,mount,price,total,outmount,pton2,mount2,price2,price3,discount,total2
-	,mount3,mount4,[status],[weight],ship)
+	,mount3,mount4,[status],[weight],ship,rs,aaddr)
 	select 1,'1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
 	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.outmount,a.pton2,a.mount2,a.price2,a.price3
-	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship
+	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship,a.rs,a.aaddr
 	from view_trans a
 	where a.trandate between @t_btrandate and @t_etrandate
 	and a.datea between @t_bdate and @t_edate
@@ -248,6 +252,11 @@ z_trans_es01:--z_trans_es01
 	from @tmp a
 	left join view_tres b on a.noa=b.tranno and a.noq=b.trannoq
 
+	if @t_isinvo = 'Y'
+		delete @tmp where rs != 'Y'
+	if @t_isinvo = 'N'
+		delete @tmp where rs = 'Y'	
+		
 	if @t_istrd = '0'
 		delete @tmp where istrd = 1
 	else if @t_istrd = '1'
@@ -270,12 +279,13 @@ z_trans_es01:--z_trans_es01
 		,"trans_es?noa=\'"+noa+"\' and "+cast(sel as nvarchar)+"=$rr?"+accy ghref
 		,noa b01
 		,ship b02
+		,rs b03
 		,trandate a01
 		,cust a02
 		,driver a03
 		,carno a04
 		,product a05
-		,straddr a06
+		,aaddr a06
 		,dbo.getComma(mount3,-1) a07
 		,dbo.getComma(mount4,-1) a08
 		,[status] a09

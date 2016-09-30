@@ -66,12 +66,19 @@
                         value : [q_getPara('report.all')].concat("月結,現金,回收".split(','))
                     },{
                         type : '5', //[16] 
+                        name : 'xisinvo',
+                        value : [q_getPara('report.all')].concat("Y@是,N@否".split(','))
+                    },{
+                        type : '5', //[17] 
                         name : 'xistrd',
                         value : [q_getPara('report.all')].concat("1@已立帳,0@未立帳".split(','))
                     },{
-                        type : '5', //[17] 
+                        type : '5', //[18] 
                         name : 'xistre',
                         value : [q_getPara('report.all')].concat("1@已立帳,0@未立帳".split(','))
+                    },{
+                        type : '6', //[19] 
+                        name : 'xaaddr'
                     }]
 				});
 				q_popAssign();
