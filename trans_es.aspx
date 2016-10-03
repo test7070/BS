@@ -37,7 +37,28 @@
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			, ['txtSaddr', '', 'view_road', 'memo', '0txtSaddr', 'road_b.aspx']
 			);
-            	
+        	
+        	function sum() {
+				if(q_cur!=1 && q_cur!=2)
+					return;
+				var mount1=q_float('txtMount');
+				var price1=q_float('txtPrice');
+				var mount2=q_float('txtMount2');								
+				var price2=q_float('txtPrice2');
+				var price3=q_float('txtPrice3');
+				var discount=q_float('txtDiscount');
+				var total = round(q_mul(mount1,price1),0);
+				var total2 = round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0);	
+				$('#txtTotal').val(total);
+				$('#txtTotal2').val(total2);
+				
+				if($('#cmbRs').val()=='Y'){
+					$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
+				}else{
+					$('#txtReserve').val(0);
+				}
+			}
+			
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				q_brwCount();
@@ -91,27 +112,9 @@
 				$('#txtPrice2').change(function(e){
 					sum();
 				});
-			}
-
-			function sum() {
-				if(q_cur!=1 && q_cur!=2)
-					return;
-				var mount1=q_float('txtMount');
-				var price1=q_float('txtPrice');
-				var mount2=q_float('txtMount2');								
-				var price2=q_float('txtPrice2');
-				var price3=q_float('txtPrice3');
-				var discount=q_float('txtDiscount');
-				var total = round(q_mul(mount1,price1),0);
-				var total2 = round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0);	
-				$('#txtTotal').val(total);
-				$('#txtTotal2').val(total2);
-				
-				if($('#cmbRs').val()=='Y'){
-					$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
-				}else{
-					$('#txtReserve').val(0);
-				}
+				$('#txtDiscount').change(function(e){
+					sum();
+				});
 			}
 
 			function q_boxClose(s2) {

@@ -96,6 +96,9 @@
 				$('#txtPrice2').change(function(e){
 					sum();
 				});
+				$('#txtDiscount').change(function(e){
+					sum();
+				});
 				//----------------------------------------------------------
 				if(q_getPara('sys.project').toUpperCase()=='DH'){
 					$('.DH_show').show();
@@ -263,9 +266,18 @@
 				_btnIns();
 				$('#txtNoa').val('AUTO');
 				$('#txtNoq').val('001');
-				$('#txtMount').val(1);
-				$('#txtMount2').val(1);
-				$('#txtTrandate').focus();
+				
+				if(q_getPara('sys.project').toUpperCase()=='BS'){
+					$('#txtDatea').focus();	
+					$('#txtUccno').val('C01');
+					$('#txtProduct').val('油');
+				}
+				else{
+					$('#txtTrandate').focus();
+					$('#txtMount').val(1);
+					$('#txtMount2').val(1);
+				}
+				
 			}
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
