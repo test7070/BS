@@ -338,9 +338,11 @@
 				if(t_para){
 					$('#txtDatea').datepicker('destroy');
 					$('#txtTrandate').datepicker('destroy');
+					$('#btnBatInsert').removeAttr('disabled');
 				}else{
 					$('#txtDatea').datepicker();
 					$('#txtTrandate').datepicker();
+					$('#btnBatInsert').attr('disabled','disabled');
 					if(q_cur==2){
 						$('#txtNoa').attr('readonly','readonly').css('color','green').css('background-color','rgb(237,237,237)');
 					}else if(q_cur==1){
