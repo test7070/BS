@@ -1,3 +1,79 @@
+appendData:--appendData   trans_bs.txt	
+	SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(MAX)
+	declare @t_key nvarchar(20) = [1]
+	declare @t_date nvarchar(20) = [2]
+	declare @t_n nvarchar(20) = [3] 
+	------------------------------------------------------------------------
+	declare @n int =0
+	begin try
+		set @n = CAST(@t_n as int)
+	end try
+	begin catch
+		set @n = 0
+	end catch
+	if @n = 0
+	begin
+		select 'Error' msg
+	end
+	------------------------------------------------------------------------
+	declare @string nvarchar(max) = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	declare @maxno nvarchar(20) = ''
+	declare @i int
+	
+	select top 1 @maxno = noa
+	from view_trans 
+	where noa like @t_key+REPLACE(@t_date,'/','')+'[0-9,A-Z][0-9][0-9]'
+	order by noa desc
+	if len(@maxno) = 0
+		set @i = 0
+	else
+		set @i = (charindex(left(RIGHT(@maxno,3),1),@string)-1)*100 + cast(RIGHT(@maxno,2) as int)
+	-----------------------------------------------------------------------------------------------
+	IF OBJECT_ID('tempdb..#append_trans_es')is not null
+	BEGIN
+		drop table #append_trans_es
+	END
+	create table #append_trans_es(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,trandate nvarchar(10)
+		,datea nvarchar(10)
+	)
+	declare @noa nvarchar(20)
+	
+	while @n != 0 
+	begin
+		set @i = @i + 1
+		set @noa = @t_key + REPLACE(@t_date,'/','') + SUBSTRING(@string, ceiling(@i/100)+1, 1) + RIGHT('00'+CAST(@i%100 as nvarchar),2)
+		
+		insert into #append_trans_es(noa,noq,trandate,datea)values(@noa,'001',@t_date,'')
+		
+		set @n = @n -1
+	end
+	
+	DECLARE @chk tinyint = 0
+	Begin Transaction [Trans_Name]
+	
+	declare @accy nvarchar(10) = left(@t_date,3)
+	begin try
+		set @cmd =
+		"insert into trans"+@accy+"(noa,noq,trandate,datea)
+		select noa,noq,trandate,datea
+		from #append_trans_es"
+		execute sp_executesql @cmd
+		
+		Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
+		select 'done' msg 
+	end try
+	begin catch
+		Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+		select ERROR_MESSAGE() msg 
+	end catch
+	
+	drop table #append_trans_es;
+
 resetDate: -- trans_bs.txt resetDate  重置叫收日期
 	declare @t_noa nvarchar(max) = [1]
 	--------------------------------------------------------------------------

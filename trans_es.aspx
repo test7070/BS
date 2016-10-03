@@ -19,7 +19,7 @@
 			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtPrice3',10,2,1],['txtTotal2',10,0,1]
 			];
-			var bbmMask = [['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99']];
+			var bbmMask = [['textDate','999/99/99'],['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99']];
 			q_sqlCount = 6;
 			brwCount = 6;
 			brwList = [];
@@ -115,6 +115,23 @@
 				$('#txtDiscount').change(function(e){
 					sum();
 				});
+				//----------------------------------------------------------------
+				$('#textDate').datepicker(0);
+				$('#btnBatInsert').click(function(e){
+					$('#divImport').toggle();
+				});
+				$('#btnClose_import').click(function(e){
+					$('#divImport').toggle();
+				});
+				$('#btnAppend_import').click(function(e){
+					if(q_cur != 1 && q_cur != 2){
+                   		var t_key = q_getPara('sys.key_trans');
+                   		var t_date = $('#textDate').val();
+                   		var t_n = $('#textN').val(); 
+                   		t_key = (t_key.length==0?'BA':t_key);//一定要有值
+                   		q_func('qtxt.query.appendData', 'trans_bs.txt,appendData,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';'+ encodeURI(t_n));
+                	}
+				});
 			}
 
 			function q_boxClose(s2) {
@@ -190,6 +207,14 @@
 			}
 			function q_funcPost(t_func, result) {
                 switch(t_func) {
+                	case 'qtxt.query.appendData':
+                		var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                        	alert(as[0].msg);
+                        	location.reload();
+                        } else {
+                        }
+                		break;
                 	case 'qtxt.query.trans_bs_resetDate':
                 		console.log('trans_bs_resetDate');
                 		var as = _q_appendData("tmp0", "", true, true);
@@ -502,7 +527,34 @@
 	ondragover="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	>
+		<div id="divImport" style="position:absolute; top:250px; left:600px; display:none; width:400px; height:200px; background-color: #cad3ff; border: 5px solid gray;">
+			<table style="width:100%;">
+				<tr style="height:1px;">
+					<td style="width:150px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblDatea_import" style="float:right; color: blue; font-size: medium;">取貨日期</a></td>
+					<td colspan="4"><input id="textDate"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblN_import" style="float:right; color: blue; font-size: medium;">筆數</a></td>
+					<td><input id="textN"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
+				</tr>
+				<tr> </tr>
+				<tr>
+					<td> </td>
+					<td><input type="button" id="btnAppend_import" value="新增空白行" /></td>
+					<td> </td>
+					<td><input type="button" id="btnClose_import" value="關閉" /></td>
+				</tr>
+			</table>
+		</div>
 		<!--#include file="../inc/toolbar.inc"-->
+		<input type="button" id="btnBatInsert" style="float:left;width:100px;" value="整批新增">
 		<div id="dmain">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
