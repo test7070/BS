@@ -1,3 +1,133 @@
+z_trans_es05:--z_trans_es05 	
+	SET QUOTED_IDENTIFIER OFF	
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end	
+	
+	declare @t_cno nvarchar(20) = case when '#non'=[20] then '' else [20] end	
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	declare @t_paytype nvarchar(max)=case when '#non'=[15] then '' else [15] end
+	declare @t_isinvo nvarchar(max)=case when '#non'=[16] then '' else [16] end
+	------------------------------------------------------------------
+	declare @tmpa table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,pno int
+		,cno nvarchar(20)
+		,acomp nvarchar(max)
+		,atel nvarchar(max)
+		,afax nvarchar(max)
+		,aaddr nvarchar(max)
+		
+		,tranaccy nvarchar(10)
+		,tranno nvarchar(20)
+		,trannoq nvarchar(10)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,tel nvarchar(max)
+		,fax nvarchar(max)
+		,[address] nvarchar(max)
+			
+		,trandate nvarchar(20)
+		,mount3 float
+		,mount4 float
+		,[status] nvarchar(20)
+		,[weight] float
+		,addr nvarchar(max)
+		,[money] float
+		,tax float
+		,total float
+		
+		,rs nvarchar(20)
+	)
+	insert into @tmpa(gno,pno,tranaccy,tranno,trannoq,custno,cust,trandate
+		,mount3,mount4,[status],[weight],addr
+		,[money],tax,rs)
+	select '1',1,accy,noa,noq,custno,comp,trandate
+		,mount3,mount4,[status],[weight],aaddr
+		,total,reserve,rs
+	from view_trans a 
+	where a.trandate between @t_btrandate and @t_etrandate
+	and a.custno between @t_bcustno and @t_ecustno
+	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
+
+	if @t_isinvo = 'Y'
+		delete @tmpa where rs != 'Y'
+	if @t_isinvo = 'N'
+		delete @tmpa where rs = 'Y'	
+		
+	update @tmpa set total = ISNULL([money],0)+ISNULL([tax],0)
+	
+	insert into @tmpa(gno,pno,custno,[money],tax,total)
+	select '2',2,custno,SUM(ISNULL([money],0)),SUM(ISNULL([tax],0)),SUM(ISNULL([total],0))
+	from @tmpa
+	where gno='1'
+	group by custno
+	
+	insert into @tmpa(gno,pno,custno)
+	select '3',3,custno
+	from @tmpa
+	where gno='1'
+	group by custno
+	------------------------------------------------------------------
+	declare @pagecount int = 25  --　　一頁幾筆
+	declare @custno nvarchar(20)
+	declare @n int
+	
+	declare cursor_table cursor for
+	select custno,count(1) from @tmpa group by custno
+	open cursor_table
+	fetch next from cursor_table
+	into @custno,@n
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		while @n%@pagecount != 0
+		begin
+			insert into @tmpa(gno,pno,custno)values('4',4,@custno)
+			set @n = @n +1
+		end
+		fetch next from cursor_table
+		into @custno,@n
+	end
+	close cursor_table
+	deallocate cursor_table	
+	-----------------------------------------------------------------------------
+	update @tmpa set cust=ISNULL(b.comp,'')
+		,tel = ISNULL(b.tel,'')
+		,fax = ISNULL(b.fax,'')
+		,[address] = ISNULL(b.addr_invo,'')
+	from @tmpa a
+	left join cust b on a.custno=b.noa 
+	
+	update @tmpa set cno=@t_cno
+		,acomp = ISNULL(b.acomp,'')
+		,atel = ISNULL(b.tel,'')
+		,afax = ISNULL(b.fax,'')
+		,aaddr= ISNULL(b.addr,'')
+	from @tmpa a
+	left join acomp b on b.noa=@t_cno
+	
+	select gno
+		, acomp a00
+		, aaddr a01
+		, '電話：'+atel+'  傳真：'+afax a02
+		, '客戶：'+isnull(custno ,'')+ '  ' + isnull(cust,'') a03
+		, '電話：'+case when len(tel)>0 then tel else '　　　　' end
+		+ '　傳真：'+case when len(fax)>0 then fax else '　　　　' end
+		+ '　地址：'+case when len([address])>0 then [address] else '　　　　' end a04
+		,trandate b01
+		,case when mount3>0 then CAST(mount3 as nvarchar)+'才' else '' end
+		+case when mount4>0 then CAST(mount4 as nvarchar)+'件' else '' end
+		+case when len([status])>0 then [status]+'板' else '' end
+		+case when mount4>0 then CAST([weight] as nvarchar) + 'Kg' else '' end b02
+		,addr b03
+		,dbo.getComma([money],-1) b04
+		,dbo.getComma([tax],-1) b05
+		,dbo.getComma([total],-1) b06
+		,'結帳日期：'+@t_btrandate+'～'+@t_etrandate c01
+	from @tmpa order by custno,pno,sel;
+
 z_trans_es04:--z_trans_es04 	
 	SET QUOTED_IDENTIFIER OFF	
 	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end

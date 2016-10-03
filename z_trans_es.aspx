@@ -15,10 +15,25 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"> </script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"> </script>
 		<script type="text/javascript">
+			var t_acomp = '';
             $(document).ready(function() {
             	q_getId();
-                q_gf('', 'z_trans_es');       
+            	q_gt('acomp', "", 0, 0, 0, "");
             });
+            function q_gtPost(t_name) {
+                switch (t_name) {
+                	case 'acomp':
+                		var as = _q_appendData("acomp", "", true);
+                        if(as[0]!=undefined){
+                        	for(var i=0;i<as.length;i++)
+                        		t_acomp += (t_acomp.length>0?',':'')+as[i].noa+'@'+as[i].nick; 
+                        }
+                		q_gf('', 'z_trans_es');
+                		break;
+                    default:
+						break;
+                }
+            }
             function q_gfPost() {
 				$('#q_report').q_report({
 					fileName : 'z_trans_es',
@@ -31,54 +46,58 @@
 						name : 'db',
 						value : q_db
 					},{
-						type : '1', //[3][4]
+						type : '1', //[3][4]    1
 						name : 'xtrandate'
 					},{
-						type : '1', //[5][6]
+						type : '1', //[5][6]    2
 						name : 'xdatea'
 					}, {
-						type : '2', //[7][8]
+						type : '2', //[7][8]    3
 						name : 'xcust',
 						dbf : 'cust',
 						index : 'noa,comp',
 						src : 'cust_b.aspx'
 					}, {
-						type : '2', //[9][10]
+						type : '2', //[9][10]    4
 						name : 'xdriver',
 						dbf : 'driver',
 						index : 'noa,namea',
 						src : 'driver_b.aspx'
 					},{
-						type : '6', //[11]
+						type : '6', //[11]       5
 						name : 'xcarno'
 					}, {
-						type : '2', //[12][13]
+						type : '2', //[12][13]    6
 						name : 'xaddr3',
 						dbf : 'addr3',
 						index : 'noa,namea',
 						src : 'addr3_bs_b.aspx'
 					},{
-						type : '6', //[14]
+						type : '6', //[14]        7
 						name : 'noa'
 					},{
-                        type : '5', //[15] 
+                        type : '5', //[15]         8
                         name : 'paytype',
                         value : [q_getPara('report.all')].concat("月結,現金,回收".split(','))
                     },{
-                        type : '5', //[16] 
+                        type : '5', //[16]          9
                         name : 'xisinvo',
                         value : [q_getPara('report.all')].concat("Y@是,N@否".split(','))
                     },{
-                        type : '5', //[17] 
+                        type : '5', //[17]           10
                         name : 'xistrd',
                         value : [q_getPara('report.all')].concat("1@已立帳,0@未立帳".split(','))
                     },{
-                        type : '5', //[18] 
+                        type : '5', //[18]            11
                         name : 'xistre',
                         value : [q_getPara('report.all')].concat("1@已立帳,0@未立帳".split(','))
                     },{
-                        type : '6', //[19] 
+                        type : '6', //[19]             12
                         name : 'xaaddr'
+                    },{
+                        type : '5', //[20]             13
+                        name : 'xacomp',
+                        value : t_acomp.split(',')
                     }]
 				});
 				q_popAssign();
@@ -129,7 +148,6 @@
                         break;
                 }
             }
-			function q_gtPost(s2) {}
 		</script>
 	</head>
 	<body ondragstart="return false" draggable="false"
