@@ -28,6 +28,8 @@
 			q_desc = 1;
             q_xchg = 1;
             brwCount2 = 15;
+            q_copy = 1;
+
             //不能彈出瀏覽視窗
             aPop = new Array(['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
 			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact,salesno,sales', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,txtDriverno,txtDriver', 'cust_b.aspx']
