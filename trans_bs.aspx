@@ -61,13 +61,13 @@
 				$('#btnOk').val($('#btnOk').val() + "(F9)");
 				q_mask(bbmMask);
                 
-				$("#txtStraddrno").focus(function() {
+				/*$("#txtStraddrno").focus(function() {
 					var input = document.getElementById ("txtStraddrno");
 		            if (typeof(input.selectionStart) != 'undefined' ) {	  
 		                input.selectionStart =  $(input).val().replace(/^(\w+\u002D).*$/g,'$1').length;
 		                input.selectionEnd = $(input).val().length;
 		            }
-				});
+				});*/
 				
 				$('#txtTrandate').change(function(e){
 					getDriverprice();
@@ -115,7 +115,6 @@
 					$('#txtSaddr').hide();
 					$('#txtEndaddrno').show();
 					$('#txtEndaddr').show();
-					
 				}
 			}
 
@@ -362,9 +361,11 @@
 				
 				if(q_getPara('sys.project').toUpperCase() == 'DH'){
 					$('.DH').hide();
+					$('.DH_show').show();
 					$('#vewStraddr').text('起點');
 					$('#viewMount').text('數量');
 					$('#viewPrice').text('單價');
+					$('#vewEndaddr').text('迄點');
 				}
 			}
 
