@@ -25,7 +25,7 @@
 			brwList = [];
 			brwNowPage = 0;
 			brwKey = 'noa';
-			//q_desc = 1;
+			q_desc = 1;
             q_xchg = 1;
             brwCount2 = 20;
             //不能彈出瀏覽視窗
@@ -67,7 +67,7 @@
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				q_brwCount();
-				q_content = 'order=^^trandate desc,noa^^';
+				q_content = 'order=^^trandate desc,noa desc^^';
 			    q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
 
 			});
