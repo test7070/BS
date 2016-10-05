@@ -25,12 +25,12 @@
 			brwList = [];
 			brwNowPage = 0;
 			brwKey = 'noa';
-			q_desc = 1;
+			//q_desc = 1;
             q_xchg = 1;
             brwCount2 = 20;
             //不能彈出瀏覽視窗
             aPop = new Array(['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
-			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr', 'cust_b.aspx']
+			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,cmbShip', 'cust_b.aspx']
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
 			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
@@ -41,6 +41,11 @@
         	function sum() {
 				if(q_cur!=1 && q_cur!=2)
 					return;
+				if(q_float('txtMount')==0)	
+					$('#txtMount').val(1);
+				if(q_float('txtMount2')==0)	
+					$('#txtMount2').val(1);	
+					
 				var mount1=q_float('txtMount');
 				var price1=q_float('txtPrice');
 				var mount2=q_float('txtMount2');								
@@ -80,6 +85,19 @@
                 q_cmbParse("cmbShip", "@,月結,現金,回收");
                 q_cmbParse("cmbRs", "@,Y@是");
                 
+                $("#cmbShip").focus(function() {
+					var len = $(this).children().length > 0 ? $(this).children().length : 1;
+					$(this).attr('size', len + "");
+				}).blur(function() {
+					$(this).attr('size', '1');
+				});
+				$("#cmbRs").focus(function() {
+					var len = $(this).children().length > 0 ? $(this).children().length : 1;
+					$(this).attr('size', len + "");
+				}).blur(function() {
+					$(this).attr('size', '1');
+				});
+				
 				/*$("#txtStraddrno").focus(function() {
 					var input = document.getElementById ("txtStraddrno");
 		            if (typeof(input.selectionStart) != 'undefined' ) {	  
@@ -117,7 +135,7 @@
 					sum();
 				});
 				//----------------------------------------------------------------
-				$('#textDate').datepicker(0);
+				$('#textDate').datepicker();
 				$('#btnBatInsert').click(function(e){
 					$('#divImport').toggle();
 				});
@@ -259,14 +277,14 @@
 				_btnIns();
 				$('#txtNoa').val('AUTO');
 				$('#txtNoq').val('001');
-				$('#txtMount').val(1);
-				$('#txtMount2').val(1);
+				$('#txtCustno').focus();
 			}
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
 					return;
 				_btnModi();
 				sum();
+				$('#txtCustno').focus();
 			}
 			function btnPrint() {
 				switch(q_getPara('sys.project').toUpperCase()){
@@ -337,12 +355,12 @@
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
 				if(t_para){
-					$('#txtDatea').datepicker('destroy');
-					$('#txtTrandate').datepicker('destroy');
+					//$('#txtDatea').datepicker('destroy');
+					//$('#txtTrandate').datepicker('destroy');
 					$('#btnBatInsert').removeAttr('disabled');
 				}else{
-					$('#txtDatea').datepicker();
-					$('#txtTrandate').datepicker();
+					//$('#txtDatea').datepicker();
+					//$('#txtTrandate').datepicker();
 					$('#btnBatInsert').attr('disabled','disabled');
 					if(q_cur==2){
 						$('#txtNoa').attr('readonly','readonly').css('color','green').css('background-color','rgb(237,237,237)');
