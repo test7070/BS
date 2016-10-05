@@ -107,10 +107,7 @@
 					$('#lblMount_bs').text('數量');
 					$('#lblPrice_bs').text('單價');
 					
-					//$('#vewStraddr').text('起點');
-					$('#vewEndaddr').show();
-					$('#endaddr').show();
-					$('#saddr').hide();
+					$('#vewEndaddr').text('迄點');
 					
 					$('#lblXstraddr').text('起點');
 					$('#lblSaddr').hide();
@@ -196,7 +193,13 @@
 						}
 						break;
 					case 'txtCustno':
-						getPrice();
+						switch(q_getPara('sys.project').toUpperCase()){
+							case 'DH':
+								break;
+							default:
+								getPrice();
+								break;
+						}
 						break;
 					case 'txtStraddrno':
                         getDriverprice();
@@ -564,7 +567,7 @@
 						<td align="center" style="width:80px; color:black;"><a id="vewXtrandate">收貨日期</a></td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:80px; color:black;"><a id="vewStraddr">區域</a></td>
-						<td align="center" style="width:80px; color:black; display:none;"><a id="vewEndaddr">區域</a></td>
+						<td align="center" style="width:80px; color:black; display:none;" class="DH_show"><a id="vewEndaddr">區域</a></td>
 						<td align="center" style="width:150px; color:black; display:none;"><a id="vewAddr">地址</a></td>
 						<td align="center" style="width:80px; color:black;">司機</td>
 						<td align="center" style="width:80px; color:black;">品名</td>
@@ -585,7 +588,7 @@
 						<td id="trandate" style="text-align: center;">~trandate</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="straddr" style="text-align: center;">~straddr</td>
-						<td id="endaddr" style="text-align: center;display:none;">~endaddr</td>
+						<td id="endaddr" style="text-align: center;display:none;" class="DH_show">~endaddr</td>
 						<td id="saddr" style="text-align: center;display:none;">~saddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="product" style="text-align: center;">~product</td>
