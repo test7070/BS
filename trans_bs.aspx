@@ -30,9 +30,10 @@
             brwCount2 = 15;
             q_copy = 1;
 
+			//['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
             //不能彈出瀏覽視窗
-            aPop = new Array(['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
-			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact,salesno,sales', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,txtDriverno,txtDriver', 'cust_b.aspx']
+            aPop = new Array(
+            ['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact,salesno,sales', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,txtDriverno,txtDriver', 'cust_b.aspx']
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
 			,['txtUccno', 'lblUcc', 'ucc', 'noa,product', 'txtUccno,txtProduct', 'ucc_b.aspx']
@@ -45,6 +46,7 @@
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				q_brwCount();
+				q_content = 'order=^^trandate desc,noa desc^^';
 				q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
 
 			});
@@ -143,6 +145,21 @@
 
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'getCar':
+						var as = _q_appendData("car2", "", true);
+                        if (as[0] != undefined) {
+                        	$('#txtCarno').val(as[0].carno);
+                        	if(as[0].cartype =='2'){
+                        		//公司車
+                        		$("#txtDiscount").val(0.22);
+                        		sum();
+                        	} 
+                        	else
+                        		q_gt('driver', "where=^^ noa='"+$('#txtDriverno').val()+"'^^", 0, 0, 0, "getDriver");	
+                        }else{
+                        	sum();
+                        }
+						break;
 					case 'getCartype':
 						//公司車22%, 外車匯款的95%,支票100%
 						var as = _q_appendData("car2", "", true);
@@ -189,6 +206,8 @@
 					case 'txtDriverno':
 						if(q_getPara('sys.project').toUpperCase()=='DH' && $('#txtCarno').val().length>0){
 							q_gt('car2', "where=^^ carno='"+$('#txtCarno').val()+"'^^", 0, 0, 0, "getCartype");	
+						}else if(q_getPara('sys.project').toUpperCase()=='DH' && $('#txtCarno').val().length==0 && $('#txtDriverno').val().length>0){
+							q_gt('car2', "where=^^ driverno='"+$('#txtDriverno').val()+"'^^", 0, 0, 0, "getCar");	
 						}
 						break;
 					case 'txtCustno':
@@ -656,13 +675,13 @@
 						</td>
 					</tr>
 					<tr>
-						<td style="display:none;" class="DH_show"><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
-						<td style="display:none;" class="DH_show"><input id="txtCarno"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblDriver" class="lbl btn"> </a></td>
 						<td colspan="2">
 							<input id="txtDriverno"  type="text" style="float:left;width:50%;"/>
 							<input id="txtDriver"  type="text" style="float:left;width:50%;"/>
 						</td>
+						<td style="display:none;" class="DH_show"><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
+						<td style="display:none;" class="DH_show"><input id="txtCarno"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
 						<td><span> </span><a id="lblMount_bs" class="lbl">數量(桶數)</a></td>

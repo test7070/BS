@@ -26,6 +26,7 @@
 
             function main() {
                 mainSeek();
+                
                 q_gf('', q_name);
             }
 
@@ -82,7 +83,7 @@
                 if (t_driver.length>0)
                     t_where += " and charindex('" + t_driver + "',driver)>0";
 		       	
-		        t_where = ' where=^^' + t_where + '^^ ';
+		        t_where = ' where=^^' + t_where + '^^ order=^^trandate desc,noa desc^^';
 		        return t_where;
             }
 		</script>
