@@ -151,6 +151,8 @@
                    		q_func('qtxt.query.appendData', 'trans_bs.txt,appendData,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';'+ encodeURI(t_n));
                 	}
 				});
+				
+				$('#btnXchg').after($('#btnBatInsert'));
 			}
 
 			function q_boxClose(s2) {
@@ -575,20 +577,20 @@
 			</table>
 		</div>
 		<!--#include file="../inc/toolbar.inc"-->
-		<input type="button" id="btnBatInsert" style="float:left;width:100px;" value="整批新增">
+		<input type="button" id="btnBatInsert" style="width:100px;" value="整批新增">
 		<div id="dmain">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
 					<tr>
 						<td align="center" style="width:20px; color:black;"><a id="vewChk"> </a></td>
 						<td align="center" style="width:80px; color:black;">取貨日期</td>
-						<td align="center" style="width:80px; color:black;">回單日期</td>
 						<td align="center" style="width:120px; color:black;">單號</td>
 						<td align="center" style="width:80px; color:black;">客戶</td>
 						<td align="center" style="width:50px; color:black;">結帳<BR>方式</td>
 						<td align="center" style="width:50px; color:black;">發票</td>
 						<td align="center" style="width:80px; color:black;">卸貨地點</td>
 						<td align="center" style="width:80px; color:black;">司機</td>
+						<td align="center" style="width:80px; color:black;">車型</td>
 						<td align="center" style="width:80px; color:black;">才數</td>
 						<td align="center" style="width:80px; color:black;">件數</td>
 						<td align="center" style="width:80px; color:black;">板數</td>
@@ -601,14 +603,13 @@
 					<tr>
 						<td ><input id="chkBrow.*" type="checkbox"/></td>
 						<td id="trandate" style="text-align: center;">~trandate</td>
-						<td id="datea" style="text-align: center;">~datea</td>
 						<td id="noa" style="text-align: center;">~noa</td>
 						<td id="nick" style="text-align: center;">~nick</td>
 						<td id="ship" style="text-align: center;">~ship</td>
 						<td id="rs" style="text-align: center;">~rs</td>
 						<td id="aaddr" style="text-align: center;">~aaddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
-						
+						<td id="casetype" style="text-align: center;">~casetype</td>
 						<td id="mount3" style="text-align: center;">~mount3</td>
 						<td id="mount4" style="text-align: center;">~mount4</td>
 						<td id="status" style="text-align: center;">~status</td>
@@ -681,8 +682,12 @@
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
-						<td><span> </span><a class="lbl" style="display:none;">數量</a></td>
-						<td><input id="txtMount"  type="text" class="txt c1 num" style="display:none;"/></td>
+						<td><span> </span><a class="lbl" style="display:none;">數量</a>
+							<a class="lbl">車型</a>
+						</td>
+						<td><input id="txtMount"  type="text" class="txt c1 num" style="display:none;"/>
+							<input id="txtCasetype"  type="text" class="txt c1"/>
+						</td>
                         <td><span> </span><a class="lbl">單價</a></td>
 						<td><input id="txtPrice" type="text" class="txt c1 num"/></td>
                         <td><span> </span><a class="lbl">應收金額</a></td>

@@ -117,7 +117,7 @@
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-					<td   style="width:35%;" ><a id='lblDatea'></a></td>
+					<td   style="width:35%;" ><a>回單日期</a></td>
 					<td style="width:65%;  ">
 					<input class="txt" id="txtBdate" type="text" style="width:90px; font-size:medium;" />
 					<span style="display:inline-block; vertical-align:middle">&sim;</span>
@@ -125,7 +125,7 @@
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-					<td   style="width:35%;" ><a id='lblTrandate'></a></td>
+					<td   style="width:35%;" ><a>取貨日期</a></td>
 					<td style="width:65%;  ">
 					<input class="txt" id="txtBtrandate" type="text" style="width:90px; font-size:medium;" />
 					<span style="display:inline-block; vertical-align:middle">&sim;</span>
