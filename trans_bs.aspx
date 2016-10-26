@@ -220,10 +220,22 @@
 						}
 						break;
 					case 'txtStraddrno':
-                        getDriverprice();
+                        switch(q_getPara('sys.project').toUpperCase()){
+							case 'DH':
+								break;
+							default:
+								getPrice();
+								break;
+						}
                     case 'txtUccno':
-                        getDriverprice();
-                        getPrice();
+                    	switch(q_getPara('sys.project').toUpperCase()){
+							case 'DH':
+								break;
+							default:
+								getDriverprice();
+                        		getPrice();
+								break;
+						}
 						break;
 				}
 			}
