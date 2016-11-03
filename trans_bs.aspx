@@ -46,7 +46,10 @@
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				q_brwCount();
-				q_content = 'order=^^trandate desc,noa desc^^';
+				if(q_getId()[3].length>0)
+					q_content = 'where=^^'+q_getId()[3] + '^^ order=^^trandate desc,noa desc^^';
+				else
+					q_content = 'order=^^trandate desc,noa desc^^';
 				q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
 
 			});
