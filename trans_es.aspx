@@ -615,9 +615,9 @@
 						<td id="status" style="text-align: center;">~status</td>
 						<td id="weight" style="text-align: center;">~weight</td>
 						
-						<td id="total" style="text-align: right;">~total</td>
-						<td id="price2" style="text-align: right;">~price2</td>
-						<td id="total2" style="text-align: right;">~total2</td>
+						<td id="total,0,1" style="text-align: right;">~total,0,1</td>
+						<td id="price2,0,1" style="text-align: right;">~price2,0,1</td>
+						<td id="total2,0,1" style="text-align: right;">~total2,0,1</td>
 					</tr>
 				</table>
 			</div>
@@ -682,10 +682,10 @@
 						<td><input id="txtWeight"  type="text" class="txt c1 num"/></td>
 					</tr>
 					<tr style="background-color: #B18904;">
-						<td><span> </span><a class="lbl" style="display:none;">數量</a>
+						<td style="background-color: #cad3ff;"><span> </span><a class="lbl" style="display:none;">數量</a>
 							<a class="lbl">車型</a>
 						</td>
-						<td><input id="txtMount"  type="text" class="txt c1 num" style="display:none;"/>
+						<td style="background-color: #cad3ff;"><input id="txtMount"  type="text" class="txt c1 num" style="display:none;"/>
 							<input id="txtCasetype"  type="text" class="txt c1"/>
 						</td>
                         <td><span> </span><a class="lbl">單價</a></td>
@@ -697,8 +697,8 @@
 						<td class="tdZ"> </td>
 					</tr>
 					<tr style="background-color: pink;">
-						<td><span> </span><a id="lblMount2" class="lbl" style="display:none;"> </a></td>
-						<td><input id="txtMount2"  type="text" class="txt c1 num" style="display:none;"/></td>
+						<td style="background-color: #cad3ff;"><span> </span><a id="lblMount2" class="lbl" style="display:none;"> </a></td>
+						<td style="background-color: #cad3ff;"><input id="txtMount2"  type="text" class="txt c1 num" style="display:none;"/></td>
 						<td><span> </span><a class="lbl">司機運費</a></td>
 						<td>
 							<input id="txtPrice2"  type="text" class="txt c1 num"/>
