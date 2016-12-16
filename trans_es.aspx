@@ -47,15 +47,41 @@
 					$('#txtMount2').val(1);	
 					
 				var mount1=q_float('txtMount');
-				var price1=q_float('txtPrice');
-				var mount2=q_float('txtMount2');								
+				var mount2=q_float('txtMount2');
+				var price1=q_float('txtPrice');								
 				var price2=q_float('txtPrice2');
 				var price3=q_float('txtPrice3');
 				var discount=q_float('txtDiscount');
+				
 				var total = round(q_mul(mount1,price1),0);
 				var total2 = round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0);	
+				
 				$('#txtTotal').val(total);
 				$('#txtTotal2').val(total2);
+				
+				var t_weight = q_float('txtWeight');
+				var t_addrno  = $.trim($('#txtStraddrno').val());
+				var t_total = 0;
+				if(q_getPara('sys.project').toUpperCase()=='ES' && xprice[t_addrno]!=undefined){
+				//if(xprice[t_addrno]!=undefined){	
+					var t_price = 0,t_total=0;
+					for(var i=xprice[t_addrno].length-1;i>=0;i--){
+						if(i==xprice[t_addrno].length-1 && t_weight>xprice[t_addrno][i].weight){
+							t_price = xprice[t_addrno][i].price;
+							t_total = round(q_mul(xprice[t_addrno][i].price,t_weight),0);
+							break;
+						}else if(i!=0 && t_weight<=xprice[t_addrno][i].weight){
+							t_price = xprice[t_addrno][i].price;
+							t_total = round(q_mul(xprice[t_addrno][i].price,t_weight),0);
+						}else if(i==0 && t_weight<=xprice[t_addrno][i].weight){
+							t_price = xprice[t_addrno][i].price;
+							t_total = round(q_mul(xprice[t_addrno][i].price,t_weight),0);
+							t_total = t_total<=xprice[t_addrno][i].price * 1000?xprice[t_addrno][i].price * 1000:t_total;
+						}
+					}
+					$('#txtPrice').val(t_price);
+					$('#txtTotal').val(t_total);	
+				}
 				
 				if($('#cmbRs').val()=='Y'){
 					$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
@@ -114,6 +140,9 @@
 					sum();
 				});
 				$('#txtMount').change(function(e){
+					sum();
+				});
+				$('#txtWeight').change(function(e){
 					sum();
 				});
 				$('#txtPrice').change(function(e){
@@ -198,6 +227,10 @@
 						if(t_carno.length>0)
 							q_gt('car2', "where=^^ carno='"+t_carno+"' ^^", 0, 0, 0, "getCar2");
 						break;
+					case 'txtStraddrno':
+						sum();
+                        break;
+                        
 					/*case 'txtCustno':
 						getPrice();
 						break;
@@ -434,6 +467,54 @@
                 var re = /(\d{1,3})(?=(\d{3})+$)/g;
                 return xx+arr[0].replace(re, "$1,") + (arr.length == 2 ? "." + arr[1] : "");
             }
+            
+            var xprice = {
+            	N01:[{weight:1220,price:1.350}
+            		,{weight:2000,price:1.100}
+            		,{weight:3000,price:1.050}
+            		,{weight:4000,price:1.000}
+            		,{weight:5000,price:0.860}
+            		,{weight:6000,price:0.830}
+            		,{weight:7000,price:0.800}
+            		,{weight:8000,price:0.780}
+            		,{weight:9000,price:0.760}
+            		,{weight:10000,price:0.740}
+            		,{weight:13000,price:0.690}
+            		,{weight:16000,price:0.620}
+            		,{weight:19000,price:0.550}
+            		,{weight:23000,price:0.480}
+            		,{weight:27000,price:0.450}]
+        		,C01:[{weight:1150,price:1.100}
+            		,{weight:2000,price:1.000}
+            		,{weight:3000,price:0.900}
+            		,{weight:4000,price:0.800}
+            		,{weight:5000,price:0.650}
+            		,{weight:6000,price:0.650}
+            		,{weight:7000,price:0.600}
+            		,{weight:8000,price:0.600}
+            		,{weight:9000,price:0.550}
+            		,{weight:10000,price:0.550}
+            		,{weight:13000,price:0.500}
+            		,{weight:16000,price:0.480}
+            		,{weight:19000,price:0.450}
+            		,{weight:23000,price:0.420}
+            		,{weight:27000,price:0.390}]
+        		,S01:[{weight:1150,price:1.100}
+            		,{weight:2000,price:0.950}
+            		,{weight:3000,price:0.850}
+            		,{weight:4000,price:0.750}
+            		,{weight:5000,price:0.600}
+            		,{weight:6000,price:0.550}
+            		,{weight:7000,price:0.500}
+            		,{weight:8000,price:0.450}
+            		,{weight:9000,price:0.420}
+            		,{weight:10000,price:0.390}
+            		,{weight:13000,price:0.360}
+            		,{weight:16000,price:0.330}
+            		,{weight:19000,price:0.290}
+            		,{weight:23000,price:0.260}
+            		,{weight:27000,price:0.240}]
+        		};
 		</script>
 		<style type="text/css">
 			#dmain {
