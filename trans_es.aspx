@@ -81,6 +81,7 @@
 					}
 					$('#txtPrice').val(t_price);
 					$('#txtTotal').val(t_total);	
+					total = t_total;
 				}
 				
 				if($('#cmbRs').val()=='Y'){
