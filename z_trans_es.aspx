@@ -98,6 +98,9 @@
                         type : '5', //[20]             13
                         name : 'xacomp',
                         value : t_acomp.split(',')
+                    },{
+                        type : '6', //[21]             14
+                        name : 'xrate'
                     }]
 				});
 				q_popAssign();
