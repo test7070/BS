@@ -94,7 +94,7 @@
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				q_brwCount();
-				q_content = 'order=^^trandate desc,noa desc^^';
+				q_content += ' order=^^trandate desc,noa desc^^';
 			    q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
 
 			});
@@ -658,8 +658,35 @@
 				</tr>
 			</table>
 		</div>
+		<div id="divModi" style="position:absolute; top:250px; left:600px; display:none; width:400px; height:200px; background-color: #cad3ff; border: 5px solid gray;">
+			<table style="width:100%;">
+				<tr style="height:1px;">
+					<td style="width:150px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblBdate_modi" style="float:right; color: blue; font-size: medium;">交運日期</a></td>
+					<td colspan="4"><input id=B"textDate"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblN_import" style="float:right; color: blue; font-size: medium;">筆數</a></td>
+					<td><input id="textN"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
+				</tr>
+				<tr> </tr>
+				<tr>
+					<td> </td>
+					<td><input type="button" id="btnAppend_import" value="新增空白行" /></td>
+					<td> </td>
+					<td><input type="button" id="btnClose_import" value="關閉" /></td>
+				</tr>
+			</table>
+		</div>
 		<!--#include file="../inc/toolbar.inc"-->
 		<input type="button" id="btnBatInsert" style="width:100px;" value="整批新增">
+		<input type="button" id="btnBatModi" style="width:100px;" value="整批修改">
 		<div id="dmain">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
