@@ -39,6 +39,8 @@
 			,['textCustno_modi', '', 'cust', 'noa,comp,nick', 'textCustno_modi', 'cust_b.aspx']
 			);
         	
+        	isSave = false;
+        	
         	function sum() {
 				if(q_cur!=1 && q_cur!=2)
 					return;
@@ -70,6 +72,16 @@
 				var t_weight  = q_float('txtWeight');
 				if(q_getPara('sys.project').toUpperCase()=='ES' && (t_addrno=='N01' || t_addrno=='C01' || t_addrno=='S01')){
 					q_gt('tranmoney_es', "where=^^['"+t_date+"','"+t_addrno+"',"+t_weight+")^^", 0, 0, 0, "tranmoney_es");
+				}else{
+					//判斷是不是由BTNOK觸發
+					if(isSave){
+						var t_noa = trim($('#txtNoa').val());
+						var t_date = trim($('#txtTrandate').val());
+						if (t_noa.length == 0 || t_noa == "AUTO")
+							q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
+						else
+							wrServer(t_noa);	
+					}
 				}
 			}
 			
@@ -209,6 +221,14 @@
 								}
 							}
 						}
+						if(isSave){
+							var t_noa = trim($('#txtNoa').val());
+							var t_date = trim($('#txtTrandate').val());
+							if (t_noa.length == 0 || t_noa == "AUTO")
+								q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
+							else
+								wrServer(t_noa);	
+						}
 						break;
 					case 'getCar2':
                         var as = _q_appendData("car2", "", true);
@@ -333,16 +353,20 @@
 			}
 			function btnIns() {
 				_btnIns();
+				isSave = false;
 				$('#txtNoa').val('AUTO');
 				$('#txtNoq').val('001');
 				$('#txtCustno').focus();
+				
 			}
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
 					return;
 				_btnModi();
+				isSave = false;
 				sum();
 				$('#txtCustno').focus();
+				
 			}
 			function btnPrint() {
 				switch(q_getPara('sys.project').toUpperCase()){
@@ -384,13 +408,8 @@
                 }else{
                 	alert("error: btnok!");
                 }
+                isSave = true;
                 sum();
-				var t_noa = trim($('#txtNoa').val());
-				var t_date = trim($('#txtTrandate').val());
-				if (t_noa.length == 0 || t_noa == "AUTO")
-					q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
-				else
-					wrServer(t_noa);		
 			}
 
 			function wrServer(key_value) {
