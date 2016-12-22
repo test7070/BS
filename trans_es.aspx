@@ -15,7 +15,7 @@
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
 			var q_name = "trans";
-			var q_readonly = ['txtTotal','txtTotal2','txtWorker','txtWorker2','txtReserve'];
+			var q_readonly = ['txtTotal','txtTotal2','txtWorker','txtWorker2','txtReserve','txtCustdiscount'];
 			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtPrice3',10,2,1],['txtTotal2',10,0,1]
 			];
@@ -58,36 +58,17 @@
 				
 				$('#txtTotal').val(total);
 				$('#txtTotal2').val(total2);
-				
-				var t_weight = q_float('txtWeight');
-				var t_addrno  = $.trim($('#txtStraddrno').val());
-				var t_total = 0;
-				if(q_getPara('sys.project').toUpperCase()=='ES' && xprice[t_addrno]!=undefined){
-				//if(xprice[t_addrno]!=undefined){	
-					var t_price = 0,t_total=0;
-					for(var i=xprice[t_addrno].length-1;i>=0;i--){
-						if(i==xprice[t_addrno].length-1 && t_weight>xprice[t_addrno][i].weight){
-							t_price = xprice[t_addrno][i].price;
-							t_total = round(q_mul(xprice[t_addrno][i].price,t_weight),0);
-							break;
-						}else if(i!=0 && t_weight<=xprice[t_addrno][i].weight){
-							t_price = xprice[t_addrno][i].price;
-							t_total = round(q_mul(xprice[t_addrno][i].price,t_weight),0);
-						}else if(i==0 && t_weight<=xprice[t_addrno][i].weight){
-							t_price = xprice[t_addrno][i].price;
-							t_total = round(q_mul(xprice[t_addrno][i].price,t_weight),0);
-							t_total = t_total<=xprice[t_addrno][i].price * 1000?xprice[t_addrno][i].price * 1000:t_total;
-						}
-					}
-					$('#txtPrice').val(t_price);
-					$('#txtTotal').val(t_total);	
-					total = t_total;
-				}
-				
 				if($('#cmbRs').val()=='Y'){
 					$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
 				}else{
 					$('#txtReserve').val(0);
+				}
+				
+				var t_date  = $.trim($('#txtTrandate').val());
+				var t_addrno  = $.trim($('#txtStraddrno').val());
+				var t_weight  = q_float('txtWeight');
+				if(q_getPara('sys.project').toUpperCase()=='ES' && (t_addrno=='N01' || t_addrno=='C01' || t_addrno=='S01')){
+					q_gt('tranmoney_es', "where=^^['"+t_date+"','"+t_addrno+"',"+t_weight+")^^", 0, 0, 0, "tranmoney_es");
 				}
 			}
 			
@@ -196,6 +177,23 @@
 
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'tranmoney_es':
+						var as = _q_appendData("tranmoney_es", "", true);
+						if(as[0]!=undefined){
+							if(as[0].msg.length>0)
+								alert(as[0].msg);
+							else{
+								$('#txtPrice').val(as[0].price);
+								$('#txtCustdiscount').val(as[0].rate);
+								$('#txtTotal').val(as[0].money);
+								if($('#cmbRs').val()=='Y'){
+									$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
+								}else{
+									$('#txtReserve').val(0);
+								}
+							}
+						}
+						break;
 					case 'getCar2':
                         var as = _q_appendData("car2", "", true);
                         if(as[0]!=undefined){
@@ -469,53 +467,6 @@
                 return xx+arr[0].replace(re, "$1,") + (arr.length == 2 ? "." + arr[1] : "");
             }
             
-            var xprice = {
-            	N01:[{weight:1220,price:1.350}
-            		,{weight:2000,price:1.100}
-            		,{weight:3000,price:1.050}
-            		,{weight:4000,price:1.000}
-            		,{weight:5000,price:0.860}
-            		,{weight:6000,price:0.830}
-            		,{weight:7000,price:0.800}
-            		,{weight:8000,price:0.780}
-            		,{weight:9000,price:0.760}
-            		,{weight:10000,price:0.740}
-            		,{weight:13000,price:0.690}
-            		,{weight:16000,price:0.620}
-            		,{weight:19000,price:0.550}
-            		,{weight:23000,price:0.480}
-            		,{weight:27000,price:0.450}]
-        		,C01:[{weight:1150,price:1.100}
-            		,{weight:2000,price:1.000}
-            		,{weight:3000,price:0.900}
-            		,{weight:4000,price:0.800}
-            		,{weight:5000,price:0.650}
-            		,{weight:6000,price:0.650}
-            		,{weight:7000,price:0.600}
-            		,{weight:8000,price:0.600}
-            		,{weight:9000,price:0.550}
-            		,{weight:10000,price:0.550}
-            		,{weight:13000,price:0.500}
-            		,{weight:16000,price:0.480}
-            		,{weight:19000,price:0.450}
-            		,{weight:23000,price:0.420}
-            		,{weight:27000,price:0.390}]
-        		,S01:[{weight:1150,price:1.100}
-            		,{weight:2000,price:0.950}
-            		,{weight:3000,price:0.850}
-            		,{weight:4000,price:0.750}
-            		,{weight:5000,price:0.600}
-            		,{weight:6000,price:0.550}
-            		,{weight:7000,price:0.500}
-            		,{weight:8000,price:0.450}
-            		,{weight:9000,price:0.420}
-            		,{weight:10000,price:0.390}
-            		,{weight:13000,price:0.360}
-            		,{weight:16000,price:0.330}
-            		,{weight:19000,price:0.290}
-            		,{weight:23000,price:0.260}
-            		,{weight:27000,price:0.240}]
-        		};
 		</script>
 		<style type="text/css">
 			#dmain {
@@ -686,7 +637,7 @@
 		</div>
 		<!--#include file="../inc/toolbar.inc"-->
 		<input type="button" id="btnBatInsert" style="width:100px;" value="整批新增">
-		<input type="button" id="btnBatModi" style="width:100px;" value="整批修改">
+		<input type="button" id="btnBatModi" style="width:100px;display:none;" value="整批修改">
 		<div id="dmain">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
@@ -848,6 +799,8 @@
 						<td><input id="txtWorker" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblWorker2" class="lbl"> </a></td>
 						<td><input id="txtWorker2" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblCustdiscount" class="lbl">運輸費用%</a></td>
+						<td><input id="txtCustdiscount" type="text" class="txt c1 num"/></td>
 					</tr>
 				</table>
 			</div>
