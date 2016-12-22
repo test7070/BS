@@ -187,7 +187,7 @@
 								$('#txtCustdiscount').val(as[0].rate);
 								$('#txtTotal').val(as[0].money);
 								if($('#cmbRs').val()=='Y'){
-									$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
+									$('#txtReserve').val(round(q_mul(q_float('txtTotal'),parseFloat(q_getPara('sys.taxrate')))/100,0));
 								}else{
 									$('#txtReserve').val(0);
 								}
