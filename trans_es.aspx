@@ -36,6 +36,7 @@
 			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			, ['txtSaddr', '', 'view_road', 'memo', '0txtSaddr', 'road_b.aspx']
+			,['textCustno_modi', '', 'cust', 'noa,comp,nick', 'textCustno_modi', 'cust_b.aspx']
 			);
         	
         	function sum() {
@@ -147,9 +148,6 @@
 				});
 				//----------------------------------------------------------------
 				$('#textDate').datepicker();
-				$('#btnBatInsert').click(function(e){
-					$('#divImport').toggle();
-				});
 				$('#btnClose_import').click(function(e){
 					$('#divImport').toggle();
 				});
@@ -162,8 +160,26 @@
                    		q_func('qtxt.query.appendData', 'trans_bs.txt,appendData,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';'+ encodeURI(t_n));
                 	}
 				});
+				//$('#btnXchg').after($('#btnBatInsert'));
 				
-				$('#btnXchg').after($('#btnBatInsert'));
+				$('#textBtrandate_modi').datepicker();
+				$('#textEtrandate_modi').datepicker();
+				
+				$('#btnIns').before($('#btnIns').clone().attr('id', 'btnBatInsert').show());
+				$('#btnBatInsert').click(function() {
+					$('#divImport').toggle();
+				}).attr('value','整批新增');
+				$('#btnIns').before($('#btnIns').clone().attr('id', 'btnBatModi').show());
+				$('#btnBatModi').click(function() {
+					$('#divModi').toggle();
+				}).attr('value','整批修改');
+				
+				$('#btnRun_modi').click(function(e){
+					var t_btrandate = $.trim($('#textBtrandate_modi').val());
+					var t_etrandate = $.trim($('#textEtrandate_modi').val());
+					var t_custno = $.trim($('#textCustno_modi').val());
+					q_func('qtxt.query.batch_transmoney_es', 'trans_es.txt,batch_transmoney_es,' + encodeURI(t_btrandate)+';'+encodeURI(t_etrandate)+';'+encodeURI(t_custno));
+				});
 			}
 
 			function q_boxClose(s2) {
@@ -260,6 +276,14 @@
 			}
 			function q_funcPost(t_func, result) {
                 switch(t_func) {
+                	case 'qtxt.query.batch_transmoney_es':
+                		var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                        	alert(as[0].msg);
+                        	location.reload();
+                        } else {
+                        }
+                		break;
                 	case 'qtxt.query.appendData':
                 		var as = _q_appendData("tmp0", "", true, true);
                         if (as[0] != undefined) {
@@ -601,6 +625,7 @@
 					<td><input id="textN"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
 				</tr>
 				<tr> </tr>
+				<tr> </tr>
 				<tr>
 					<td> </td>
 					<td><input type="button" id="btnAppend_import" value="新增空白行" /></td>
@@ -619,25 +644,30 @@
 					<td style="width:80px;"></td>
 				</tr>
 				<tr style="height:35px;">
-					<td><span> </span><a id="lblBdate_modi" style="float:right; color: blue; font-size: medium;">交運日期</a></td>
-					<td colspan="4"><input id=B"textDate"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
+					<td><span> </span><a id="lblCust_modi" style="float:right; color: blue; font-size: medium;">客戶</a></td>
+					<td colspan="4"><input id="textCustno_modi"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
 				</tr>
 				<tr style="height:35px;">
-					<td><span> </span><a id="lblN_import" style="float:right; color: blue; font-size: medium;">筆數</a></td>
-					<td><input id="textN"  type="text" style="float:left; width:100px; font-size: medium;"/></td>
+					<td><span> </span><a id="lblBtrandate_modi" style="float:right; color: blue; font-size: medium;">取貨日期</a></td>
+					<td colspan="4">
+						<input id="textBtrandate_modi"  type="text" style="float:left; width:100px; font-size: medium;"/>
+						<span style="float:left;display:block;width:20px;">~</span>
+						<input id="textEtrandate_modi"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
 				</tr>
+				<tr> </tr>
 				<tr> </tr>
 				<tr>
 					<td> </td>
-					<td><input type="button" id="btnAppend_import" value="新增空白行" /></td>
+					<td><input type="button" id="btnRun_modi" value="修改金額" /></td>
 					<td> </td>
-					<td><input type="button" id="btnClose_import" value="關閉" /></td>
+					<td><input type="button" id="btnClose_modi" value="關閉" /></td>
 				</tr>
 			</table>
 		</div>
 		<!--#include file="../inc/toolbar.inc"-->
-		<input type="button" id="btnBatInsert" style="width:100px;" value="整批新增">
-		<input type="button" id="btnBatModi" style="width:100px;display:none;" value="整批修改">
+		<!--<input type="button" id="btnBatInsert" style="float:left;width:100px;" value="整批新增">-->
+		<!--<input type="button" id="btnBatModi" style="float:left;width:100px;" value="整批修改">-->
 		<div id="dmain">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
