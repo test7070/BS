@@ -1,0 +1,89 @@
+batch_transmoney_es:--batch_transmoney_es  批次修改金額	
+	SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(max)
+	declare @t_btrandate nvarchar(20) = [1]
+	declare @t_etrandate nvarchar(20) = [2]
+	declare @t_custno nvarchar(max) = [3] 
+	
+	declare @tmp table(
+		msg nvarchar(max)
+	)
+	--------------------------------------------------------------
+	if ISDATE( cast(dbo.ChineseEraName2AD(@t_btrandate) as nvarchar)) = 0
+	begin
+		insert into @tmp(msg)values('日期異常')
+		return
+	end
+	if ISDATE( cast(dbo.ChineseEraName2AD(@t_etrandate) as nvarchar)) = 0
+	begin
+		insert into @tmp(msg)values('日期異常')
+		return
+	end
+	if LEN(ISNULL(@t_custno,''))=0
+	begin
+		insert into @tmp(msg)values('無客戶')
+		return
+	end
+	---------------------------------------------------------------------------------
+	declare @accy nvarchar(20)
+	declare @noa nvarchar(20)
+	declare @noq nvarchar(10)
+	declare @trandate nvarchar(10)
+	declare @addrno nvarchar(20)
+	declare @weight float
+	
+	declare @price float
+	declare @rate float
+	declare @money float
+	declare @msg nvarchar(max)
+	
+	DECLARE @chk tinyint = 0
+	Begin Transaction [Trans_Name]
+	
+	begin try
+	
+		declare cursor_table cursor for
+		
+		select accy,noa,noq,trandate,straddrno,[weight]
+		from view_trans 
+		where custno=@t_custno
+		and trandate between @t_btrandate and @t_etrandate
+		
+		open cursor_table
+		fetch next from cursor_table
+		into @accy,@noa,@noq,@trandate,@addrno,@weight
+		while(@@FETCH_STATUS <> -1)
+		begin
+			select @price=0,@rate=0,@money=0,@msg=''
+			select @price=price,@rate=rate,@money=[money],@msg=msg 
+			from dbo.tranmoney_es(@trandate,@addrno,@weight)
+			if LEN(@msg)>0
+			begin
+				set @cmd =
+				"update trans"+@accy+" set price=@price,custdiscount=@rate,total=@money
+				where noa=@noa and noq=@noq"		
+				
+				execute sp_executesql @cmd,N'@noa nvarchar(20),@noq nvarchar(10),@price float,@rate float,@money float'
+					,@noa=@noa,@noq=@noq,@price=@price,@rate=@rate,@money=@money
+				IF @@Error <> 0 BEGIN SET @chk = 1 END
+			end
+			fetch next from cursor_table
+			into @accy,@noa,@noq,@trandate,@addrno,@weight
+		end
+		close cursor_table
+		deallocate cursor_table
+			
+		IF @chk <> 0 BEGIN -- 若是新增資料發生錯誤
+			Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+		END
+		ELSE BEGIN
+			Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
+		END	
+		insert into @tmp(msg)values('Done!')
+	end try
+	begin catch
+		Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+		insert into @tmp(msg)values(ERROR_MESSAGE())
+	end catch
+	
+	select * from @tmp;
