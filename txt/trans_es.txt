@@ -59,9 +59,11 @@ batch_transmoney_es:--batch_transmoney_es  批次修改金額
 			from dbo.tranmoney_es(@trandate,@addrno,@weight)
 			if LEN(@msg)=0
 			begin
+				--稅額固定5%
 				set @cmd =
 				"update trans"+@accy+" set price=@price,custdiscount=@rate,total=@money
-				where noa=@noa and noq=@noq"		
+					,reserve=case when rs='Y' then round(@money*0.05,0) else 0 end
+				where noa=@noa and noq=@noq"	
 				
 				execute sp_executesql @cmd,N'@noa nvarchar(20),@noq nvarchar(10),@price float,@rate float,@money float'
 					,@noa=@noa,@noq=@noq,@price=@price,@rate=@rate,@money=@money
