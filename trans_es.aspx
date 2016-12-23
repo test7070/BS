@@ -163,6 +163,10 @@
 				$('#btnClose_import').click(function(e){
 					$('#divImport').toggle();
 				});
+				$('#btnClose_modi').click(function(e){
+					$('#divModi').toggle();
+				});
+				
 				$('#btnAppend_import').click(function(e){
 					if(q_cur != 1 && q_cur != 2){
                    		var t_key = q_getPara('sys.key_trans');
