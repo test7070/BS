@@ -388,6 +388,17 @@
                 if (!(q_cur == 1 || q_cur == 2))
                     return false;
                 Unlock(1);
+                if(q_cur==2){
+                	//修改後自動跳下一筆資料(即  按上筆),然後修改
+     			  	// 存檔後，繼續改
+     			  	q_stModi = 1;
+                    $('#btnPrev').click();
+
+                    $('#btnModi').click();
+
+                }
+                
+                
                 /*switch(q_getPara('sys.project').toUpperCase()=='DH'){
                 	default:
                 		Lock(1,{opacity:0});
