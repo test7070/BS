@@ -103,6 +103,71 @@
 			function mainPost() {
 				q_mask(bbmMask);
                 
+                //HOT KEY
+                $('#btnIns').val('新增(alt+1)').css('white-space','normal').css('width','70px');
+                $('#btnModi').val('修改(alt+2)').css('white-space','normal').css('width','70px');
+                $('#btnDele').val('刪除(alt+3)').css('white-space','normal').css('width','70px');
+                $('#btnSeek').val('查詢(alt+4)').css('white-space','normal').css('width','70px');
+                $('#btnPrint').val('列印(alt+5)').css('white-space','normal').css('width','70px');
+                $('#btnPrevPage').val('翻上頁(alt+6)').css('white-space','normal').css('width','70px');
+                $('#btnPrev').val('上筆(alt+7)').css('white-space','normal').css('width','70px');
+                $('#btnNext').val('下筆(alt+8)').css('white-space','normal').css('width','70px');
+                $('#btnNextPage').val('翻下頁(alt+9)').css('white-space','normal').css('width','70px');
+                $('#btnOk').val('確定(F9)').css('white-space','normal').css('width','70px');
+                document.onkeydown = function(e){
+                	//console.log(e);
+                	if(!e.altKey)
+                		return;
+                	switch(e.keyCode){
+                		case 49:
+                			if($('#btnIns').attr('disabled')!='disabled')
+                				$('#btnIns').click();
+                			break;
+            			case 50:
+            				if($('#btnModi').attr('disabled')!='disabled')
+            					$('#btnModi').click();
+                			break;
+            			case 51:
+            				if($('#btnDele').attr('disabled')!='disabled')
+            					$('#btnDele').click();
+                			break;
+            			case 52:
+            				if($('#btnSeek').attr('disabled')!='disabled')
+            					$('#btnSeek').click();
+                			break;
+            			case 53:
+            				if($('#btnPrint').attr('disabled')!='disabled')
+            					$('#btnPrint').click();
+                			break;
+            			case 54:
+            				if($('#btnPrevPage').attr('disabled')!='disabled')
+            					$('#btnPrevPage').click();
+                			break;
+            			case 55:
+            				if($('#btnPrev').attr('disabled')!='disabled')
+            					$('#btnPrev').click();
+                			break;
+            			case 56:
+            				if($('#btnNext').attr('disabled')!='disabled')
+            					$('#btnNext').click();
+                			break;
+            			case 57:
+            				if($('#btnNextPage').attr('disabled')!='disabled')
+            					$('#btnNextPage').click();
+                			break;
+            			/*case 48:
+            				if($('#btnOk').attr('disabled')!='disabled')
+            					$('#btnOk').click();
+                			break;*/
+                	}	
+                		
+                	if(e.altKey && e.keyCode==49){
+                		console.log(1);
+                	}
+                	
+                };
+                
+                
                 q_cmbParse("cmbShip", "@,月結,現金,回收");
                 q_cmbParse("cmbRs", "@,Y@是");
                 
@@ -184,11 +249,11 @@
 				$('#btnIns').before($('#btnIns').clone().attr('id', 'btnBatInsert').show());
 				$('#btnBatInsert').click(function() {
 					$('#divImport').toggle();
-				}).attr('value','整批新增');
+				}).attr('value','整批新增').css('white-space','normal').css('width','50px');
 				$('#btnIns').before($('#btnIns').clone().attr('id', 'btnBatModi').show());
 				$('#btnBatModi').click(function() {
 					$('#divModi').toggle();
-				}).attr('value','整批修改');
+				}).attr('value','整批修改').css('white-space','normal').css('width','50px');
 				
 				$('#btnRun_modi').click(function(e){
 					var t_btrandate = $.trim($('#textBtrandate_modi').val());
