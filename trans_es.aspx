@@ -159,6 +159,8 @@
             				if($('#btnOk').attr('disabled')!='disabled')
             					$('#btnOk').click();
                 			break;*/
+                		default:
+                			break;
                 	}	
                 		
                 	if(e.altKey && e.keyCode==49){
