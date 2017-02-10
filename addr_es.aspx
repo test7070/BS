@@ -14,8 +14,6 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"></script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
-			//單價批次修改
-			
 			q_tables = 's';
 			var q_name = "addr";
 			var q_readonly = [];
@@ -28,11 +26,8 @@
 			brwCount = 6;
 			brwList = [];
 			brwNowPage = 0;
-			brwKey = 'Datea';
-			aPop = new Array(['txtProductno', 'lblProductno', 'ucc', 'noa,product', 'txtProductno,txtProduct', 'ucc_b.aspx']
-				, ['txtCustno', 'lblCust', 'cust', 'noa,comp,nick', 'txtCustno,txtCust', 'cust_b.aspx']
-				, ['txtCustno_', 'btnCust_', 'addr3', 'noa,namea', 'txtCustno,txtCust', 'addr3_bs_b.aspx']
-			);
+			brwKey = 'noa';
+			aPop = new Array();
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				bbsKey = ['noa', 'noq'];
@@ -50,6 +45,7 @@
 				q_getFormat();
 				q_mask(bbmMask);
 				bbsMask = [['txtDatea', r_picd]];
+				//document.title = '';
 				$('#txtNoa').change(function(e) {
 					$(this).val($.trim($(this).val()).toUpperCase());
 					if ($(this).val().length > 0) {
@@ -111,7 +107,13 @@
 					Unlock(1);
 					return;
 				}
-				
+				if(q_cur ==1){
+                	$('#txtWorker').val(r_name);
+                }else if(q_cur ==2){
+                	$('#txtWorker2').val(r_name);
+                }else{
+                	alert("error: btnok!");
+                }
 				if (q_cur == 1) {
 					t_where = "where=^^ noa='" + $('#txtNoa').val() + "'^^";
 					q_gt('addr', t_where, 0, 0, 0, "checkAddrno_btnOk", r_accy);
@@ -122,12 +124,20 @@
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)
 					return;
-				q_box('addr_bs_s.aspx', q_name + '_s', "550px", "400px", q_getMsg("popSeek"));
+				//q_box('addr_es_s.aspx', q_name + '_s', "550px", "400px", q_getMsg("popSeek"));
 			}
 			function bbsAssign() {
 				for (var i = 0; i < q_bbsCount; i++) {
-				}
+					$('#lblNo_' + i).text(i + 1);
+                    if($('#btnMinus_' + i).hasClass('isAssign'))
+                    	continue;
+                }
 				_bbsAssign();
+				$('#tbbs').find('tr.data').children().hover(function(e){
+					$(this).parent().css('background','yellow');
+				},function(e){
+					$(this).parent().css('background','#cad3ff');
+				});
 			}
 			function btnIns() {
 				_btnIns();
@@ -139,7 +149,7 @@
 					return;
 				_btnModi();
 				refreshBbm();
-				$('#txtDatea').focus();
+				$('#txtAddr').focus();
 			}
 			function btnPrint() {
 				//q_box("z_addr_bs.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";;" + r_accy, 'z_addr', "95%", "95%", q_getMsg("popPrint"));
@@ -150,7 +160,7 @@
 				_btnOk(key_value, bbmKey[0], bbsKey[1], '', 2);
 			}
 			function bbsSave(as) {
-				if (!as['datea']) {
+				if (!as['custmount']) {
 					as[bbsKey[1]] = '';
 					return;
 				}
@@ -172,9 +182,6 @@
 			}
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
-				if(t_para){
-					$('#txtDatea').val('destroy');
-				}
 			}
 			function btnMinus(id) {
 				_btnMinus(id);
@@ -223,7 +230,7 @@
             }
             .dview {
                 float: left;
-                width: 500px;
+                width: 250px;
                 border-width: 0px;
             }
             .tview {
@@ -314,7 +321,7 @@
                 font-size: medium;
             }
             .dbbs {
-                width: 950px;
+                width: 450px;
             }
             .tbbs a {
                 font-size: medium;
@@ -339,17 +346,13 @@
                 <table class="tview" id="tview">
                     <tr>
                         <td align="center" style="width:20px; color:black;"><a id='vewChk'> </a></td>
-                        <td align="center" style="width:100px; color:black;"><a id='vewNoa'>單據編號</a></td>
-                        <td align="center" style="width:100px; color:black;"><a>客戶</a></td>
-                        <td align="center" style="width:100px; color:black;"><a>油價</a></td>
-                        <td align="center" style="width:100px; color:black;"><a>油價</a></td>
+                        <td align="center" style="width:100px; color:black;"><a id='vewNoa'>編號</a></td>
+                        <td align="center" style="width:100px; color:black;"><a>區域</a></td>
                     </tr>
                     <tr>
                         <td><input id="chkBrow.*" type="checkbox" /></td>
                         <td style="text-align: center;" id='noa'>~noa</td>
-                        <td style="text-align: left;" id='cust'>~cust</td>
-                        <td style="text-align: left;" id='bprice'>~bprice</td>
-                        <td style="text-align: left;" id='eprice'>~eprice</td>
+                        <td style="text-align: left;" id='addr'>~addr</td>
                     </tr>
                 </table>
             </div>
@@ -363,27 +366,12 @@
                         <td class="tdZ"></td>
                     </tr>
                     <tr>
-                        <td><span> </span><a id='lblNoa' class="lbl">單據編號</a></td>
+                        <td><span> </span><a id='lblNoa' class="lbl">編號</a></td>
                         <td colspan="2"><input id="txtNoa" type="text" class="txt c1" /> </td>
                     </tr>
                     <tr>
-                        <td><span> </span><a id='lblDatea' class="lbl">登錄日期</a></td>
-                        <td colspan="2"><input id="txtDatea" type="text" class="txt c1" /> </td>
-                    </tr>
-                    <tr>
-                        <td><span> </span><a id="lblCust" class="lbl btn">客戶</a></td>
-                        <td colspan="3">
-                    		<input id="txtCustno" type="text" class="txt" style="float:left;width:30%;"/>
-                    		<input id="txtCust" type="text" class="txt" style="float:left;width:70%;"/>
-                		</td>
-                    </tr>
-                    <tr>
-                        <td><span> </span><a id='lblPirce' class="lbl">油價區間</a></td>
-                        <td colspan="3">
-                        	<input id="txtBprice" type="text" style="float:left; width:45%;text-align:right;"/>
-                        	<span style="float:left;display:block;width:5%;">~</span>
-                        	<input id="txtEprice" type="text" style="float:left; width:45%;text-align:right;"/>
-                        </td>
+                        <td><span> </span><a id='lblAddr_es' class="lbl">區域</a></td>
+                        <td colspan="2"><input id="txtAddr" type="text" class="txt c1" /> </td>
                     </tr>
                     <tr>
                         <td><span> </span><a id='lblMemo' class="lbl">備註</a></td>
@@ -398,29 +386,22 @@
                 </table>
             </div>
         </div>
-
         <div class='dbbs'>
             <table id="tbbs" class='tbbs'>
                 <tr style='color:white; background:#003366;' >
                     <td align="center" style="width:30px;"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"/></td>
                     <td align="center" style="width:20px;"> </td>
-                    <td align="center" style="width:80px;"><a>生效日</a></td>
-                    <td align="center" style="width:80px;"><a>運輸地點</a></td>
-                    <td align="center" style="width:80px;"><a>運費單價</a></td>
-                    <td align="center" style="width:150px;"><a>備註</a></td>
+                    <td align="center" style="width:100px;"><a>重量</a></td>
+                    <td align="center" style="width:100px;"><a>單價</a></td>
+                    <td align="center" style="width:200px;"><a>備註</a></td>
                 </tr>
-                <tr  style='background:#cad3ff;'>
+                <tr class="data" style='background:#cad3ff;'>
                     <td align="center">
                     	<input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold;" />
                     	<input id="txtNoq.*" type="text" style="display: none;" />
                     </td>
                     <td><a id="lblNo.*" style="font-weight: bold;text-align: center;display: block;"> </a></td>
-                    <td><input type="text" id="txtDatea.*" style="width:95%;" /> </td>
-                    <td>
-                    	<input type="text" id="txtCustno.*" style="float:left;width:45%;"/>
-                    	<input type="text" id="txtCust.*" style="float:left;width:45%;"/>
-                    	<input type="button" id="btnCust.*" style="display:none;">
-                	</td>
+                	<td><input type="text" id="txtCustmount.*" style="width:95%;text-align:right;"/> </td>
                 	<td><input type="text" id="txtCustprice.*" style="width:95%;text-align:right;"/> </td>
                     <td><input type="text" id="txtMemo.*" style="width:95%;" /> </td>
                 </tr>

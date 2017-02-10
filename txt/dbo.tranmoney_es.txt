@@ -1,4 +1,4 @@
-alter function [dbo].[tranmoney_es](@t_date nvarchar(10),@t_addrno nvarchar(20),@t_weight float)
+ALTER function [dbo].[tranmoney_es](@t_date nvarchar(10),@t_addrno nvarchar(20),@t_weight float)
 RETURNS @tmp TABLE (price float,rate float,[money] float,msg NVARCHAR(MAX))
 as
 begin	
@@ -13,14 +13,8 @@ begin
 		,value float
 		,rate float
 	)
-	insert into @tmpa(value,rate)values(18,-12)
-	insert into @tmpa(value,rate)values(21,-9)
-	insert into @tmpa(value,rate)values(24,-6)
-	insert into @tmpa(value,rate)values(27,-3)
-	insert into @tmpa(value,rate)values(30, 0)
-	insert into @tmpa(value,rate)values(33,  3)
-	insert into @tmpa(value,rate)values(36,  6)
-	insert into @tmpa(value,rate)values(99,  9)
+	insert into @tmpa(value,rate)
+	select value,rate from addr2s order by noq
 	
 	declare @tmpb table(
 		sel int identity(1,1)
@@ -29,55 +23,8 @@ begin
 		,[weight] float
 		,price float
 	)
-
-	--N01
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',1,1220,1.35)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',2,2000,1.1)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',3,3000,1.05)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',4,4000,1.0)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',5,5000,0.86)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',6,6000,0.83)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',7,7000,0.8)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',8,8000,0.78)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',9,9000,0.76)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',10,10000,0.74)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',11,13000,0.69)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',12,16000,0.62)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',13,19000,0.55)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',14,23000,0.48)
-	insert into @tmpb(addrno,recno,[weight],price)values('N01',15,27000,0.45)
-	--C01
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',1,1150,1.1)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',2,2000,1.0)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',3,3000,0.9)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',4,4000,0.8)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',5,5000,0.65)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',6,6000,0.65)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',7,7000,0.6)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',8,8000,0.6)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',9,9000,0.55)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',10,10000,0.55)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',11,13000,0.5)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',12,16000,0.48)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',13,19000,0.45)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',14,23000,0.42)
-	insert into @tmpb(addrno,recno,[weight],price)values('C01',15,27000,0.39)
-	--S01
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',1,1150,1.1)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',2,2000,0.95)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',3,3000,0.85)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',4,4000,0.75)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',5,5000,0.60)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',6,6000,0.55)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',7,7000,0.50)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',8,8000,0.45)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',9,9000,0.42)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',10,10000,0.39)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',11,13000,0.36)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',12,16000,0.33)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',13,19000,0.29)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',14,23000,0.26)
-	insert into @tmpb(addrno,recno,[weight],price)values('S01',15,27000,0.24)
+	insert into @tmpb(addrno,recno,[weight],price)
+	select noa,row_number()over(partition by noa order by noq) recno,custmount,custprice from addrs order by recno
 	---------------------------
 	--再興  抓5號當日的油價
 	--WEEKDAY <=3 就是第2週,不然就是第一週
@@ -132,26 +79,26 @@ begin
 	select @minMoney=price*1000
 	from @tmpb a
 	where a.addrno = @t_addrno
-	and a.sel = 1
+	and a.recno = 1
 	
 	if exists(select top 1 *
 		from @tmpb a
 		where a.addrno = @t_addrno
-		and a.[weight]>@t_weight
-		order by sel)
+		and a.[weight]>=@t_weight
+		order by a.recno)
 	begin
 		select top 1 @price=price
 		from @tmpb a
 		where a.addrno = @t_addrno
-		and a.[weight]>@t_weight
-		order by sel
+		and a.[weight]>=@t_weight
+		order by a.recno
 	end
 	else
 	begin
 		select top 1 @price=price
 		from @tmpb a
 		where a.addrno = @t_addrno
-		order by sel desc
+		order by a.recno desc
 	end
 	
 	declare @money float = 0
@@ -160,6 +107,4 @@ begin
 	
 	insert into @tmp(price,rate,[money],msg)values(@price,(100+@rate),@money,'')
 	return
-end	
-		
-GO
+end
