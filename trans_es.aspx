@@ -25,7 +25,7 @@
 			brwList = [];
 			brwNowPage = 0;
 			brwKey = 'noa';
-			q_desc = 1;
+			//q_desc = 1;
             q_xchg = 1;
             brwCount2 = 20;
             //不能彈出瀏覽視窗
@@ -33,7 +33,7 @@
 			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,cmbShip', 'cust_b.aspx']
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
-			,['txtStraddrno', 'lblXstraddr', 'addr3', 'noa,namea', 'txtStraddrno,txtStraddr', 'addr3_bs_b.aspx'] 
+			,['txtStraddrno', 'lblXstraddr', 'addr', 'noa,addr', 'txtStraddrno,txtStraddr', 'addr_b.aspx'] 
 			,['txtCardealno', 'lblCardeal', 'acomp', 'noa,acomp', 'txtCardealno,txtCardeal', 'acomp_b.aspx']
 			, ['txtSaddr', '', 'view_road', 'memo', '0txtSaddr', 'road_b.aspx']
 			,['textCustno_modi', '', 'cust', 'noa,comp,nick', 'textCustno_modi', 'cust_b.aspx']
@@ -88,8 +88,14 @@
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				q_brwCount();
-				q_content += ' order=^^trandate desc,noa desc^^';
-			    q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
+				var date = new Date();
+				date.setMonth(date.getMonth()-1);
+				var year = '000'+(date.getFullYear()-1911);
+				year = year.substring(year.length-3,year.length);
+				var month = '00'+(date.getMonth()+1);
+				month = month.substring(month.length-2,month.length);
+				q_content += ' order=^^trandate,noa^^';
+			    q_gt(q_name, q_content + "where=^^ trandate>='"+year+'/'+month+"'^^", q_sqlCount, 1, 0, '', r_accy);
 
 			});
 			function main() {
