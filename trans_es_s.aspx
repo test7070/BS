@@ -90,7 +90,7 @@
                 if (t_rs == 'N')
                     t_where += " and len(isnull(rs,''))=0";   
                             
-		        t_where = ' where=^^' + t_where + '^^ ';
+		        t_where = ' where=^^' + t_where + '^^ order=^^trandate,noa^^';
 		        return t_where;
             }
 		</script>

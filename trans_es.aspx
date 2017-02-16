@@ -24,7 +24,7 @@
 			brwCount = 6;
 			brwList = [];
 			brwNowPage = 0;
-			brwKey = 'noa';
+			brwKey = 'trandate';
 			//q_desc = 1;
             q_xchg = 1;
             brwCount2 = 20;
@@ -465,10 +465,8 @@
                 	//修改後自動跳下一筆資料(即  按上筆),然後修改
      			  	// 存檔後，繼續改
      			  	q_stModi = 1;
-                    $('#btnPrev').click();
-
+                    $('#btnNext').click();
                     $('#btnModi').click();
-
                 }
                 
                 
