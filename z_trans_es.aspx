@@ -40,7 +40,7 @@
 					options : [{
 						type : '0', //[1]
 						name : 'path',
-						value : location.protocol + '//' +location.hostname + location.pathname.toLowerCase().replace('z_quat_rkp.aspx','')
+						value : location.protocol + '//' +location.hostname + location.pathname.toLowerCase().replace('z_trans_es.aspx','')
 					},{
 						type : '0', //[2]
 						name : 'db',
