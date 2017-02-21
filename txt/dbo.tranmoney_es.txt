@@ -102,8 +102,9 @@ begin
 	end
 	
 	declare @money float = 0
-	set @money = round(@t_weight * @price * (100+@rate) / 100,0)
+	set @money = @t_weight * @price
 	set @money = case when @minMoney> @money then @minMoney else @money end
+	set @money = round(@money * (100+@rate) / 100,0)
 	
 	insert into @tmp(price,rate,[money],msg)values(@price,(100+@rate),@money,'')
 	return

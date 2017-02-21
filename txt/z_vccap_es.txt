@@ -1,0 +1,44 @@
+z_vccap_es01:--z_vccap_es01
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'	
+	declare @t_bno nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_eno nvarchar(20) = case when '#non'=[4] then '' else [4] end
+	-------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,noa nvarchar(20)
+		,cno nvarchar(20)
+		,acomp nvarchar(50)
+		,aserial nvarchar(20)
+		,tel nvarchar(50)
+		,addr nvarchar(50)
+		,datea nvarchar(20)
+		,serial nvarchar(20)
+		
+		,[money] float
+		,tax float
+		,total float
+	)
+	
+	insert into @tmp(gno,noa,cno,acomp,aserial,tel,addr,datea,serial
+		,[money],tax,total)
+	select '1',a.noa,a.cno,b.acomp,b.serial,b.tel,b.addr,a.datea
+		,a.serial
+		,a.[money],a.tax,a.total
+	from vcca a
+	left join acomp b on a.cno=b.noa
+	where a.noa between @t_bno and @t_eno
+	
+	select gno
+		,acomp a01
+		,'#'+aserial a02
+		,tel a03
+		,addr a04
+		,datea a05
+		,serial a06
+		,dbo.getComma([money],-1)+'元' a07
+		,dbo.getComma([tax],-1)+'元' a08
+		,dbo.getComma([total],-1)+'元' a09 
+	from @tmp order by noa;
