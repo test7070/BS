@@ -15,6 +15,8 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"> </script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"> </script>
 		<script type="text/javascript">
+			
+			aPop = new Array(['txtXcarno', '', 'car2', 'a.noa', '0txtXcarno', 'car2_b.aspx']);
 			var t_acomp = '';
             $(document).ready(function() {
             	q_getId();

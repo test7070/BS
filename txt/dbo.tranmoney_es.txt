@@ -1,5 +1,5 @@
 ALTER function [dbo].[tranmoney_es](@t_date nvarchar(10),@t_addrno nvarchar(20),@t_weight float)
-RETURNS @tmp TABLE (price float,rate float,[money] float,msg NVARCHAR(MAX))
+RETURNS @tmp TABLE (price float,rate float,[money] float,[money2] float,msg NVARCHAR(MAX))
 as
 begin	
 	if ISDATE( cast(dbo.ChineseEraName2AD(@t_date) as nvarchar)) = 0
@@ -22,9 +22,10 @@ begin
 		,recno int
 		,[weight] float
 		,price float
+		,price2 float
 	)
-	insert into @tmpb(addrno,recno,[weight],price)
-	select noa,row_number()over(partition by noa order by noq) recno,custmount,custprice from addrs order by recno
+	insert into @tmpb(addrno,recno,[weight],price,price2)
+	select noa,row_number()over(partition by noa order by noq) recno,custmount,custprice,driverprice from addrs order by recno
 	---------------------------
 	--再興  抓5號當日的油價
 	--WEEKDAY <=3 就是第2週,不然就是第一週
@@ -75,6 +76,7 @@ begin
 	--找出運輸基價
 	declare @minMoney float = 0
 	declare @price float = 0
+	declare @price2 float = 0
 	
 	select @minMoney=price*1000
 	from @tmpb a
@@ -87,7 +89,7 @@ begin
 		and a.[weight]>=@t_weight
 		order by a.recno)
 	begin
-		select top 1 @price=price
+		select top 1 @price=price,@price2=price2
 		from @tmpb a
 		where a.addrno = @t_addrno
 		and a.[weight]>=@t_weight
@@ -95,17 +97,19 @@ begin
 	end
 	else
 	begin
-		select top 1 @price=price
+		select top 1 @price=price,@price2=price2
 		from @tmpb a
 		where a.addrno = @t_addrno
 		order by a.recno desc
 	end
 	
-	declare @money float = 0
+	declare @money float = 0,@drivermoney float =0
 	set @money = @t_weight * @price
+	set @drivermoney = @t_weight * @price2
 	set @money = case when @minMoney> @money then @minMoney else @money end
 	set @money = round(@money * (100+@rate) / 100,0)
 	
-	insert into @tmp(price,rate,[money],msg)values(@price,(100+@rate),@money,'')
+	insert into @tmp(price,rate,[money],[money2],msg)values(@price,(100+@rate),@money,@drivermoney,'')
 	return
 end
+GO

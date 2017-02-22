@@ -68,6 +68,7 @@
 		        t_aaddr = $.trim($('#txtAaddr').val());
 				t_ship = $.trim($('#cmbShip').val());
 				t_rs = $.trim($('#cmbRs').val());
+				t_memo = $.trim($('#txtMemo').val());
 				
 		        var t_where = " 1=1 " 
 		        + q_sqlPara2("noa", t_noa) 
@@ -77,6 +78,9 @@
 		        + q_sqlPara2("custno", t_custno) 
 		        + q_sqlPara2("straddrno", t_straddrno) 
 		        + q_sqlPara2("carno", t_carno) ;
+		        
+		        if (t_memo.length>0)
+                    t_where += " and charindex('" + t_memo + "',memo)>0";
 		        if (t_comp.length>0)
                     t_where += " and charindex('" + t_comp + "',comp)>0";
                 if (t_driver.length>0)
@@ -180,6 +184,12 @@
 					<td class='seek'  style="width:20%;"><a id='lblXaaddr'>卸貨地點</a></td>
 					<td>
 					<input class="txt" id="txtAaddr" type="text" style="width:215px; font-size:medium;" />
+					</td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblXmemo'>備註</a></td>
+					<td>
+					<input class="txt" id="txtMemo" type="text" style="width:215px; font-size:medium;" />
 					</td>
 				</tr>
 			</table>

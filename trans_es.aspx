@@ -16,7 +16,7 @@
 		<script type="text/javascript">
 			var q_name = "trans";
 			var q_readonly = ['txtTotal','txtTotal2','txtWorker','txtWorker2','txtReserve','txtCustdiscount'];
-			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1]
+			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1],['txtWeight',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtPrice3',10,2,1],['txtTotal2',10,0,1]
 			];
 			var bbmMask = [['textDate','999/99/99'],['txtDatea','999/99/99'],['txtTrandate','999/99/99'],['txtMon','999/99'],['txtMon2','999/99']];
@@ -122,6 +122,14 @@
                 $('#btnOk').val('確定(F9)').css('white-space','normal').css('width','70px');
                 document.onkeydown = function(e){
                 	//console.log(e);
+                	/*switch(e.keyCode){
+                		case 120: //F9
+                			if($('#btnOk').attr('disabled')!='disabled')
+                				$('#btnOk').click();
+                			break;
+                		default:
+                			break;
+                	}*/
                 	if(!e.altKey)
                 		return;
                 	switch(e.keyCode){
@@ -184,12 +192,24 @@
 					$(this).attr('size', len + "");
 				}).blur(function() {
 					$(this).attr('size', '1');
+				}).change(function(e){
+					var t_carno=$.trim($('#txtCarno').val());
+					if(t_carno.length>0)
+						q_gt('car2', "where=^^ carno='"+t_carno+"' ^^", 0, 0, 0, "getCar2");
+					else
+						sum();	
 				});
 				$("#cmbRs").focus(function() {
 					var len = $(this).children().length > 0 ? $(this).children().length : 1;
 					$(this).attr('size', len + "");
 				}).blur(function() {
 					$(this).attr('size', '1');
+				}).change(function(e){
+					var t_carno=$.trim($('#txtCarno').val());
+					if(t_carno.length>0)
+						q_gt('car2', "where=^^ carno='"+t_carno+"' ^^", 0, 0, 0, "getCar2");
+					else
+						sum();
 				});
 				
 				/*$("#txtStraddrno").focus(function() {
@@ -204,9 +224,6 @@
 					getDriverprice();
 					getPrice();
 				});*/
-				$('#cmbRs').change(function(e){
-					sum();
-				});
 				$('#txtMount').change(function(e){
 					sum();
 				});
@@ -231,6 +248,10 @@
 				$('#txtDiscount').change(function(e){
 					sum();
 				});
+				$('#txtMemo').change(function(e){
+					sum();
+				});
+				
 				//----------------------------------------------------------------
 				$('#textDate').datepicker();
 				$('#btnClose_import').click(function(e){
@@ -291,6 +312,16 @@
 								$('#txtPrice').val(as[0].price);
 								$('#txtCustdiscount').val(as[0].rate);
 								$('#txtTotal').val(as[0].money);
+								
+								if($('#txtMemo').val().substring(0,1)!='*'){
+									$('#txtPrice2').val(as[0].money2);						
+									var mount2=q_float('txtMount2');
+									var price2=q_float('txtPrice2');
+									var price3=q_float('txtPrice3');
+									var discount=q_float('txtDiscount');
+									$('#txtTotal2').val(round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0));
+								}
+								
 								if($('#cmbRs').val()=='Y'){
 									$('#txtReserve').val(round(q_mul(q_float('txtTotal'),parseFloat(q_getPara('sys.taxrate')))/100,0));
 								}else{
@@ -896,7 +927,7 @@
 						<td style="background-color: #cad3ff;"><input id="txtMount2"  type="text" class="txt c1 num" style="display:none;"/></td>
 						<td><span> </span><a class="lbl">司機運費</a></td>
 						<td>
-							<input id="txtPrice2"  type="text" class="txt c1 num"/>
+							<input id="txtPrice2"  type="text" class="txt c1 num" title="若區域有設定，此格將自動計算。若要手動修改，請在備註第一個字輸入  *"/>
 							<input id="txtPrice3"  type="text" class="txt c1 num" style="display:none;"/>
 						</td>
 						<td><span> </span><a class="lbl">折扣</a></td>
