@@ -19,7 +19,7 @@
 			var q_readonly = [];
 			var q_readonlys = [];
 			var bbmNum = [];
-			var bbsNum = [];
+			var bbsNum = [['txtCustmount',10,0,1],['txtCustprice',10,2,1],['txtDriverprice',10,2,1]];
 			var bbmMask = [];
 			var bbsMask = [];
 			q_sqlCount = 6;
