@@ -1,5 +1,5 @@
 ALTER function [dbo].[tranmoney_es](@t_date nvarchar(10),@t_addrno nvarchar(20),@t_weight float)
-RETURNS @tmp TABLE (price float,rate float,[money] float,[money2] float,msg NVARCHAR(MAX))
+RETURNS @tmp TABLE (price float,rate float,rate2 float,[money] float,[money2] float,msg NVARCHAR(MAX))
 as
 begin	
 	if ISDATE( cast(dbo.ChineseEraName2AD(@t_date) as nvarchar)) = 0
@@ -12,9 +12,10 @@ begin
 		sel int identity(1,1)
 		,value float
 		,rate float
+		,rate2 float
 	)
-	insert into @tmpa(value,rate)
-	select value,rate from addr2s order by noq
+	insert into @tmpa(value,rate,rate2)
+	select value,rate,rate2 from addr2s order by noq
 	
 	declare @tmpb table(
 		sel int identity(1,1)
@@ -67,12 +68,13 @@ begin
 	if ISNULL(@oilprice,0)=0
 	begin
 		--select 0,'not found',@oilmon
-		insert into @tmp(price,rate,[money],msg)values(0,0,0,'找不到油價')
+		insert into @tmp(price,rate,rate2,[money],msg)values(0,0,0,0,'找不到油價')
 		return
 	end
 	--找出單價要增減多少
 	declare @rate float = 0
-	select top 1 @rate=rate from @tmpa where @oilprice<=value order by sel
+	declare @rate2 float = 0
+	select top 1 @rate=rate,@rate2=rate2 from @tmpa where @oilprice<=value order by sel
 	--找出運輸基價
 	declare @minMoney float = 0
 	declare @price float = 0
@@ -105,11 +107,10 @@ begin
 	
 	declare @money float = 0,@drivermoney float =0
 	set @money = @t_weight * @price
-	set @drivermoney = @t_weight * @price2
+	set @drivermoney = round(@t_weight * @price2,0)
 	set @money = case when @minMoney> @money then @minMoney else @money end
 	set @money = round(@money * (100+@rate) / 100,0)
 	
-	insert into @tmp(price,rate,[money],[money2],msg)values(@price,(100+@rate),@money,@drivermoney,'')
+	insert into @tmp(price,rate,rate2,[money],[money2],msg)values(@price,(100+@rate),(100+@rate2),@money,@drivermoney,'')
 	return
 end
-GO

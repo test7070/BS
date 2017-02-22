@@ -15,7 +15,7 @@
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
 			var q_name = "trans";
-			var q_readonly = ['txtTotal','txtTotal2','txtWorker','txtWorker2','txtReserve','txtCustdiscount'];
+			var q_readonly = ['txtTotal','txtTotal2','txtWorker','txtWorker2','txtReserve','txtCustdiscount','txtOverw'];
 			var bbmNum = [['txtMount',10,2,1],['txtPrice',10,2,1],['txtTotal',10,0,1],['txtWeight',10,0,1]
 			,['txtMount2',10,2,1],['txtPrice2',10,2,1],['txtPrice3',10,2,1],['txtTotal2',10,0,1]
 			];
@@ -239,6 +239,9 @@
 				$('#txtCustdiscount').change(function(e){
 					sum();
 				});
+				$('#txtOverw').change(function(e){
+					sum();
+				});
 				$('#txtMount2').change(function(e){
 					sum();
 				});
@@ -311,16 +314,20 @@
 							else{
 								$('#txtPrice').val(as[0].price);
 								$('#txtCustdiscount').val(as[0].rate);
+								$('#txtOverw').val(as[0].rate2);
 								$('#txtTotal').val(as[0].money);
 								
 								if($('#txtMemo').val().substring(0,1)!='*'){
-									$('#txtPrice2').val(as[0].money2);						
-									var mount2=q_float('txtMount2');
-									var price2=q_float('txtPrice2');
-									var price3=q_float('txtPrice3');
-									var discount=q_float('txtDiscount');
-									$('#txtTotal2').val(round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0));
-								}
+									$('#txtPrice2').val(as[0].money2);
+								}						
+								var mount2=q_float('txtMount2');
+								var price2=q_float('txtPrice2');
+								var price3=q_float('txtPrice3');
+								var discount=q_float('txtDiscount');
+								var t_rate2 = q_float('txtOverw')==0?100:q_float('txtOverw');
+								var t_total2 = q_mul(q_mul(mount2,q_add(price2,price3)),discount);
+								t_total2 = round(q_mul(t_total2,q_div(t_rate2,100)),0);
+								$('#txtTotal2').val(t_total2);
 								
 								if($('#cmbRs').val()=='Y'){
 									$('#txtReserve').val(round(q_mul(q_float('txtTotal'),parseFloat(q_getPara('sys.taxrate')))/100,0));
@@ -952,7 +959,9 @@
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>
-						<td colspan="7"><input id="txtMemo"  type="text" class="txt c1"/></td>
+						<td colspan="5"><input id="txtMemo"  type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblCustdiscount" class="lbl">漲幅%(客戶)</a></td>
+						<td><input id="txtCustdiscount" type="text" class="txt c1 num" title="區域有設定才會計算"/></td>
 						<td class="tdZ"> </td>
 					</tr>
 					<tr>
@@ -965,8 +974,8 @@
 						<td><input id="txtWorker" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblWorker2" class="lbl"> </a></td>
 						<td><input id="txtWorker2" type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblCustdiscount" class="lbl">運輸費用%</a></td>
-						<td><input id="txtCustdiscount" type="text" class="txt c1 num"/></td>
+						<td><span> </span><a id="lblOverw_es" class="lbl">漲幅%(司機)</a></td>
+						<td><input id="txtOverw" type="text" class="txt c1 num" title="區域有設定才會計算"/></td>
 					</tr>
 				</table>
 			</div>

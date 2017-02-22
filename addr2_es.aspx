@@ -315,7 +315,7 @@
                 font-size: medium;
             }
             .dbbs {
-                width: 450px;
+                width: 550px;
             }
             .tbbs a {
                 font-size: medium;
@@ -374,7 +374,8 @@
                     <td align="center" style="width:30px;"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"/></td>
                     <td align="center" style="width:20px;"> </td>
                     <td align="center" style="width:100px;"><a>價格/公升</a></td>
-                    <td align="center" style="width:100px;"><a>漲幅%</a></td>
+                    <td align="center" style="width:100px;"><a>漲幅%(客戶)</a></td>
+                    <td align="center" style="width:100px;"><a>漲幅%(司機)</a></td>
                     <td align="center" style="width:200px;"><a>備註</a></td>
                 </tr>
                 <tr class="data" style='background:#cad3ff;'>
@@ -385,6 +386,7 @@
                     <td><a id="lblNo.*" style="font-weight: bold;text-align: center;display: block;"> </a></td>
                 	<td><input type="text" id="txtValue.*" style="width:95%;text-align:right;"/> </td>
                 	<td><input type="text" id="txtRate.*" style="width:95%;text-align:right;"/> </td>
+                	<td><input type="text" id="txtRate2.*" style="width:95%;text-align:right;"/> </td>
                     <td><input type="text" id="txtMemo.*" style="width:95%;" /> </td>
                 </tr>
             </table>
