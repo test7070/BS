@@ -363,14 +363,15 @@
                         			break;
                         		default:
                         			// 外車、靠行
-                        			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y')
+                        			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y'){
                         				if($('#txtMemo').val().substring(0,1)!='*')
 	                        				$('#txtDiscount').val(0.9);
-	                        		/*else if($('#cmbShip').val()=='現金')
-	                        			$('#txtDiscount').val(0.85);*/
-	                        		else
+                        			}
+	                        		else{
 	                        			if($('#txtMemo').val().substring(0,1)!='*')
 	                        				$('#txtDiscount').val(0.8);
+	                        		}
+	                        			
                         			break;
                         	}
                     	}
