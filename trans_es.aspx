@@ -501,6 +501,15 @@
 						break;
 				}
 			}
+			function waitBtnNext(){
+				//isUpDown = 1 時表示還在讀資料
+				if(isUpDown==0){
+                    $('#btnModi').click();
+                    q_msg($('#txtStraddr'), '已儲存!',0,3000 );		
+            	}else{
+            		setTimeout(function(){waitBtnNext();}, 500);
+            	}
+			}
 			function q_stPost() {
                 if (!(q_cur == 1 || q_cur == 2))
                     return false;
@@ -510,8 +519,7 @@
      			  	// 存檔後，繼續改
      			  	q_stModi = 1;
                     $('#btnNext').click();
-                    $('#btnModi').click();
-                    q_msg($('#txtStraddr'), '已儲存!',0,3000 );
+                    waitBtnNext();
                 }
                 
                 
