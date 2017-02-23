@@ -41,6 +41,38 @@
         	
         	isSave = false;
         	
+        	function calcTotal2(){
+        		/*
+        		外車司機 : 現收扣一成  現發扣2成(稅金要再還給司機的)  月結＆回收都是扣2成
+				EX: 運費報價2000
+				司機收現金2000, 實際要扣200, 司機實拿1800
+				司機收2100(含發票)  實際要扣400, 司機實拿1700
+				司機沒有收錢(月結＆回收)  實際要扣400, 司機實拿1600
+				*/
+				/*
+				自家司機: 只有2種扣佣方式
+				1. 3/7分-->運費2000, 給司機600 (2000*0.3)    公司70%  司機30%
+				2. 5/5分-->運費-油費-ETC費用後, 司機公司對半(公司50%  司機50%)
+				3. 固定薪資-->輸入資料時, 司機運費和司機淨付額=客戶運費, 不另外扣成
+				*/
+				if($('#cmbRs').val()=='Y'){
+					$('#txtReserve').val(round(q_mul(q_float('txtTotal'),parseFloat(q_getPara('sys.taxrate')))/100,0));
+				}else{
+					$('#txtReserve').val(0);
+				}
+				var t_paytype = $('#cmbShip').val();
+				var isTax = $('#cmbRs').val()=='Y'?true:false;
+				var t_total2 = 0;
+				if(t_paytype=='現金' && isTax){
+					t_total2 = round(q_mul(q_add(q_float('txtPrice2'),q_float('txtPrice3')),q_float('txtMount2')),0) - q_float('txtReserve');
+					t_total2 = round(q_mul(t_total2,q_float('txtDiscount')),0);
+				}else{
+					t_total2 = round(q_mul(q_add(q_float('txtPrice2'),q_float('txtPrice3')),q_float('txtMount2')),0);
+					t_total2 = round(q_mul(t_total2,q_float('txtDiscount')),0);
+				}
+        		
+        		$('#txtTotal2').val(t_total2);
+        	}
         	function sum() {
 				if(q_cur!=1 && q_cur!=2)
 					return;
@@ -50,22 +82,11 @@
 					$('#txtMount2').val(1);	
 					
 				var mount1=q_float('txtMount');
-				var mount2=q_float('txtMount2');
 				var price1=q_float('txtPrice');								
-				var price2=q_float('txtPrice2');
-				var price3=q_float('txtPrice3');
-				var discount=q_float('txtDiscount');
 				
 				var total = round(q_mul(mount1,price1),0);
-				var total2 = round(q_mul(q_mul(mount2,q_add(price2,price3)),discount),0);	
-				
 				$('#txtTotal').val(total);
-				$('#txtTotal2').val(total2);
-				if($('#cmbRs').val()=='Y'){
-					$('#txtReserve').val(round(q_mul(total,parseFloat(q_getPara('sys.taxrate')))/100,0));
-				}else{
-					$('#txtReserve').val(0);
-				}
+				calcTotal2();//順便算稅額
 				
 				var t_date  = $.trim($('#txtTrandate').val());
 				var t_addrno  = $.trim($('#txtStraddrno').val());
@@ -320,20 +341,7 @@
 								if($('#txtMemo').val().substring(0,1)!='*'){
 									$('#txtPrice2').val(as[0].money2);
 								}						
-								var mount2=q_float('txtMount2');
-								var price2=q_float('txtPrice2');
-								var price3=q_float('txtPrice3');
-								var discount=q_float('txtDiscount');
-								var t_rate2 = q_float('txtOverw')==0?100:q_float('txtOverw');
-								var t_total2 = q_mul(q_mul(mount2,q_add(price2,price3)),discount);
-								t_total2 = round(q_mul(t_total2,q_div(t_rate2,100)),0);
-								$('#txtTotal2').val(t_total2);
-								
-								if($('#cmbRs').val()=='Y'){
-									$('#txtReserve').val(round(q_mul(q_float('txtTotal'),parseFloat(q_getPara('sys.taxrate')))/100,0));
-								}else{
-									$('#txtReserve').val(0);
-								}
+								calcTotal2();
 							}
 						}
 						if(isSave){

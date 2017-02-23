@@ -107,10 +107,11 @@ begin
 	
 	declare @money float = 0,@drivermoney float =0
 	set @money = @t_weight * @price
-	set @drivermoney = round(@t_weight * @price2,0)
+	set @drivermoney = round(@t_weight * @price2 * (100+@rate2) / 100,0)
 	set @money = case when @minMoney> @money then @minMoney else @money end
 	set @money = round(@money * (100+@rate) / 100,0)
 	
-	insert into @tmp(price,rate,rate2,[money],[money2],msg)values(@price,(100+@rate),(100+@rate2),@money,@drivermoney,'')
+	insert into @tmp(price,rate,rate2,[money],[money2],msg)
+	values(@price,(100+@rate),(100+@rate2),@money,@drivermoney,'')
 	return
 end
