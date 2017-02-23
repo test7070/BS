@@ -327,7 +327,7 @@ z_trans_es05:--z_trans_es05
 		,case when mount3>0 then CAST(mount3 as nvarchar)+'才' else '' end
 		+case when mount4>0 then CAST(mount4 as nvarchar)+'件' else '' end
 		+case when len([status])>0 then [status]+'板' else '' end
-		+case when mount4>0 then CAST([weight] as nvarchar) + 'Kg' else '' end b02
+		+case when [weight]>0 then CAST([weight] as nvarchar) + 'Kg' else '' end b02
 		,addr b03
 		,dbo.getComma([money],-1) b04
 		,dbo.getComma([tax],-1) b05

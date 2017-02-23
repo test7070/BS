@@ -365,9 +365,10 @@
                         			break;
                         		default:
                         			// 外車、靠行
-                        			//現金&沒開發票  10% , 其餘都 20%
                         			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y')
 	                        			$('#txtDiscount').val(0.9);
+	                        		else if($('#cmbShip').val()=='現金')
+	                        			$('#txtDiscount').val(0.85);
 	                        		else
 	                        			$('#txtDiscount').val(0.8);
                         			break;
