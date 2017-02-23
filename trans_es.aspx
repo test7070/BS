@@ -54,7 +54,8 @@
 				
 				var t_driverno = $.trim($('#txtDriverno').val());
             	if(t_driverno.length==0){
-            		$('#txtDiscount').val(1);
+            		if($('#txtMemo').val().substring(0,1)!='*')
+            			$('#txtDiscount').val(1);
             		sum1();
             	}
             	else{
@@ -62,6 +63,11 @@
             	}
 			}
 			function sum1(){
+				var mount1=q_float('txtMount');
+				var price1=q_float('txtPrice');								
+				var total = round(q_mul(mount1,price1),0);
+				$('#txtTotal').val(total);
+				
 				var t_date  = $.trim($('#txtTrandate').val());
 				var t_addrno  = $.trim($('#txtStraddrno').val());
 				var t_weight  = q_float('txtWeight');
@@ -74,10 +80,6 @@
 				}
 			}
 			function sum2(){
-				var mount1=q_float('txtMount');
-				var price1=q_float('txtPrice');								
-				var total = round(q_mul(mount1,price1),0);
-				$('#txtTotal').val(total);
 				/*
         		外車司機 : 現收扣一成  現發扣2成(稅金要再還給司機的)  月結＆回收都是扣2成
 				EX: 運費報價2000
@@ -348,22 +350,27 @@
                         	$('#txtCalctype').val(as[0].cartype);
                         	switch(as[0].cartype){
                         		case '公司車':
-                        			$('#txtDiscount').val(1);
+                        			if($('#txtMemo').val().substring(0,1)!='*')
+                        				$('#txtDiscount').val(1);
                         			break;
                         		case '公司車(3/7)':
-                        			$('#txtDiscount').val(0.3);
+                        			if($('#txtMemo').val().substring(0,1)!='*')
+                        				$('#txtDiscount').val(0.3);
                         			break;
                         		case '公司車(5/5)':
-                        			$('#txtDiscount').val(0.5);
+                        			if($('#txtMemo').val().substring(0,1)!='*')
+                        				$('#txtDiscount').val(0.5);
                         			break;
                         		default:
                         			// 外車、靠行
                         			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y')
-	                        			$('#txtDiscount').val(0.9);
+                        				if($('#txtMemo').val().substring(0,1)!='*')
+	                        				$('#txtDiscount').val(0.9);
 	                        		/*else if($('#cmbShip').val()=='現金')
 	                        			$('#txtDiscount').val(0.85);*/
 	                        		else
-	                        			$('#txtDiscount').val(0.8);
+	                        			if($('#txtMemo').val().substring(0,1)!='*')
+	                        				$('#txtDiscount').val(0.8);
                         			break;
                         	}
                     	}
@@ -940,7 +947,7 @@
 							<input id="txtPrice3"  type="text" class="txt c1 num" style="display:none;"/>
 						</td>
 						<td><span> </span><a class="lbl">折扣</a></td>
-						<td><input id="txtDiscount"  type="text" class="txt c1 num"/></td>
+						<td><input id="txtDiscount"  type="text" class="txt c1 num" title="若要手動修改，請在備註第一個字輸入  *"//></td>
                         <td><span> </span><a class="lbl">司機淨付額</a></td>
                         <td><input id="txtTotal2"  type="text" class="txt c1 num"/></td>
 						<td class="tdZ"> </td>
