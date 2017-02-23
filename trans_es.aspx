@@ -60,17 +60,9 @@
 				}else{
 					$('#txtReserve').val(0);
 				}
-				var t_paytype = $('#cmbShip').val();
-				var isTax = $('#cmbRs').val()=='Y'?true:false;
 				var t_total2 = 0;
-				if(t_paytype=='現金' && isTax){
-					t_total2 = round(q_mul(q_add(q_float('txtPrice2'),q_float('txtPrice3')),q_float('txtMount2')),0) - q_float('txtReserve');
-					t_total2 = round(q_mul(t_total2,q_float('txtDiscount')),0);
-				}else{
-					t_total2 = round(q_mul(q_add(q_float('txtPrice2'),q_float('txtPrice3')),q_float('txtMount2')),0);
-					t_total2 = round(q_mul(t_total2,q_float('txtDiscount')),0);
-				}
-        		
+				t_total2 = round(q_mul(q_add(q_float('txtPrice2'),q_float('txtPrice3')),q_float('txtMount2')),0);
+				t_total2 = round(q_mul(t_total2,q_float('txtDiscount')),0);
         		$('#txtTotal2').val(t_total2);
         	}
         	function sum() {
@@ -91,6 +83,9 @@
 				var t_date  = $.trim($('#txtTrandate').val());
 				var t_addrno  = $.trim($('#txtStraddrno').val());
 				var t_weight  = q_float('txtWeight');
+				
+				$('#txtCustdiscount').val(0);
+				$('#txtOverw').val(0);
 				if(q_getPara('sys.project').toUpperCase()=='ES' && (t_addrno=='N01' || t_addrno=='C01' || t_addrno=='S01')){
 					q_gt('tranmoney_es', "where=^^['"+t_date+"','"+t_addrno+"',"+t_weight+")^^", 0, 0, 0, "tranmoney_es");
 				}else{
@@ -214,11 +209,7 @@
 				}).blur(function() {
 					$(this).attr('size', '1');
 				}).change(function(e){
-					var t_carno=$.trim($('#txtCarno').val());
-					if(t_carno.length>0)
-						q_gt('car2', "where=^^ carno='"+t_carno+"' ^^", 0, 0, 0, "getCar2");
-					else
-						sum();	
+					getDriver();	
 				});
 				$("#cmbRs").focus(function() {
 					var len = $(this).children().length > 0 ? $(this).children().length : 1;
@@ -226,11 +217,7 @@
 				}).blur(function() {
 					$(this).attr('size', '1');
 				}).change(function(e){
-					var t_carno=$.trim($('#txtCarno').val());
-					if(t_carno.length>0)
-						q_gt('car2', "where=^^ carno='"+t_carno+"' ^^", 0, 0, 0, "getCar2");
-					else
-						sum();
+					getDriver();
 				});
 				
 				/*$("#txtStraddrno").focus(function() {
@@ -324,7 +311,17 @@
 						break;
 				}
 			}
-
+			
+			function getDriver(){
+				var t_driverno = $.trim($('#txtDriverno').val());
+            	if(t_driverno.length==0){
+            		$('#txtDiscount').val(1);
+            		sum();
+            	}
+            	else{
+            		q_gt('driver', "where=^^ noa='"+t_driverno+"' ^^", 0, 0, 0, "getDriver");
+            	}
+			}
 			function q_gtPost(t_name) {
 				switch (t_name) {
 					case 'tranmoney_es':
@@ -353,22 +350,30 @@
 								wrServer(t_noa);	
 						}
 						break;
-					case 'getCar2':
-                        var as = _q_appendData("car2", "", true);
+                    case 'getDriver':
+                        var as = _q_appendData("driver", "", true);
                         if(as[0]!=undefined){
-                        	if(as[0].cartype=='2')//公司車
-                        		$('#txtDiscount').val(1);
-                        	else{
-                        		//現金&沒開發票  10% , 其餘都 20%
-                        		if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y')
-                        			$('#txtDiscount').val(0.9);
-                        		else
-                        			$('#txtDiscount').val(0.8);
+                        	switch(as[0].cartype){
+                        		case '公司車':
+                        			$('#txtDiscount').val(1);
+                        			break;
+                        		case '公司車(3/7)':
+                        			$('#txtDiscount').val(0.3);
+                        			break;
+                        		case '公司車(5/5)':
+                        			$('#txtDiscount').val(0.5);
+                        			break;
+                        		default:
+                        			// 外車、靠行
+                        			//現金&沒開發票  10% , 其餘都 20%
+                        			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y')
+	                        			$('#txtDiscount').val(0.9);
+	                        		else
+	                        			$('#txtDiscount').val(0.8);
+                        			break;
                         	}
-                        }else{
-                        	$('#txtDiscount').val(1);
-                        }
-                        sum();
+                    	}
+                    	sum();
                         break;
 					case q_name:
 						if (q_cur == 4)
@@ -380,10 +385,11 @@
 			}
 			function q_popPost(id) {
 				switch(id) {
+					case 'txtDriverno':
+						getDriver();
+						break;
 					case 'txtCarno':
-						var t_carno = $.trim($('#txtCarno').val());
-						if(t_carno.length>0)
-							q_gt('car2', "where=^^ carno='"+t_carno+"' ^^", 0, 0, 0, "getCar2");
+						getDriver();
 						break;
 					case 'txtStraddrno':
 						sum();
@@ -513,6 +519,7 @@
      			  	q_stModi = 1;
                     $('#btnNext').click();
                     $('#btnModi').click();
+                    q_msg($('#txtStraddr'), '已儲存!',0,3000 );
                 }
                 
                 

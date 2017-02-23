@@ -77,10 +77,11 @@ begin
 	select top 1 @rate=rate,@rate2=rate2 from @tmpa where @oilprice<=value order by sel
 	--找出運輸基價
 	declare @minMoney float = 0
+	declare @minMoney2 float = 0
 	declare @price float = 0
 	declare @price2 float = 0
 	
-	select @minMoney=price*1000
+	select @minMoney=price*1000,@minMoney2=price2*1000
 	from @tmpb a
 	where a.addrno = @t_addrno
 	and a.recno = 1
@@ -107,9 +108,11 @@ begin
 	
 	declare @money float = 0,@drivermoney float =0
 	set @money = @t_weight * @price
-	set @drivermoney = round(@t_weight * @price2 * (100+@rate2) / 100,0)
 	set @money = case when @minMoney> @money then @minMoney else @money end
 	set @money = round(@money * (100+@rate) / 100,0)
+	
+	set @drivermoney = round(@t_weight * @price2 * (100+@rate2) / 100,0)
+	set @drivermoney = case when @minMoney2> @drivermoney then @minMoney2 else @drivermoney end
 	
 	insert into @tmp(price,rate,rate2,[money],[money2],msg)
 	values(@price,(100+@rate),(100+@rate2),@money,@drivermoney,'')
