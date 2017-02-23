@@ -42,7 +42,43 @@
         	isSave = false;
         	
         	function calcTotal2(){
-        		/*
+        		
+        	}
+        	function sum() {
+				if(q_cur!=1 && q_cur!=2)
+					return;
+				if(q_float('txtMount')==0)	
+					$('#txtMount').val(1);
+				if(q_float('txtMount2')==0)	
+					$('#txtMount2').val(1);	
+				
+				var t_driverno = $.trim($('#txtDriverno').val());
+            	if(t_driverno.length==0){
+            		$('#txtDiscount').val(1);
+            		sum1();
+            	}
+            	else{
+            		q_gt('driver', "where=^^ noa='"+t_driverno+"' ^^", 0, 0, 0, "getDriver");
+            	}
+			}
+			function sum1(){
+				var t_date  = $.trim($('#txtTrandate').val());
+				var t_addrno  = $.trim($('#txtStraddrno').val());
+				var t_weight  = q_float('txtWeight');
+				$('#txtCustdiscount').val(0);
+				$('#txtOverw').val(0);
+				if(q_getPara('sys.project').toUpperCase()=='ES' && (t_addrno=='N01' || t_addrno=='C01' || t_addrno=='S01')){
+					q_gt('tranmoney_es', "where=^^['"+t_date+"','"+t_addrno+"',"+t_weight+")^^", 0, 0, 0, "tranmoney_es");
+				}else{
+					sum2();
+				}
+			}
+			function sum2(){
+				var mount1=q_float('txtMount');
+				var price1=q_float('txtPrice');								
+				var total = round(q_mul(mount1,price1),0);
+				$('#txtTotal').val(total);
+				/*
         		外車司機 : 現收扣一成  現發扣2成(稅金要再還給司機的)  月結＆回收都是扣2成
 				EX: 運費報價2000
 				司機收現金2000, 實際要扣200, 司機實拿1800
@@ -63,43 +99,21 @@
 				var t_total2 = 0;
 				t_total2 = round(q_mul(q_add(q_float('txtPrice2'),q_float('txtPrice3')),q_float('txtMount2')),0);
 				t_total2 = round(q_mul(t_total2,q_float('txtDiscount')),0);
+        		if($('#txtCalctype').val().indexOf('公司車')<0 && $('#cmbShip').val()=='現金' && $('#cmbRs').val()=='Y' ){
+        			t_total2 = round( q_add(t_total2,q_float('txtReserve')),0);
+        		}
         		$('#txtTotal2').val(t_total2);
-        	}
-        	function sum() {
-				if(q_cur!=1 && q_cur!=2)
-					return;
-				if(q_float('txtMount')==0)	
-					$('#txtMount').val(1);
-				if(q_float('txtMount2')==0)	
-					$('#txtMount2').val(1);	
-					
-				var mount1=q_float('txtMount');
-				var price1=q_float('txtPrice');								
-				
-				var total = round(q_mul(mount1,price1),0);
-				$('#txtTotal').val(total);
-				calcTotal2();//順便算稅額
-				
-				var t_date  = $.trim($('#txtTrandate').val());
-				var t_addrno  = $.trim($('#txtStraddrno').val());
-				var t_weight  = q_float('txtWeight');
-				
-				$('#txtCustdiscount').val(0);
-				$('#txtOverw').val(0);
-				if(q_getPara('sys.project').toUpperCase()=='ES' && (t_addrno=='N01' || t_addrno=='C01' || t_addrno=='S01')){
-					q_gt('tranmoney_es', "where=^^['"+t_date+"','"+t_addrno+"',"+t_weight+")^^", 0, 0, 0, "tranmoney_es");
-				}else{
-					//判斷是不是由BTNOK觸發
-					if(isSave){
-						var t_noa = trim($('#txtNoa').val());
-						var t_date = trim($('#txtTrandate').val());
-						if (t_noa.length == 0 || t_noa == "AUTO")
-							q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
-						else
-							wrServer(t_noa);	
-					}
+				//判斷是不是由BTNOK觸發
+				if(isSave){
+					var t_noa = trim($('#txtNoa').val());
+					var t_date = trim($('#txtTrandate').val());
+					if (t_noa.length == 0 || t_noa == "AUTO")
+						q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
+					else
+						wrServer(t_noa);	
 				}
 			}
+			
 			
 			$(document).ready(function() {
 				bbmKey = ['noa'];
@@ -209,7 +223,7 @@
 				}).blur(function() {
 					$(this).attr('size', '1');
 				}).change(function(e){
-					getDriver();	
+					sum();	
 				});
 				$("#cmbRs").focus(function() {
 					var len = $(this).children().length > 0 ? $(this).children().length : 1;
@@ -217,7 +231,7 @@
 				}).blur(function() {
 					$(this).attr('size', '1');
 				}).change(function(e){
-					getDriver();
+					sum();	
 				});
 				
 				/*$("#txtStraddrno").focus(function() {
@@ -228,10 +242,6 @@
 		            }
 				});*/
 				
-				/*$('#txtTrandate').change(function(e){
-					getDriverprice();
-					getPrice();
-				});*/
 				$('#txtMount').change(function(e){
 					sum();
 				});
@@ -312,16 +322,6 @@
 				}
 			}
 			
-			function getDriver(){
-				var t_driverno = $.trim($('#txtDriverno').val());
-            	if(t_driverno.length==0){
-            		$('#txtDiscount').val(1);
-            		sum();
-            	}
-            	else{
-            		q_gt('driver', "where=^^ noa='"+t_driverno+"' ^^", 0, 0, 0, "getDriver");
-            	}
-			}
 			function q_gtPost(t_name) {
 				switch (t_name) {
 					case 'tranmoney_es':
@@ -334,25 +334,18 @@
 								$('#txtCustdiscount').val(as[0].rate);
 								$('#txtOverw').val(as[0].rate2);
 								$('#txtTotal').val(as[0].money);
-								
 								if($('#txtMemo').val().substring(0,1)!='*'){
 									$('#txtPrice2').val(as[0].money2);
 								}						
-								calcTotal2();
 							}
 						}
-						if(isSave){
-							var t_noa = trim($('#txtNoa').val());
-							var t_date = trim($('#txtTrandate').val());
-							if (t_noa.length == 0 || t_noa == "AUTO")
-								q_gtnoa(q_name, replaceAll(q_getPara('sys.key_trans') + (t_date.length == 0 ? q_date() : t_date), '/', ''));
-							else
-								wrServer(t_noa);	
-						}
+						sum2();
 						break;
                     case 'getDriver':
                         var as = _q_appendData("driver", "", true);
+                        $('#txtCalctype').val('');
                         if(as[0]!=undefined){
+                        	$('#txtCalctype').val(as[0].cartype);
                         	switch(as[0].cartype){
                         		case '公司車':
                         			$('#txtDiscount').val(1);
@@ -367,14 +360,14 @@
                         			// 外車、靠行
                         			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y')
 	                        			$('#txtDiscount').val(0.9);
-	                        		else if($('#cmbShip').val()=='現金')
-	                        			$('#txtDiscount').val(0.85);
+	                        		/*else if($('#cmbShip').val()=='現金')
+	                        			$('#txtDiscount').val(0.85);*/
 	                        		else
 	                        			$('#txtDiscount').val(0.8);
                         			break;
                         	}
                     	}
-                    	sum();
+                    	sum1();
                         break;
 					case q_name:
 						if (q_cur == 4)
@@ -387,24 +380,14 @@
 			function q_popPost(id) {
 				switch(id) {
 					case 'txtDriverno':
-						getDriver();
+						sum();	
 						break;
 					case 'txtCarno':
-						getDriver();
+						sum();	
 						break;
 					case 'txtStraddrno':
 						sum();
                         break;
-                        
-					/*case 'txtCustno':
-						getPrice();
-						break;
-					case 'txtStraddrno':
-                        getDriverprice();
-                    case 'txtUccno':
-                        getDriverprice();
-                        getPrice();
-						break;*/
 				}
 			}
 			function getPrice(){
@@ -912,7 +895,10 @@
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCarno" class="lbl btn"> </a></td>
-						<td><input id="txtCarno"  type="text" class="txt c1"/></td>
+						<td>
+							<input id="txtCarno"  type="text" class="txt c1"/>
+							<input id="txtCalctype"  type="text" style="display:none;"/>
+						</td>
 						<td><span> </span><a id="lblDriver" class="lbl btn"> </a></td>
 						<td colspan="2">
 							<input id="txtDriverno"  type="text" style="float:left;width:50%;"/>
