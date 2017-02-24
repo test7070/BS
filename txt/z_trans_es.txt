@@ -96,6 +96,7 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,total float
 		,othermoney float
 		,diff float
+		,ttotal float
 		
 		,cno nvarchar(20)
 		,acomp nvarchar(50)
@@ -115,12 +116,14 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 	select '2' gno,driverno,carno,'carchg','',noa,''
 		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
 		,0 [money],0 total,0 diff
-		,plusmoney+minusmoney
+		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
 	
-	insert into @tmp(gno,driverno,[money],total,diff,othermoney)
-	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0)),SUM(isnull([othermoney],0))
+	insert into @tmp(gno,driverno,[money],total,diff,othermoney,ttotal)
+	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0))
+		,SUM(isnull([othermoney],0))
+		,SUM(isnull([total],0)+isnull([othermoney],0))
 	from @tmp 
 	group by driverno
 	-------------------------------------------------------------------------------------
@@ -191,8 +194,8 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,'貨運名稱：' a02 --貨運名稱
 		,'電話：' a03 --電話
 		,'司機：'+isnull(driver,'') a04
-		,'電話：' a05 --電話
-		,'手機：' a06 --手機
+		,'電話：'+isnull(dtel,'') a05 --電話
+		,'手機：'+isnull(dmobile,'') a06 --手機
 		,CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar) a07
 		
 		,datea b01
@@ -207,8 +210,8 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,'運費：'+dbo.getComma([money],-1) d01	
 		,'實付：'+dbo.getComma([total],-1) d02	
 		,'扣佣金：'+dbo.getComma([diff],-1) d03
-		,'借扣款：' d04	
-		,'應付：' d05	
+		,'加減項：'+dbo.getComma(isnull([othermoney],0),-1) d04	
+		,'應付：'+dbo.getComma(isnull([ttotal],0),-1) d05	
 	from @tmp order by driverno,recno;
 
 z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
@@ -309,6 +312,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,total float
 		,othermoney float
 		,diff float
+		,ttotal float
 		
 		,cno nvarchar(20)
 		,acomp nvarchar(50)
@@ -328,12 +332,14 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 	select '2' gno,driverno,carno,'carchg','',noa,''
 		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
 		,0 [money],0 total,0 diff
-		,plusmoney+minusmoney
+		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
 	
-	insert into @tmp(gno,driverno,[money],total,diff,othermoney)
-	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0)),SUM(isnull([othermoney],0))
+	insert into @tmp(gno,driverno,[money],total,diff,othermoney,ttotal)
+	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0))
+		,SUM(isnull([othermoney],0))
+		,SUM(isnull([total],0)+isnull([othermoney],0))
 	from @tmp 
 	group by driverno
 	-------------------------------------------------------------------------------------
@@ -404,8 +410,8 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,'貨運名稱：' a02 --貨運名稱
 		,'電話：' a03 --電話
 		,'司機：'+isnull(driver,'') a04
-		,'電話：' a05 --電話
-		,'手機：' a06 --手機
+		,'電話：'+isnull(dtel,'') a05 --電話
+		,'手機：'+isnull(dmobile,'') a06 --手機
 		,CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar) a07
 		
 		,datea b01
@@ -420,8 +426,8 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,'運費：'+dbo.getComma([money],-1) d01	
 		,'實付：'+dbo.getComma([total],-1) d02	
 		,'扣佣金：'+dbo.getComma([diff],-1) d03
-		,'借扣款：' d04	
-		,'應付：' d05	
+		,'加減項：'+dbo.getComma(isnull([othermoney],0),-1) d04	
+		,'應付：'+dbo.getComma(isnull([ttotal],0),-1) d05	
 	from @tmp order by driverno,recno;
 		
 z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
@@ -522,6 +528,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,total float
 		,othermoney float
 		,diff float
+		,ttotal float
 		
 		,cno nvarchar(20)
 		,acomp nvarchar(50)
@@ -541,12 +548,14 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	select '2' gno,driverno,carno,'carchg','',noa,''
 		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
 		,0 [money],0 total,0 diff
-		,plusmoney+minusmoney
+		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
 	
-	insert into @tmp(gno,driverno,[money],total,diff,othermoney)
-	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0)),SUM(isnull([othermoney],0))
+	insert into @tmp(gno,driverno,[money],total,diff,othermoney,ttotal)
+	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0))
+		,SUM(isnull([othermoney],0))
+		,SUM(isnull([total],0)+isnull([othermoney],0))
 	from @tmp 
 	group by driverno
 	-------------------------------------------------------------------------------------
@@ -617,8 +626,8 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,'貨運名稱：' a02 --貨運名稱
 		,'電話：' a03 --電話
 		,'司機：'+isnull(driver,'') a04
-		,'電話：' a05 --電話
-		,'手機：' a06 --手機
+		,'電話：'+isnull(dtel,'') a05 --電話
+		,'手機：'+isnull(dmobile,'') a06 --手機
 		,CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar) a07
 		
 		,datea b01
@@ -633,8 +642,8 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,'運費：'+dbo.getComma([money],-1) d01	
 		,'實付：'+dbo.getComma([total],-1) d02	
 		,'扣佣金：'+dbo.getComma([diff],-1) d03
-		,'借扣款：' d04	
-		,'應付：' d05	
+		,'加減項：'+dbo.getComma(isnull([othermoney],0),-1) d04	
+		,'應付：'+dbo.getComma(isnull([ttotal],0),-1) d05	
 	from @tmp order by driverno,recno;
 	
 
