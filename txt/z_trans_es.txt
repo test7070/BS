@@ -23,12 +23,11 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,size nvarchar(max)
 		,addr nvarchar(max)
 		,paytype nvarchar(20)
-		,[money] float
-		,total float
-		,diff float
+		,[money1] float --運費 
+		,[money2] float --實付
 	)
 	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
-		,size,addr,paytype,[money],[total],diff)
+		,size,addr,paytype,[money1],[money2])
 	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,a.nick
 		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
 		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
@@ -36,7 +35,8 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		+case when ISNULL(a.[weight],0)=0 then '' else dbo.getComma(a.[weight],0)+'Kg' end
 		,a.aaddr
 		,case when a.ship='現金' and a.rs='Y' then '現發' when a.ship='現金' then '現收' else a.ship end
-		,isnull(a.[price2],0),isnull(a.[total2],0),isnull(a.[price2],0)-isnull(a.[total2],0)
+		,isnull(a.[price2],0)
+		,isnull(a.[total2],0)
 	from view_trans a
 	left join driver b on a.driverno=b.noa
 	where charindex('公司',b.cartype)>0  --顯示公司車
@@ -92,11 +92,11 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,size nvarchar(max)
 		,addr nvarchar(max)
 		,paytype nvarchar(20)
-		,[money] float
-		,total float
-		,othermoney float
-		,diff float
-		,ttotal float
+		,[money1] float --運費 
+		,[money2] float --實付
+
+		,[money4] float --加減項
+		,total float    --應付
 		
 		,cno nvarchar(20)
 		,acomp nvarchar(50)
@@ -105,25 +105,23 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,afax nvarchar(50)
 	)
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
-		,datea,cust,size,addr,paytype,[money],total,diff)
+		,datea,cust,size,addr,paytype,[money1],[money2])
 	select '1' gno,driverno,carno,'trans_es',tranaccy,tranno,trannoq
-		,trandate,cust,size,addr,paytype,[money],total,diff
+		,trandate,cust,size,addr,paytype,[money1],[money2]
 	from @tmpa
 	order by driverno,trandate,tranaccy,tranno,trannoq
 	
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
-		,datea,cust,size,addr,paytype,[money],total,diff,othermoney)
+		,datea,cust,size,addr,paytype,[money4])
 	select '2' gno,driverno,carno,'carchg','',noa,''
 		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
-		,0 [money],0 total,0 diff
 		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
 	
-	insert into @tmp(gno,driverno,[money],total,diff,othermoney,ttotal)
-	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0))
-		,SUM(isnull([othermoney],0))
-		,SUM(isnull([total],0)+isnull([othermoney],0))
+	insert into @tmp(gno,driverno,[money1],[money2],[money4],total)
+	select '3',driverno,SUM(isnull([money1],0)),SUM(isnull([money2],0)),SUM(isnull([money4],0))
+		,SUM(isnull([money2],0)+isnull([money4],0))
 	from @tmp 
 	group by driverno
 	-------------------------------------------------------------------------------------
@@ -203,15 +201,14 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,size b03
 		,addr b04
 		,paytype b05
-		,case ISNULL([money],0) when 0 then '' else dbo.getComma([money],-1) end b06 
-		,case when gno='1' or gno='4' then dbo.getComma([total],-1) when gno='2' then dbo.getComma([othermoney],-1) else '' end b07 
-		,case when gno='1' or gno='4' then dbo.getComma([diff],-1) else '' end b08
-		 
-		,'運費：'+dbo.getComma([money],-1) d01	
-		,'實付：'+dbo.getComma([total],-1) d02	
-		,'扣佣金：'+dbo.getComma([diff],-1) d03
-		,'加減項：'+dbo.getComma(isnull([othermoney],0),-1) d04	
-		,'應付：'+dbo.getComma(isnull([ttotal],0),-1) d05	
+		,dbo.getComma([money1],-1) b06 
+		,dbo.getComma([money2],-1) b07 
+		,dbo.getComma([money4],-1) b08
+		
+		,'運費：'+dbo.getComma([money1],-1) d01	
+		,'實付：'+dbo.getComma([money2],-1) d02	
+		,'加減項：'+dbo.getComma([money4],-1) d03
+		,'應付：'+dbo.getComma(isnull([total],0),-1) d04	
 	from @tmp order by driverno,recno;
 
 z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
@@ -239,12 +236,13 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,size nvarchar(max)
 		,addr nvarchar(max)
 		,paytype nvarchar(20)
-		,[money] float
-		,total float
-		,diff float
+		
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
 	)
 	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
-		,size,addr,paytype,[money],[total],diff)
+		,size,addr,paytype,[money1],[money2],[money3])
 	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,a.nick
 		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
 		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
@@ -252,7 +250,9 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		+case when ISNULL(a.[weight],0)=0 then '' else dbo.getComma(a.[weight],0)+'Kg' end
 		,a.aaddr
 		,case when a.ship='現金' and a.rs='Y' then '現發' when a.ship='現金' then '現收' else a.ship end
-		,isnull(a.[price2],0),isnull(a.[total2],0),isnull(a.[price2],0)-isnull(a.[total2],0)
+		,case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
+		,isnull(a.[total2],0)
+		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
 	from view_trans a
 	left join driver b on a.driverno=b.noa
 	where charindex('公司',b.cartype)=0  --不顯示公司車
@@ -308,11 +308,11 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,size nvarchar(max)
 		,addr nvarchar(max)
 		,paytype nvarchar(20)
-		,[money] float
-		,total float
-		,othermoney float
-		,diff float
-		,ttotal float
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
+		,[money4] float --加減項
+		,total float    --應付
 		
 		,cno nvarchar(20)
 		,acomp nvarchar(50)
@@ -321,25 +321,23 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,afax nvarchar(50)
 	)
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
-		,datea,cust,size,addr,paytype,[money],total,diff)
+		,datea,cust,size,addr,paytype,[money1],[money2],[money3])
 	select '1' gno,driverno,carno,'trans_es',tranaccy,tranno,trannoq
-		,trandate,cust,size,addr,paytype,[money],total,diff
+		,trandate,cust,size,addr,paytype,[money1],[money2],[money3]
 	from @tmpa
 	order by driverno,trandate,tranaccy,tranno,trannoq
 	
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
-		,datea,cust,size,addr,paytype,[money],total,diff,othermoney)
+		,datea,cust,size,addr,paytype,[money4])
 	select '2' gno,driverno,carno,'carchg','',noa,''
 		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
-		,0 [money],0 total,0 diff
 		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
 	
-	insert into @tmp(gno,driverno,[money],total,diff,othermoney,ttotal)
-	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0))
-		,SUM(isnull([othermoney],0))
-		,SUM(isnull([total],0)+isnull([othermoney],0))
+	insert into @tmp(gno,driverno,[money1],[money2],[money3],[money4],total)
+	select '3',driverno,SUM(isnull([money1],0)),SUM(isnull([money2],0)),SUM(isnull([money2],0)-isnull([money3],0)),SUM(isnull([money4],0))
+		,SUM(isnull([money3],0)+isnull([money4],0))
 	from @tmp 
 	group by driverno
 	-------------------------------------------------------------------------------------
@@ -419,15 +417,16 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,size b03
 		,addr b04
 		,paytype b05
-		,case ISNULL([money],0) when 0 then '' else dbo.getComma([money],-1) end b06 
-		,case when gno='1' or gno='4' then dbo.getComma([total],-1) when gno='2' then dbo.getComma([othermoney],-1) else '' end b07 
-		,case when gno='1' or gno='4' then dbo.getComma([diff],-1) else '' end b08
-		 
-		,'運費：'+dbo.getComma([money],-1) d01	
-		,'實付：'+dbo.getComma([total],-1) d02	
-		,'扣佣金：'+dbo.getComma([diff],-1) d03
-		,'加減項：'+dbo.getComma(isnull([othermoney],0),-1) d04	
-		,'應付：'+dbo.getComma(isnull([ttotal],0),-1) d05	
+		,case when paytype='現發' or paytype='現收' then dbo.getComma([money1],-1) else '' end b06
+		,dbo.getComma([money2],-1) b07 
+		,dbo.getComma([money3],-1) b08
+		,dbo.getComma([money4],-1) b09
+		
+		,'' d01	
+		,'實付：'+dbo.getComma([money2],-1) d02	
+		,'扣佣金：'+dbo.getComma([money3],-1)d03
+		,'加減項：'+dbo.getComma([money4],-1) d04	
+		,'應付：'+dbo.getComma([total],-1) d05	
 	from @tmp order by driverno,recno;
 		
 z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
@@ -455,12 +454,13 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,size nvarchar(max)
 		,addr nvarchar(max)
 		,paytype nvarchar(20)
-		,[money] float
-		,total float
-		,diff float
+		
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
 	)
 	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
-		,size,addr,paytype,[money],[total],diff)
+		,size,addr,paytype,[money1],[money2],[money3])
 	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,a.nick
 		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
 		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
@@ -468,7 +468,9 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		+case when ISNULL(a.[weight],0)=0 then '' else dbo.getComma(a.[weight],0)+'Kg' end
 		,a.aaddr
 		,case when a.ship='現金' and a.rs='Y' then '現發' when a.ship='現金' then '現收' else a.ship end
-		,isnull(a.[price2],0),isnull(a.[total2],0),isnull(a.[price2],0)-isnull(a.[total2],0)
+		,case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
+		,isnull(a.[total2],0)
+		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
 	from view_trans a
 	left join driver b on a.driverno=b.noa
 	where charindex('公司',b.cartype)=0  --不顯示公司車
@@ -524,11 +526,11 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,size nvarchar(max)
 		,addr nvarchar(max)
 		,paytype nvarchar(20)
-		,[money] float
-		,total float
-		,othermoney float
-		,diff float
-		,ttotal float
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
+		,[money4] float --加減項
+		,total float    --應付
 		
 		,cno nvarchar(20)
 		,acomp nvarchar(50)
@@ -537,25 +539,23 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,afax nvarchar(50)
 	)
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
-		,datea,cust,size,addr,paytype,[money],total,diff)
+		,datea,cust,size,addr,paytype,[money1],[money2],[money3])
 	select '1' gno,driverno,carno,'trans_es',tranaccy,tranno,trannoq
-		,trandate,cust,size,addr,paytype,[money],total,diff
+		,trandate,cust,size,addr,paytype,[money1],[money2],[money3]
 	from @tmpa
 	order by driverno,trandate,tranaccy,tranno,trannoq
 	
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
-		,datea,cust,size,addr,paytype,[money],total,diff,othermoney)
+		,datea,cust,size,addr,paytype,[money4])
 	select '2' gno,driverno,carno,'carchg','',noa,''
 		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
-		,0 [money],0 total,0 diff
 		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
 	
-	insert into @tmp(gno,driverno,[money],total,diff,othermoney,ttotal)
-	select '3',driverno,SUM(isnull([money],0)),SUM(isnull([total],0)),SUM(isnull([diff],0))
-		,SUM(isnull([othermoney],0))
-		,SUM(isnull([total],0)+isnull([othermoney],0))
+	insert into @tmp(gno,driverno,[money1],[money2],[money3],[money4],total)
+	select '3',driverno,SUM(isnull([money1],0)),SUM(isnull([money2],0)),SUM(isnull([money2],0)-isnull([money3],0)),SUM(isnull([money4],0))
+		,SUM(isnull([money3],0)+isnull([money4],0))
 	from @tmp 
 	group by driverno
 	-------------------------------------------------------------------------------------
@@ -635,15 +635,16 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,size b03
 		,addr b04
 		,paytype b05
-		,case ISNULL([money],0) when 0 then '' else dbo.getComma([money],-1) end b06 
-		,case when gno='1' or gno='4' then dbo.getComma([total],-1) when gno='2' then dbo.getComma([othermoney],-1) else '' end b07 
-		,case when gno='1' or gno='4' then dbo.getComma([diff],-1) else '' end b08
-		 
-		,'運費：'+dbo.getComma([money],-1) d01	
-		,'實付：'+dbo.getComma([total],-1) d02	
-		,'扣佣金：'+dbo.getComma([diff],-1) d03
-		,'加減項：'+dbo.getComma(isnull([othermoney],0),-1) d04	
-		,'應付：'+dbo.getComma(isnull([ttotal],0),-1) d05	
+		,case when paytype='現發' or paytype='現收' then dbo.getComma([money1],-1) else '' end b06
+		,dbo.getComma([money2],-1) b07 
+		,dbo.getComma([money3],-1) b08
+		,dbo.getComma([money4],-1) b09
+		
+		,'' d01	
+		,'實付：'+dbo.getComma([money2],-1) d02	
+		,'扣佣金：'+dbo.getComma([money3],-1)d03
+		,'加減項：'+dbo.getComma([money4],-1) d04	
+		,'應付：'+dbo.getComma([total],-1) d05	
 	from @tmp order by driverno,recno;
 	
 

@@ -278,11 +278,6 @@
             		Unlock(1);
             		return;
 				}
-                if ($('#txtMon').val().length > 0 && !(/^[0-9]{3}\/(?:0?[1-9]|1[0-2])$/g).test($('#txtMon').val())){
-                    alert(q_getMsg('lblMon') + '錯誤。');
-                    Unlock(1);
-					return;
-				}
                 if (q_cur == 1)
                     $('#txtWorker').val(r_name);
                 else
