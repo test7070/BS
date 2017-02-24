@@ -152,69 +152,6 @@
                 $('#btnNext').val('下筆(alt+8)').css('white-space','normal').css('width','70px');
                 $('#btnNextPage').val('翻下頁(alt+9)').css('white-space','normal').css('width','70px');
                 $('#btnOk').val('確定(F9)').css('white-space','normal').css('width','70px');
-                document.onkeydown = function(e){
-                	//console.log(e);
-                	/*switch(e.keyCode){
-                		case 120: //F9
-                			if($('#btnOk').attr('disabled')!='disabled')
-                				$('#btnOk').click();
-                			break;
-                		default:
-                			break;
-                	}*/
-                	if(!e.altKey)
-                		return;
-                	switch(e.keyCode){
-                		case 49:
-                			if($('#btnIns').attr('disabled')!='disabled')
-                				$('#btnIns').click();
-                			break;
-            			case 50:
-            				if($('#btnModi').attr('disabled')!='disabled')
-            					$('#btnModi').click();
-                			break;
-            			case 51:
-            				if($('#btnDele').attr('disabled')!='disabled')
-            					$('#btnDele').click();
-                			break;
-            			case 52:
-            				if($('#btnSeek').attr('disabled')!='disabled')
-            					$('#btnSeek').click();
-                			break;
-            			case 53:
-            				if($('#btnPrint').attr('disabled')!='disabled')
-            					$('#btnPrint').click();
-                			break;
-            			case 54:
-            				if($('#btnPrevPage').attr('disabled')!='disabled')
-            					$('#btnPrevPage').click();
-                			break;
-            			case 55:
-            				if($('#btnPrev').attr('disabled')!='disabled')
-            					$('#btnPrev').click();
-                			break;
-            			case 56:
-            				if($('#btnNext').attr('disabled')!='disabled')
-            					$('#btnNext').click();
-                			break;
-            			case 57:
-            				if($('#btnNextPage').attr('disabled')!='disabled')
-            					$('#btnNextPage').click();
-                			break;
-            			/*case 48:
-            				if($('#btnOk').attr('disabled')!='disabled')
-            					$('#btnOk').click();
-                			break;*/
-                		default:
-                			break;
-                	}	
-                		
-                	if(e.altKey && e.keyCode==49){
-                		console.log(1);
-                	}
-                	
-                };
-                
                 
                 q_cmbParse("cmbShip", "@,月結,現金,回收");
                 q_cmbParse("cmbRs", "@,Y@是");
@@ -313,6 +250,55 @@
 					var t_custno = $.trim($('#textCustno_modi').val());
 					q_func('qtxt.query.batch_transmoney_es', 'trans_es.txt,batch_transmoney_es,' + encodeURI(t_btrandate)+';'+encodeURI(t_etrandate)+';'+encodeURI(t_custno));
 				});
+			}
+			
+			function  q_onkeydown(e){
+				if(!e.altKey)
+            		return;
+            	switch(e.keyCode){
+            		case 49:
+            			if($('#btnIns').attr('disabled')!='disabled')
+            				$('#btnIns').click();
+            			break;
+        			case 50:
+        				if($('#btnModi').attr('disabled')!='disabled')
+        					$('#btnModi').click();
+            			break;
+        			case 51:
+        				if($('#btnDele').attr('disabled')!='disabled')
+        					$('#btnDele').click();
+            			break;
+        			case 52:
+        				if($('#btnSeek').attr('disabled')!='disabled')
+        					$('#btnSeek').click();
+            			break;
+        			case 53:
+        				if($('#btnPrint').attr('disabled')!='disabled')
+        					$('#btnPrint').click();
+            			break;
+        			case 54:
+        				if($('#btnPrevPage').attr('disabled')!='disabled')
+        					$('#btnPrevPage').click();
+            			break;
+        			case 55:
+        				if($('#btnPrev').attr('disabled')!='disabled')
+        					$('#btnPrev').click();
+            			break;
+        			case 56:
+        				if($('#btnNext').attr('disabled')!='disabled')
+        					$('#btnNext').click();
+            			break;
+        			case 57:
+        				if($('#btnNextPage').attr('disabled')!='disabled')
+        					$('#btnNextPage').click();
+            			break;
+        			/*case 48:
+        				if($('#btnOk').attr('disabled')!='disabled')
+        					$('#btnOk').click();
+            			break;*/
+            		default:
+            			break;
+            	}	
 			}
 
 			function q_boxClose(s2) {
