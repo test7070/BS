@@ -75,6 +75,8 @@
 				$('#txtOverw').val(0);
 				if(q_getPara('sys.project').toUpperCase()=='ES' && (t_addrno=='N01' || t_addrno=='C01' || t_addrno=='S01')){
 					q_gt('tranmoney_es', "where=^^['"+t_date+"','"+t_addrno+"',"+t_weight+")^^", 0, 0, 0, "tranmoney_es");
+				}else if(q_getPara('sys.project').toUpperCase()=='ES' && t_addrno=='T01'){
+					q_gt('tranmoney_es', "where=^^['"+t_date+"','"+t_addrno+"',"+t_weight+")^^", 0, 0, 0, "tranmoney_es_T01");
 				}else{
 					sum2();
 				}
@@ -322,6 +324,22 @@
 								$('#txtCustdiscount').val(as[0].rate);
 								$('#txtOverw').val(as[0].rate2);
 								$('#txtTotal').val(as[0].money);
+								if($('#txtMemo').val().substring(0,1)!='*'){
+									$('#txtPrice2').val(as[0].money2);
+								}						
+							}
+						}
+						sum2();
+						break;
+					case 'tranmoney_es_T01':
+						var as = _q_appendData("tranmoney_es", "", true);
+						if(as[0]!=undefined){
+							if(as[0].msg.length>0)
+								alert(as[0].msg);
+							else{
+								$('#txtPrice').val(as[0].money);
+								$('#txtTotal').val(as[0].money);
+								$('#txtCasetype').val(as[0].memo);
 								if($('#txtMemo').val().substring(0,1)!='*'){
 									$('#txtPrice2').val(as[0].money2);
 								}						

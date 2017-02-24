@@ -1,7 +1,15 @@
 ALTER function [dbo].[tranmoney_es](@t_date nvarchar(10),@t_addrno nvarchar(20),@t_weight float)
-RETURNS @tmp TABLE (price float,rate float,rate2 float,[money] float,[money2] float,msg NVARCHAR(MAX))
+RETURNS @tmp TABLE (price float,rate float,rate2 float,[money] float,[money2] float,memo nvarchar(max),msg NVARCHAR(MAX))
 as
 begin	
+	--T01
+	if @t_addrno='T01'
+	begin
+		insert into @tmp([money],[money2],memo,msg)
+		select top 1 custprice,driverprice,memo,'' from addrs where noa='T01' and custmount>@t_weight order by custmount
+		return
+	end
+	--N01,C01,S01
 	if ISDATE( cast(dbo.ChineseEraName2AD(@t_date) as nvarchar)) = 0
 	begin
 		insert into @tmp(price,rate,[money],msg)values(0,0,0,'日期異常')
