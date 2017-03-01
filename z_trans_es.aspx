@@ -103,6 +103,13 @@
                     },{
                         type : '6', //[21]             14
                         name : 'xrate'
+                    },{
+                        type : '5', //[22]             15
+                        name : 'xpaytype',
+                        value : [q_getPara('report.all')].concat("月結,現金,回收".split(','))
+                    },{
+                        type : '6', //[23]             16
+                        name : 'xpayday'
                     }]
 				});
 				q_popAssign();

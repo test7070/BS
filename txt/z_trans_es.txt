@@ -804,6 +804,9 @@ z_trans_es05:--z_trans_es05
 	declare @t_paytype nvarchar(max)=case when '#non'=[15] then '' else [15] end
 	declare @t_isinvo nvarchar(max)=case when '#non'=[16] then '' else [16] end
 	declare @t_rate nvarchar(max)=case when '#non'=[21] then '' else [21] end
+	declare @t_paytype_cust nvarchar(max)=case when '#non'=[22] then '' else [22] end
+	declare @t_payday nvarchar(20) =case when '#non'=[23] then '' else [23] end
+	------------------------------------------------------------------
 	------------------------------------------------------------------
 	declare @x_rate float =0
 	begin try
@@ -851,13 +854,17 @@ z_trans_es05:--z_trans_es05
 	insert into @tmpa(gno,pno,tranaccy,tranno,trannoq,custno,cust,trandate
 		,mount3,mount4,[status],[weight],addr
 		,[money],tax,rs)
-	select '1',1,accy,noa,noq,custno,comp,trandate
-		,mount3,mount4,[status],[weight],aaddr
-		,total,reserve,rs
+	select '1',1,a.accy,a.noa,a.noq,a.custno,a.comp,a.trandate
+		,a.mount3,a.mount4,a.[status],a.[weight],aaddr
+		,a.total,reserve,rs
 	from view_trans a 
+	left join cust b on a.custno=b.noa
 	where a.trandate between @t_btrandate and @t_etrandate
 	and a.custno between @t_bcustno and @t_ecustno
 	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
+	--依客戶主檔上的收款方式來過濾條件
+	and (len(@t_paytype_cust)=0 or @t_paytype=b.paytype)
+	and (len(@t_payday)=0 or @t_payday=b.[getdate])
 
 	if @t_isinvo = 'Y'
 		delete @tmpa where rs != 'Y'
