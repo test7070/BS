@@ -863,7 +863,7 @@ z_trans_es05:--z_trans_es05
 	and a.custno between @t_bcustno and @t_ecustno
 	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
 	--依客戶主檔上的收款方式來過濾條件
-	and (len(@t_paytype_cust)=0 or @t_paytype=b.paytype)
+	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
 	and (len(@t_payday)=0 or @t_payday=b.[getdate])
 
 	if @t_isinvo = 'Y'
