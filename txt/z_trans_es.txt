@@ -934,7 +934,7 @@ z_trans_es05:--z_trans_es05
 	from @tmpa
 	group by custno
 	------------------------------------------------------------------
-	declare @pagecount int = 25  --　　一頁幾筆
+	declare @pagecount int = 12  --　　一頁幾筆
 	declare @custno nvarchar(20)
 	declare @n int
 	
