@@ -919,7 +919,7 @@ z_trans_es05:--z_trans_es05
 	if @x_rate!=0
 	begin
 		insert into @tmpa(gno,pno,custno,[money],xmemo)
-		select '4',7,custno,SUM(ISNULL([money],0)),'總計'
+		select '5',7,custno,SUM(ISNULL([money],0)),'總計'
 		from @tmpa
 		where gno='4'
 		group by custno
@@ -927,17 +927,19 @@ z_trans_es05:--z_trans_es05
 	else
 	begin
 		insert into @tmpa(gno,pno,custno,[money],xmemo)
-		select '4',7,custno,SUM(ISNULL([money],0)),'總計'
+		select '5',7,custno,SUM(ISNULL([money],0)),'總計'
 		from @tmpa
 		where (gno='3' or gno='4') and pno!=4
 		group by custno
 	end
-	insert into @tmpa(gno,pno,custno)
-	select '5',8,custno
-	from @tmpa
-	group by custno
+	--請確認對帳的明細及金額，若有問題請於十天內反應本公司。
+	--移到總計那欄
+	--insert into @tmpa(gno,pno,custno)
+	--select '5',8,custno
+	--from @tmpa
+	--group by custno
 	------------------------------------------------------------------
-	declare @pagecount int = 32  --　　一頁幾筆
+	declare @pagecount int = 37  --　　一頁幾筆
 	declare @custno nvarchar(20)
 	declare @n int
 	

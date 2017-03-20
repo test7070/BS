@@ -53,14 +53,7 @@
 					$('#txtMount2').val(1);	
 				
 				var t_driverno = $.trim($('#txtDriverno').val());
-            	if(t_driverno.length==0){
-            		if($('#txtMemo').val().substring(0,1)!='*')
-            			$('#txtDiscount').val(1);
-            		sum1();
-            	}
-            	else{
-            		q_gt('driver', "where=^^ noa='"+t_driverno+"' ^^", 0, 0, 0, "getDriver");
-            	}
+            	q_gt('driver', "where=^^ noa='"+t_driverno+"' ^^", 0, 0, 0, "getDriver");
 			}
 			function sum1(){
 				var mount1=q_float('txtMount');
@@ -350,6 +343,15 @@
                     case 'getDriver':
                         var as = _q_appendData("driver", "", true);
                         $('#txtCalctype').val('');
+                        //  沒資料表示:  外車、靠行
+            			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y'){
+            				if($('#txtMemo').val().substring(0,1)!='*')
+                				$('#txtDiscount').val(0.9);
+            			}
+                		else{
+                			if($('#txtMemo').val().substring(0,1)!='*')
+                				$('#txtDiscount').val(0.8);
+                		}
                         if(as[0]!=undefined){
                         	$('#txtCalctype').val(as[0].cartype);
                         	switch(as[0].cartype){
@@ -366,7 +368,7 @@
                         				$('#txtDiscount').val(0.5);
                         			break;
                         		default:
-                        			// 外車、靠行
+                        			/*// 外車、靠行
                         			if($('#cmbShip').val()=='現金' && $('#cmbRs').val()!='Y'){
                         				if($('#txtMemo').val().substring(0,1)!='*')
 	                        				$('#txtDiscount').val(0.9);
@@ -374,8 +376,7 @@
 	                        		else{
 	                        			if($('#txtMemo').val().substring(0,1)!='*')
 	                        				$('#txtDiscount').val(0.8);
-	                        		}
-	                        			
+	                        		}*/
                         			break;
                         	}
                     	}
