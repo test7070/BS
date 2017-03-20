@@ -14,6 +14,8 @@ import:--import
 		,tranno nvarchar(20)
 		,trannoq nvarchar(10)
 		
+		,comp nvarchar(50)
+		
 		,datea nvarchar(20)
 		,trandate nvarchar(20)
 		,straddrno nvarchar(20)
@@ -40,13 +42,15 @@ import:--import
 		,[status] nvarchar(20)
 		,mount3 float
 		,mount4 float	
+		
+		,aaddr nvarchar(max)
 	)
-	insert into @tmp(tranaccy,tranno,trannoq,datea,trandate,straddrno,straddr,carno,driverno,driver
+	insert into @tmp(tranaccy,tranno,trannoq,datea,trandate,comp,straddrno,straddr,carno,driverno,driver
 		,inmount,pton,mount,price,price2,price3,discount,reserve,[weight],outmount,pton2,mount2
-		,total,total2,[status],mount3,mount4)
-	select a.accy,a.noa,a.noq,a.datea,a.trandate,a.straddrno,a.straddr,a.carno,a.driverno,a.driver
+		,total,total2,[status],mount3,mount4,aaddr)
+	select a.accy,a.noa,a.noq,a.datea,a.trandate,a.comp,a.straddrno,a.straddr,a.carno,a.driverno,a.driver
 		,a.inmount,a.pton,a.mount,a.price,a.price2,a.price3,a.discount,a.reserve,a.[weight],a.outmount,a.pton2,a.mount2
-		,a.total,a.total2,a.[status],a.mount3,a.mount4
+		,a.total,a.total2,a.[status],a.mount3,a.mount4,a.aaddr
 	from view_trans a
 	where a.datea between @t_bdate and @t_edate
 	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
@@ -61,13 +65,13 @@ import:--import
 	--加減項
 	declare @tmpcarchg table(
 		sel int identity(1,1)
-		,carno nvarchar(20)
+		,driverno nvarchar(20)
 		,noa nvarchar(20)
 		,plusmoney float
 		,minusmoney float
 	)
-	insert into @tmpcarchg(carno,noa,plusmoney,minusmoney)
-	select a.carno,a.noa,a.plusmoney,a.minusmoney
+	insert into @tmpcarchg(driverno,noa,plusmoney,minusmoney)
+	select a.driverno,a.noa,a.plusmoney,a.minusmoney
 	from carchg a
 	outer apply (select top 1 * from view_tre where CHARINDEX(','+a.noa+',',','+carchgno+',')>0) b
 	where b.noa is null
@@ -82,8 +86,8 @@ import:--import
 		sel int identity(1,1)
 		,noa nvarchar(20)
 		,datea nvarchar(20)
-		,carno nvarchar(20)
-		
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
 		,carchgno nvarchar(max)
 		,[money] float
 		,plusmoney float
@@ -101,25 +105,28 @@ import:--import
 		,noa nvarchar(20)
 		,noq nvarchar(10)
 		,trandate nvarchar(20)
+		,comp nvarchar(50)
 		,carno nvarchar(20)
 		,driverno nvarchar(20)
 		,driver nvarchar(20)
 		,addrno nvarchar(20)
 		,addr nvarchar(50)
+		,price float
+		,discount float
 		,[money] float
 		
 		,tranaccy nvarchar(10)
 		,tranno nvarchar(20)
 		,trannoq nvarchar(10)
 	)
-	insert into #tres_es(noa,noq,trandate,carno,driverno,driver,addrno,addr,[money],tranaccy,tranno,trannoq)
-	select '' noa,''noq,trandate,carno,driverno,driver,straddrno,straddr,total2,tranaccy,tranno,trannoq
+	insert into #tres_es(noa,noq,trandate,comp,carno,driverno,driver,addrno,addr,price,discount,[money],tranaccy,tranno,trannoq)
+	select '' noa,''noq,trandate,comp,carno,driverno,driver,''straddrno,aaddr,price2,discount,total2,tranaccy,tranno,trannoq
 	from @tmp
 	
 	-----------------------------------------------------------------------------------------------
 	declare @string nvarchar(max) = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 	
-	declare @carno nvarchar(max)
+	declare @driverno nvarchar(max)
 	declare @n int
 	declare @carchgno nvarchar(max) = ''
 	
@@ -135,14 +142,14 @@ import:--import
 	declare @maxno2 nvarchar(20)
 	
 	declare cursor_table cursor for
-	select carno
-	from(select carno from @tmp 
+	select driverno
+	from(select driverno from @tmp 
 	union all 
-	select carno from @tmpcarchg) a
-	group by carno
+	select driverno from @tmpcarchg) a
+	group by driverno
 	open cursor_table
 	fetch next from cursor_table
-	into @carno
+	into @driverno
 	while(@@FETCH_STATUS <> -1)
 	begin
 		select @carchgno = '',@plusmoney=0,@minusmoney=0,@money=0,@total=0
@@ -150,7 +157,7 @@ import:--import
 		declare cursor_table2 cursor for
 		select a.noa,a.plusmoney,a.minusmoney
 		from @tmpcarchg a
-		where a.carno=@carno
+		where a.driverno=@driverno
 		open cursor_table2
 		fetch next from cursor_table2
 		into @noa,@plus,@minus
@@ -165,7 +172,7 @@ import:--import
 		close cursor_table2
 		deallocate cursor_table2	
 	
-		select @money=SUM(ISNULL([money],0)) from #tres_es where carno=@carno
+		select @money=SUM(ISNULL([money],0)) from #tres_es where driverno=@driverno
 		select @total = isnull(@money,0) + isnull(@plusmoney,0) - isnull(@minusmoney,0)
 		-----------------------------------------------------
 		select @noa='',@maxno1='',@maxno2=''
@@ -178,21 +185,26 @@ import:--import
 		set @n = (charindex(left(RIGHT(@noa,3),1),@string)-1)*100 + cast(RIGHT(@noa,2) as int) + 1
 		set @noa = @t_key+REPLACE(@t_datea,'/','')+SUBSTRING(@string, floor(@n/100)+1,1) + right('00'+cast(@n%100 as nvarchar),2)
 		
-		insert into #tre_es(noa,datea,carno,carchgno,[money],plusmoney,minusmoney,total,memo)
-		select @noa,@t_datea,@carno,@carchgno,@money,@plusmoney,@minusmoney,@total,''
+		insert into #tre_es(noa,datea,driverno,carchgno,[money],plusmoney,minusmoney,total,memo)
+		select @noa,@t_datea,@driverno,@carchgno,@money,@plusmoney,@minusmoney,@total,''
 		
-		update #tres_es set noa=@noa where carno=@carno
+		update #tres_es set noa=@noa where driverno=@driverno
 		
 		fetch next from cursor_table
-		into @carno
+		into @driverno
 	end
 	close cursor_table
 	deallocate cursor_table	
+	
+	update #tre_es set driver=ISNULL(b.namea,'')
+	from #tre_es a
+	left join driver b on a.driverno=b.noa
 	
 	update #tres_es set noq= RIGHT('00'+cast(b.recno as nvarchar),3)
 	from #tres_es a
 	left join (select sel,ROW_NUMBER()over(partition by noa order by sel) recno from #tres_es ) b on a.sel=b.sel
 	
+
 	---------------------------------------------------------------------------------------------------------
 	DECLARE @chk tinyint = 0
 	Begin Transaction [Trans_Name]
@@ -200,13 +212,13 @@ import:--import
 	declare @accy nvarchar(10) = left(@t_datea,3)
 	begin try
 		set @cmd =
-		"insert into tre"+@accy+"(noa,datea,carno,carchgno,[money],plusmoney,minusmoney,[total],memo)
-		select noa,datea,carno,carchgno,[money],plusmoney,minusmoney,[total],memo from #tre_es"
+		"insert into tre"+@accy+"(noa,datea,driverno,driver,carchgno,[money],plusmoney,minusmoney,[total],memo)
+		select noa,datea,driverno,driver,carchgno,[money],plusmoney,minusmoney,[total],memo from #tre_es"
 		execute sp_executesql @cmd
 		
 		set @cmd=
-		"insert into tres"+@accy+"(noa,noq,trandate,driverno,driver,straddr,[money],tranaccy,tranno,trannoq)
-		select noa,noq,trandate,driverno,driver,addr,[money],tranaccy,tranno,trannoq from #tres_es"
+		"insert into tres"+@accy+"(noa,noq,trandate,comp,driverno,driver,ship,straddr,price,discount,[money],tranaccy,tranno,trannoq)
+		select noa,noq,trandate,comp,driverno,driver,carno,addr,price,discount,[money],tranaccy,tranno,trannoq from #tres_es"
 		execute sp_executesql @cmd
 		
 		Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更

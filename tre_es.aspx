@@ -34,15 +34,6 @@
             q_xchg = 1;
             brwCount2 = 20;
 
-            function tre() {
-            }
-
-
-            tre.prototype = {
-                isLoad : false,
-                carchgno : new Array()
-            };
-            
             function sum(){
             	
             }
@@ -298,10 +289,28 @@
             }
 
             function bbsAssign() {
-                for (var ix = 0; ix < q_bbsCount; ix++) {
-                    $('#lblNo_' + ix).text(ix + 1);
-                }
-                _bbsAssign();
+                for (var i = 0; i < q_bbsCount; i++) {
+					$('#lblNo_' + i).text(i + 1);
+                    if($('#btnMinus_' + i).hasClass('isAssign'))
+                    	continue;
+                	$('#txtTranno_'+i).bind('contextmenu',function(e) {
+                        /*滑鼠右鍵*/
+                        e.preventDefault();
+                        var n = $(this).attr('id').replace('txtTranno_','');
+                        var t_accy = $('#txtTranaccy_'+n).val();
+                        var t_noa = $(this).val();
+                        var t_aspx = 'trans_es.aspx';
+                        if(t_noa.length>0 ){
+                            q_box(t_aspx+"?" + r_userno + ";" + r_name + ";" + q_time + "; noa='" + t_noa + "';" + t_accy, 'trans', "95%", "95%", q_getMsg("popTrans"));
+                        }
+                    });
+				}
+				_bbsAssign();
+				$('#tbbs').find('tr.data').children().hover(function(e){
+					$(this).parent().css('background','#F2F5A9');
+				},function(e){
+					$(this).parent().css('background','#cad3ff');
+				});
             }
 
             function btnIns() {
@@ -599,7 +608,7 @@
 					<tr>
 						<td align="center" style="width:20px; color:black;"><a id='vewChk'> </a></td>
 						<td align="center" style="width:100px; color:black;"><a id='vewDatea'> </a></td>
-						<td align="center" style="width:80px; color:black;"><a id='vewCarno'> </a></td>
+						<td align="center" style="width:80px; color:black;"><a id='vewDriver'>司機</a></td>
 						<td align="center" style="width:80px; color:black;"><a id='vewMoney'> </a></td>
 						<td align="center" style="width:80px; color:black;"><a id='vewPlusmoney'> </a></td>
 						<td align="center" style="width:80px; color:black;"><a id='vewMinusmoney'> </a></td>
@@ -609,7 +618,7 @@
 					<tr>
 						<td><input id="chkBrow.*" type="checkbox" /></td>
 						<td id="datea" style="text-align: center;">~datea</td>
-						<td id="carno" style="text-align: center;">~carno</td>
+						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="money,0,1" style="text-align: right;">~money,0,1</td>
 						<td id="plusmoney,0,1" style="text-align: right;">~plusmoney,0,1</td>
 						<td id="minusmoney,0,1" style="text-align: right;">~minusmoney,0,1</td>
@@ -635,8 +644,11 @@
 					<tr>
 						<td><span> </span><a id="lblNoa" class="lbl"> </a></td>
 						<td colspan="2"><input id="txtNoa" type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblCarno" class="lbl"> </a></td>
-						<td><input id="txtCarno" type="text"  class="txt c1"/></td>
+						<td><span> </span><a id="lblDriver" class="lbl"> </a></td>
+						<td colspan="2">
+							<input id="txtDriverno" type="text" class="txt" style="float:left;width:40%;"/>
+							<input id="txtDriver" type="text" class="txt" style="float:left;width:40%;"/>
+						</td>
 						<td><span> </span><a id="lblDatea" class="lbl"> </a></td>
 						<td><input id="txtDatea" type="text"  class="txt c1"/></td>
 						<td><input id="btnImport" type="button" class="txt c1" value="匯入"/></td>
@@ -692,19 +704,15 @@
 					<td  align="center" style="width:30px;">
 					<input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  />
 					</td>
-					<td align="center" style="width:20px;"></td>
-					<td align="center" style="width:100px;"><a id='lblTrandate_s'> </a></td>
-					<td align="center" style="width:80px;"><a id='lblDriver_s'> </a></td>
-					<td align="center" style="width:80px;"><a id='lblCustno_s'> </a></td>
-
-					<td align="center" style="width:200px;"><a id='lblStraddr_s'> </a></td>
-					<td align="center" style="width:200px;display:none;"><a id='lblProduct_s'> </a></td>
-					<td align="center" style="width:100px;display:none;"><a id='lblMount_s'> </a></td>
-					<td align="center" style="width:100px;"><a id='lblPrice_s'> </a></td>
-					<td align="center" style="width:100px;"><a id='lblDiscount_s'> </a></td>
-					<td align="center" style="width:100px;"><a id='lblMoney_s'> </a></td>
-					<td align="center" style="width:100px;"><a id='lblMemo_s'> </a></td>
-					<td align="center" style="width:170px;"><a id='lblTranno_s'> </a></td>
+					<td align="center" style="width:20px;"> </td>
+					<td align="center" style="width:100px;">取貨日期</td>
+					<td align="center" style="width:80px;">車牌</td>
+					<td align="center" style="width:200px;">客戶</td>
+					<td align="center" style="width:200px;">卸貨地點</td>
+					<td align="center" style="width:80px;">司機運費</td>
+					<td align="center" style="width:50px;">折扣</td>
+					<td align="center" style="width:80px;">司機淨付額</td>
+					<td align="center" style="width:150px;">出車單號</td>
 				</tr>
 				<tr  style='background:#cad3ff;'>
 					<td align="center">
@@ -713,18 +721,12 @@
 					</td>
 					<td><a id="lblNo.*" style="font-weight: bold;text-align: center;display: block;"> </a></td>
 					<td><input type="text" id="txtTrandate.*" style="width:95%;" /></td>
-					<td>
-						<input type="text" id="txtDriver.*" style="width:95%;" />
-						<input type="text" id="txtDriverno.*" style="display:none;" />
-					</td>
+					<td><input type="text" id="txtShip.*" style="width:95%;" /></td>
 					<td><input type="text" id="txtComp.*" style="width:95%;" /></td>
 					<td><input type="text" id="txtStraddr.*" style="width:95%;" /></td>
-					<td style="display:none;"><input type="text" id="txtProduct.*" style="width:95%;" /></td>
-					<td style="display:none;"><input type="text" id="txtMount.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtPrice.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtDiscount.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtMoney.*" style="width:95%;text-align: right;" /></td>
-					<td><input type="text" id="txtMemo.*" style="width:95%;" /></td>
 					<td>
 						<input type="text" id="txtTranaccy.*" style="display:none"/>
 						<input type="text" id="txtTranno.*" style="float:left; width: 95%;"/>
