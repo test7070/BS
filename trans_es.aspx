@@ -121,7 +121,7 @@
 				year = year.substring(year.length-3,year.length);
 				var month = '00'+(date.getMonth()+1);
 				month = month.substring(month.length-2,month.length);
-				q_content += ' order=^^trandate desc,noa^^';
+				q_content += ' order=^^trandate,noa^^';
 			    q_gt(q_name, q_content + "where=^^ trandate>='"+year+'/'+month+"'^^", q_sqlCount, 1, 0, '', r_accy);
 
 			});
