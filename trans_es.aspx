@@ -863,10 +863,10 @@
 						<td id="aaddr" style="text-align: center;">~aaddr</td>
 						<td id="driver" style="text-align: center;">~driver</td>
 						<td id="casetype" style="text-align: center;">~casetype</td>
-						<td id="mount3" style="text-align: center;">~mount3</td>
-						<td id="mount4" style="text-align: center;">~mount4</td>
-						<td id="status" style="text-align: center;">~status</td>
-						<td id="weight" style="text-align: center;">~weight</td>
+						<td id="mount3" style="text-align: right;">~mount3</td>
+						<td id="mount4" style="text-align: right;">~mount4</td>
+						<td id="status" style="text-align: right;">~status</td>
+						<td id="weight,0,1" style="text-align: right;">~weight,0,1</td>
 						
 						<td id="total,0,1" style="text-align: right;">~total,0,1</td>
 						<td id="price2,0,1" style="text-align: right;">~price2,0,1</td>
