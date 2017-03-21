@@ -69,14 +69,14 @@ import:--import
 		,noa nvarchar(20)
 		,plusmoney float
 		,minusmoney float
+		,datea nvarchar(10)
 	)
-	insert into @tmpcarchg(driverno,noa,plusmoney,minusmoney)
-	select a.driverno,a.noa,a.plusmoney,a.minusmoney
+	insert into @tmpcarchg(driverno,noa,plusmoney,minusmoney,datea)
+	select a.driverno,a.noa,a.plusmoney,a.minusmoney,a.datea
 	from carchg a
 	outer apply (select top 1 * from view_tre where CHARINDEX(','+a.noa+',',','+carchgno+',')>0) b
 	where b.noa is null
 	and a.datea between @t_bdate and @t_edate
-	
 	---------------------------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#tre_es')is not null
 	BEGIN
@@ -203,23 +203,57 @@ import:--import
 	update #tres_es set noq= RIGHT('00'+cast(b.recno as nvarchar),3)
 	from #tres_es a
 	left join (select sel,ROW_NUMBER()over(partition by noa order by sel) recno from #tres_es ) b on a.sel=b.sel
-	
-
 	---------------------------------------------------------------------------------------------------------
+	declare @accy nvarchar(10) = left(@t_datea,3)
+	--司機資料寫入廠商主檔
+	declare @tmptgg table(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,comp nvarchar(50)
+		,nick nvarchar(20)
+		,serial nvarchar(20)
+		,tel nvarchar(20)
+		,mobile nvarchar(20)
+		,zip_home nvarchar(20)
+		,addr_home nvarchar(100)
+	)
+	insert into @tmptgg(noa,comp,nick,serial,tel,mobile,zip_home,addr_home)
+	select a.driverno,a.driver,a.driver,b.idno,b.tel,b.mobile,b.zip_home,b.addr_home
+	from #tre_es a
+	left join driver b on a.driverno=b.noa
+	left join tgg c on a.driverno = c.noa
+	where c.noa is null
+	and len(ISNULL(a.driverno,''))>0
+	---------------------------------------------------------------------------------------------------------
+	declare @curtime datetime = getdate()
+	
 	DECLARE @chk tinyint = 0
 	Begin Transaction [Trans_Name]
-	
-	declare @accy nvarchar(10) = left(@t_datea,3)
+
 	begin try
 		set @cmd =
-		"insert into tre"+@accy+"(noa,datea,driverno,driver,carchgno,[money],plusmoney,minusmoney,[total],memo)
-		select noa,datea,driverno,driver,carchgno,[money],plusmoney,minusmoney,[total],memo from #tre_es"
+		"insert into tre"+@accy+"(noa,datea,driverno,driver,tggno,tgg,carchgno,[money],plusmoney,minusmoney,[total],memo)
+		select noa,datea,driverno,driver,driverno,driver,carchgno,[money],plusmoney,minusmoney,[total],memo from #tre_es"
 		execute sp_executesql @cmd
 		
 		set @cmd=
 		"insert into tres"+@accy+"(noa,noq,trandate,comp,driverno,driver,ship,straddr,price,discount,[money],tranaccy,tranno,trannoq)
 		select noa,noq,trandate,comp,driverno,driver,carno,addr,price,discount,[money],tranaccy,tranno,trannoq from #tres_es"
 		execute sp_executesql @cmd
+		
+		insert into tgg(noa,comp,nick,serial,tel,mobile,zip_home,addr_home,memo)
+		select noa,comp,nick,serial,tel,mobile,zip_home,addr_home,'司機立帳產生' 
+		from @tmptgg
+		
+		--產生傳票
+		INSERT INTO mess (datea,qtime,[tables],data,usera,act) 
+		select replace(CONVERT(nvarchar,getdate(),120),'-','')
+			,noa+' '+replace(CONVERT(nvarchar,@curtime,120),':','') qtime
+			,'tre_post.post' [tables]
+			,@accy+','+noa+',1'
+			,'erp'
+			,7
+		from #tre_es
 		
 		Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
 		select 'done' msg 
