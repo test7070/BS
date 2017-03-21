@@ -26,7 +26,7 @@ z_trans_es10:--z_trans_es10 客戶信封標籤  11cm*3.5cm
 		,custno
 		,zip a01
 		,addr a02
-		,cust a03
+		,isnull(cust,'') + case when len(isnull(cust,''))>0 then ' 收' else '' end a03
 	from @tmp;
 	
 

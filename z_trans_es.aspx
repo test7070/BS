@@ -162,6 +162,21 @@
                 t_day = t_date.getUTCDate();
                 t_day = t_day>9?t_day+'':'0'+t_day;
                 $('#txtXtrandate2').val(t_year+'/'+t_month+'/'+t_day);
+                
+                $('<input id="btnOk2" type="button" value="查詢" style="font-size: 16px; font-weight: bold; color: blue; cursor: pointer;"/>').insertBefore('#btnOk');
+            	$('#btnOk').hide();
+            	$('#btnOk2').click(function(e){
+            		switch($('#q_report').data('info').radioIndex) {
+                        case 9:
+                        	console.log("./custlabel_es.aspx?db="+q_db+"&bcustno="+$('#txtXcust1a').val()+"&ecustno="+$('#txtXcust2a').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
+                        	window.open("./custlabel_es.aspx?db="+q_db+"&bcustno="+$('#txtXcust1a').val()+"&ecustno="+$('#txtXcust2a').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
+                            break;
+                        default:
+                           	$('#btnOk').click();
+                            break;
+                    }
+            	});
+            	
             }
 
 			function q_funcPost(t_func, result) {
