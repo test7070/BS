@@ -51,7 +51,7 @@ begin
 	end
 	
 	declare @oilprice float = 0
-	if DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/05'))<=3
+	if DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/05'))-DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/01'))=1
 	begin
 		select @oilprice=price2 from oilbase where mon=@oilmon
 	end
@@ -63,7 +63,7 @@ begin
 	if ISNULL(@oilprice,0)=0
 	begin
 		set @oilmon = left(dbo.AD2ChineseEraName( DATEADD(MM,-1, dbo.ChineseEraName2AD(@oilmon+'/01'))),6)
-		if DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/05'))<=3
+		if DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/05'))-DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/01'))=1
 		begin
 			select @oilprice=price2 from oilbase where mon=@oilmon
 		end

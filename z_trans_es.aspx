@@ -110,6 +110,13 @@
                     },{
                         type : '6', //[23]             16
                         name : 'xpayday'
+                    },{
+                        type : '6', //[24]             17
+                        name : 'xmon'
+                    },{
+                        type : '5', //[25]             18
+                        name : 'xoption2',
+                        value : "invo@發票地址,comp@公司地址,fact@工廠地址,home@通信地址".split(',')
                     }]
 				});
 				q_popAssign();
@@ -126,9 +133,12 @@
 	            	t_para = JSON.parse(q_getId()[3]);
 	            }catch(e){
 	            }    
-	            if(t_para.length==0 || t_para.noa==undefined){
-	            }else{
+	            if(t_para.length==0){
+	            }else if(t_para.noa!=undefined){
 	            	$('#txtNoa').val(t_para.noa);
+	            }else if(t_para.custno!=undefined){
+	            	$('#txtXcust1a').val(t_para.custno);
+	            	$('#txtXcust1b').val(t_para.custno);
 	            }
 	            
 	            var t_date,t_year,t_month,t_day;
