@@ -121,7 +121,7 @@
 				});
 				q_popAssign();
 				q_langShow();
-				bbmMask = [['txtXtrandate1','999/99/99'],['txtXtrandate2','999/99/99'],['txtXdatea1','999/99/99'],['txtXdatea2','999/99/99']];
+				bbmMask = [['txtXmon','999/99'],['txtXtrandate1','999/99/99'],['txtXtrandate2','999/99/99'],['txtXdatea1','999/99/99'],['txtXdatea2','999/99/99']];
 				q_mask(bbmMask);
 				$('#txtXtrandate1').datepicker();
 				$('#txtXtrandate2').datepicker();

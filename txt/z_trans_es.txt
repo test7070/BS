@@ -839,6 +839,7 @@ z_trans_es05:--z_trans_es05
 	declare @t_rate nvarchar(max)=case when '#non'=[21] then '' else [21] end
 	declare @t_paytype_cust nvarchar(max)=case when '#non'=[22] then '' else [22] end
 	declare @t_payday nvarchar(20) =case when '#non'=[23] then '' else [23] end
+	declare @t_mon nvarchar(20) =case when '#non'=[24] then '' else [24] end
 		------------------------------------------------------------------
 	declare @x_rate float =0
 	begin try
@@ -866,6 +867,7 @@ z_trans_es05:--z_trans_es05
 		,trannoq nvarchar(10)
 		,custno nvarchar(20)
 		,cust nvarchar(50)
+		,serial nvarchar(20)
 		,tel nvarchar(max)
 		,fax nvarchar(max)
 		,[address] nvarchar(max)
@@ -887,10 +889,25 @@ z_trans_es05:--z_trans_es05
 		,xmemo nvarchar(max)
 		,conn nvarchar(max)
 	)
-	insert into @tmpa(gno,pno,tranaccy,tranno,trannoq,custno,cust,trandate
+	declare @xbdate nvarchar(20) = ''
+	declare @xedate nvarchar(20) = char(255)
+	if len(@t_mon)>0 and len(@t_payday)>0
+	begin
+		set @xbdate = @t_mon + '/' + RIGHT('00'+@t_payday,2)
+		set @xbdate = dbo.AD2ChineseEraName(DATEADD(DAY,1,dbo.ChineseEraName2AD(@xbdate)))
+		set @xedate = @t_mon + '/01'
+		set @xedate = left(dbo.AD2ChineseEraName(DATEADD(MM,1,dbo.ChineseEraName2AD(@xedate))),7)+RIGHT('00'+@t_payday,2)
+	end
+	else if len(@t_mon)>0
+	begin
+		set @xbdate = @t_mon + '/01'
+		set @xedate = dbo.AD2ChineseEraName(dateadd(DAY,-1, dateadd(MM,1,dbo.ChineseEraName2AD(@xbdate))))
+	end 
+	
+	insert into @tmpa(gno,pno,tranaccy,tranno,trannoq,custno,cust,serial,trandate
 		,mount3,mount4,[status],[weight],addr
 		,[money],tax,rs)
-	select '1',1,a.accy,a.noa,a.noq,a.custno,a.comp,a.trandate
+	select '1',1,a.accy,a.noa,a.noq,a.custno,b.comp,b.serial,a.trandate
 		,a.mount3,a.mount4,a.[status],a.[weight],aaddr
 		,a.total,reserve,rs
 	from view_trans a 
@@ -901,20 +918,28 @@ z_trans_es05:--z_trans_es05
 	--依客戶主檔上的收款方式來過濾條件
 	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
 	and (len(@t_payday)=0 or @t_payday=b.[getdate])
-
+	--
+	and a.trandate between @xbdate and @xedate
+	
 	if @t_isinvo = 'Y'
 		delete @tmpa where rs != 'Y'
 	if @t_isinvo = 'N'
 		delete @tmpa where rs = 'Y'	
 	
-	insert into @tmpa(gno,pno,custno,cust,trandate
+	insert into @tmpa(gno,pno,custno,cust,serial,trandate
 		,item,itemmoney)
-	select '2',2,a.custno,a.cust,a.datea
+	select '2',2,a.custno,b.comp,b.serial,a.datea
 		,ISNULL(a.plusitem,'')+ISNULL(a.minusitem,'')
 		,ISNULL(a.plusmoney,0)-ISNULL(a.minusmoney,0)
 	from custchg a
+	left join cust b on a.custno=b.noa
 	where isnull(a.datea,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	--依客戶主檔上的收款方式來過濾條件
+	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
+	and (len(@t_payday)=0 or @t_payday=b.[getdate])
+	--
+	and a.datea between @xbdate and @xedate
 		
 	update @tmpa set total = ISNULL([money],0)+ISNULL([tax],0)
 	
@@ -1029,7 +1054,7 @@ z_trans_es05:--z_trans_es05
 		, acomp a00
 		, aaddr a01
 		, '電話：'+atel+'  傳真：'+afax a02
-		, '客戶：'+isnull(custno ,'')+ '  ' + isnull(cust,'') a03
+		, '客戶：'+isnull(custno ,'')+ '  ' + isnull(cust,'') +'  '+isnull(serial,'') a03
 		, '電話：'+case when len(tel)>0 then tel else '　　　　' end
 		+ '　傳真：'+case when len(fax)>0 then fax else '　　　　' end
 		+ '　地址：'+case when len([address])>0 then [address] else '　　　　' end a04
@@ -1042,7 +1067,7 @@ z_trans_es05:--z_trans_es05
 		,dbo.getComma([money],-1) b04
 		,dbo.getComma([tax],-1) b05
 		,dbo.getComma([total],-1) b06
-		,'結帳日期：'+@t_btrandate+'～'+@t_etrandate c01
+		,'結帳日期：'+ case when @xedate!=CHAR(255) then @xbdate+'～'+@xedate else @t_btrandate+'～'+@t_etrandate end c01
 		,item d01
 		,dbo.getComma(itemmoney,-1) d02
 		,xmemo e01
