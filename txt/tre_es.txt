@@ -1,4 +1,4 @@
-import:--import	
+import:--import	 tre_es.txt
 	SET QUOTED_IDENTIFIER OFF
 	declare @cmd nvarchar(max)
 	declare @t_key nvarchar(10) = [1] --'BJ'
@@ -7,6 +7,7 @@ import:--import
 	declare @t_edate nvarchar(20) = [4] --'105/09/30'
 	declare @t_carno nvarchar(max) = [5] --''
 	declare @t_driverno nvarchar(max) = [6] --''
+	----------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
@@ -48,11 +49,11 @@ import:--import
 	insert into @tmp(tranaccy,tranno,trannoq,datea,trandate,comp,straddrno,straddr,carno,driverno,driver
 		,inmount,pton,mount,price,price2,price3,discount,reserve,[weight],outmount,pton2,mount2
 		,total,total2,[status],mount3,mount4,aaddr)
-	select a.accy,a.noa,a.noq,a.datea,a.trandate,a.comp,a.straddrno,a.straddr,a.carno,a.driverno,a.driver
+	select a.accy,a.noa,a.noq,a.datea,a.trandate,a.comp,a.straddrno,a.straddr,a.carno,isnull(a.driverno,''),isnull(a.driver,'')
 		,a.inmount,a.pton,a.mount,a.price,a.price2,a.price3,a.discount,a.reserve,a.[weight],a.outmount,a.pton2,a.mount2
 		,a.total,a.total2,a.[status],a.mount3,a.mount4,a.aaddr
 	from view_trans a
-	where a.datea between @t_bdate and @t_edate
+	where isnull(a.trandate,'') between @t_bdate and @t_edate
 	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
 	and (len(@t_driverno)=0 or CHARINDEX(','+a.driverno+',',','+@t_driverno+',')>0)
 	
@@ -203,6 +204,7 @@ import:--import
 	update #tres_es set noq= RIGHT('00'+cast(b.recno as nvarchar),3)
 	from #tres_es a
 	left join (select sel,ROW_NUMBER()over(partition by noa order by sel) recno from #tres_es ) b on a.sel=b.sel
+	
 	---------------------------------------------------------------------------------------------------------
 	declare @accy nvarchar(10) = left(@t_datea,3)
 	--司機資料寫入廠商主檔

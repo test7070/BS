@@ -111,11 +111,11 @@
                      cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
                      cb.BeginText();
                      cb.SetFontAndSize(bfChinese, 14);
-                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).zip, 55, 80 , 0);
+                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).zip, 55, 82 , 0);
                      cb.SetFontAndSize(bfChinese,16);
-                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).addr, 55, 55, 0);
+                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).addr, 55, 57, 0);
                      cb.SetFontAndSize(bfChinese, 17);
-                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).cust, 55, 25, 0);
+                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).cust, 55, 27, 0);
                      
                      cb.EndText();
                 }

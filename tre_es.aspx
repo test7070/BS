@@ -57,6 +57,8 @@
                 q_getFormat();
                 bbmMask = [['txtDatea_import', r_picd],['txtBdate_import', r_picd], ['txtEdate_import', r_picd],['txtDatea', r_picd], ['txtDate2', r_picd], ['txtBdate', r_picd], ['txtEdate', r_picd], ['txtPaydate', r_picd], ['txtMon', r_picm]];
                 q_mask(bbmMask);
+                
+                $('#lblDate_import').text('取貨日期');
 
                 $('#lblAccno').click(function() {
                     q_pop('txtAccno', "accc.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";accc3='" + $('#txtAccno').val() + "';" + $('#txtYear1').val() + '_' + r_cno, 'accc', 'accc3', 'accc2', "92%", "1054px", q_getMsg('popAccc'), true);
@@ -538,7 +540,7 @@
                 font-size: medium;
             }
             .dbbs {
-                width: 1500px;
+                width: 1200px;
             }
             .tbbs a {
                 font-size: medium;
