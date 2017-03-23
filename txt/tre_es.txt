@@ -1,3 +1,149 @@
+tre2pay:--tre2pay  tre_es.txt
+	-----------------------------------------------------------------------------------------------------
+	SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(max)
+	declare @t_key nvarchar(10) = [1] --'FD'
+	declare @t_date nvarchar(10) = [2] --'106/02/28'
+	declare @t_tggno nvarchar(max) = [3] --'B894'
+	-----------------------------------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,accy nvarchar(20)
+		,noa nvarchar(20)
+		,datea nvarchar(20)
+		,mon nvarchar(10)
+		,tggno nvarchar(20)
+		,tgg nvarchar(50)
+		,total float
+		,payed float
+		,unpay float
+	)
+	insert into @tmp(accy,noa,datea,mon,tggno,tgg
+		,total,payed,unpay)
+	select a.accy,a.noa,a.datea,a.mon,a.tggno,a.tgg
+		,a.total,0,a.total 
+	from view_tre a
+	where a.datea=@t_date
+	and (len(@t_tggno)=0 or a.tggno=@t_tggno)
+	
+	update @tmp set payed=isnull(b.paysale,0)
+	from @tmp a
+	outer apply(select sum(isnull(paysale,0)) paysale from pays where rc2no=a.noa) b
+	
+	update @tmp set unpay = ISNULL(total,0)-ISNULL(payed,0)
+	---------------------------------------------------------------------------------------
+	declare @tmpPay table(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,datea nvarchar(20)
+		,mon nvarchar(10)
+		,tggno nvarchar(20)
+		,tgg nvarchar(50)
+		,sale float
+		,total float
+		,paysale float
+	)
+	declare @tmpPays table(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,acc1 nvarchar(20)
+		,acc2 nvarchar(50)
+		,[money] float
+		,[bankno] nvarchar(20)
+		,bank nvarchar(50)
+		,account nvarchar(20)
+		,accy nvarchar(20)
+		,tablea nvarchar(10)
+		,rc2no nvarchar(20)
+		,unpayorg float
+		,paysale float
+		,unpay float
+		,tggno nvarchar(20)
+		,tgg nvarchar(50)
+	)
+	declare @sel int
+	declare @datea nvarchar(20)
+	declare @noa nvarchar(20)
+	declare @string nvarchar(max) = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	declare @n int
+	declare @maxno1 nvarchar(20)
+	declare @maxno2 nvarchar(20)
+	
+	declare cursor_table cursor for
+	select sel,datea from @tmp where unpay != 0
+	open cursor_table
+	fetch next from cursor_table
+	into @sel,@datea
+	while(@@FETCH_STATUS <> -1)
+	begin
+		
+		select @noa='',@maxno1='',@maxno2=''
+		select top 1 @maxno1 = noa from pay where noa like @t_key+REPLACE(@datea,'/','')+'[0-9,A-Z][0-9][0-9]' order by noa desc
+		select top 1 @maxno2 = noa from @tmpPay where noa like @t_key+REPLACE(@datea,'/','')+'[0-9,A-Z][0-9][0-9]' order by noa desc
+
+		set @noa = case when @maxno1>@maxno2 then @maxno1 else @maxno2 end
+		set @noa = case when len(@noa)=0 then @t_key+REPLACE(@datea,'/','')+'000' else @noa end
+
+		set @n = (charindex(left(RIGHT(@noa,3),1),@string)-1)*100 + cast(RIGHT(@noa,2) as int) + 1
+		set @noa = @t_key+REPLACE(@datea,'/','')+SUBSTRING(@string, floor(@n/100)+1,1) + right('00'+cast(@n%100 as nvarchar),2)
+		----PAY
+	    insert into @tmpPay(noa,datea,mon,tggno,tgg,sale,total,paysale)
+	    select @noa,a.datea,a.mon,a.tggno,a.tgg,a.unpay,a.unpay,a.unpay
+	    from @tmp a
+	    where a.sel=@sel
+		----PAYS
+		insert into @tmpPays(noa,noq,acc1,acc2,[money],bankno,bank,account
+			,accy,tablea,rc2no,unpayorg,paysale,unpay,tggno,tgg)
+		select @noa,'001','1112.' acc1,'銀行存款' acc2,a.[total],isnull(c.bankno2,''),c.bank2,c.account2
+			,a.accy,'tre',a.noa rc2no,a.[total],a.[total],0,a.tggno,a.tgg
+		from view_tre a
+		left join @tmp b on a.accy=b.accy and a.noa=b.noa
+		left join driver c on a.driverno=c.noa
+		where b.sel=@sel
+		and b.noa is not null
+	
+		fetch next from cursor_table
+		into @sel,@datea
+	end
+	close cursor_table
+	deallocate cursor_table
+	--------------------------------------------------------------------
+	--save
+	declare @curtime datetime = getdate()
+	
+	DECLARE @chk tinyint = 0
+	Begin Transaction [Trans_Name]
+
+	begin try
+		insert into pay(cno,noa,datea,mon,tggno,comp,sale,total,paysale)
+		select '',noa,datea,mon,tggno,tgg,sale,total,paysale
+		from @tmpPay
+		
+		insert into pays(noa,noq,acc1,acc2,[money],bankno,bank,account
+			,accy,tablea,rc2no,unpayorg,paysale,unpay,memo2)
+		select noa,noq,acc1,acc2,[money],bankno,bank,account
+			,accy,tablea,rc2no,unpayorg,paysale,unpay,tgg
+		from @tmpPays
+		
+		--產生傳票
+		INSERT INTO mess (datea,qtime,[tables],data,usera,act) 
+		select replace(CONVERT(nvarchar,getdate(),120),'-','')
+			,noa+' '+replace(CONVERT(nvarchar,@curtime,120),':','') qtime
+			,'pay_post.post' [tables]
+			,LEFT(datea,3)+','+noa+',1'
+			,'erp'
+			,7
+		from @tmpPay
+		
+		Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
+		select 'done' msg 
+	end try
+	begin catch
+		Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+		select ERROR_MESSAGE() msg 
+	end catch;
+
 import:--import	 tre_es.txt
 	SET QUOTED_IDENTIFIER OFF
 	declare @cmd nvarchar(max)

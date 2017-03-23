@@ -73,18 +73,6 @@
                 $('#txtMinusmoney').change(function(e) {
                     sum();
                 });
-                /*$('#btnTrans').click(function(e) {
-                    if (q_cur != 1 && q_cur != 2) {
-                        if (r_accy.substring(0, 3) != $('#txtDate2').val().substring(0, 3)) {
-                            alert('年度異常!');
-                            return;
-                        }
-                        Lock(1, {
-                            opacity : 0
-                        });
-                        q_func('tre.import_ds', r_accy + ',' + $('#cmbCarteamno').val() + ',' + $('#txtBdate').val() + ',' + $('#txtEdate').val() + ',' + $('#txtDate2').val() + ',' + r_name);
-                    }
-                });*/
                 $("#btnCarchg").click(function(e) {
                 	Lock(1,{opacity:0});
                 	/*if ($('#txtCarno').val().length == 0) {
@@ -160,6 +148,40 @@
                 $('#textDate').datepicker();
                 $('#textBdate').datepicker();
                 $('#textEdate').datepicker();
+                //-----------------------------------------------
+                $('#textDate_2pay').datepicker();
+                $('#div2pay').mousedown(function(e) {
+                    if (e.button == 2) {
+                        $(this).data('xtop', parseInt($(this).css('top')) - e.clientY);
+                        $(this).data('xleft', parseInt($(this).css('left')) - e.clientX);
+                    }
+                }).mousemove(function(e) {
+                    if (e.button == 2 && e.target.nodeName != 'INPUT') {
+                        $(this).css('top', $(this).data('xtop') + e.clientY);
+                        $(this).css('left', $(this).data('xleft') + e.clientX);
+                    }
+                }).bind('contextmenu', function(e) {
+                    if (e.target.nodeName != 'INPUT')
+                        e.preventDefault();
+                });
+
+                $('#btn2pay').click(function() {
+                    $('#div2pay').toggle();
+                    $('#textDate_2pay').focus();
+                });
+                $('#btnCancel_2pay').click(function() {
+                    $('#div2pay').toggle();
+                });
+                $('#btnImport_2pay').click(function() {
+                   if(q_cur != 1 && q_cur != 2){
+                   		var t_key = q_getPara('sys.key_pay');
+                   		var t_date = $('#textDate_2pay').val();
+                   		var t_driverno = $('#textDriverno_2pay').val();
+                   		
+                   		t_key = (t_key.length==0?'FD':t_key);//一定要有值
+                   		q_func('qtxt.query.tre2pay', 'tre_es.txt,tre2pay,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';' + encodeURI(t_driverno));
+                	}
+                });
             }
 
             function q_funcPost(t_func, result) {
@@ -169,6 +191,13 @@
                         if (as[0] != undefined) {
                         	alert(as[0].msg);
                         	location.reload();
+                        } else {
+                        }
+                		break;
+            		case 'qtxt.query.tre2pay':
+            			var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                        	alert(as[0].msg);
                         } else {
                         }
                 		break;
@@ -365,9 +394,12 @@
                     $('#btnCarchg').removeAttr('disabled');
                     $('#btnImport').attr('disabled','disabled');
                 	$('#divImport').hide();
+                	$('#btn2pay').attr('disabled','disabled');
+                	$('#div2pay').hide();
                 } else {
                     $('#btnCarchg').attr('disabled', 'disabled');
                     $('#btnImport').removeAttr('disabled');
+                    $('#btn2pay').removeAttr('disabled');
                 }
             }
 
@@ -560,7 +592,7 @@
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	>
 		<!--#include file="../inc/toolbar.inc"-->
-		<div id="divImport" style="position:absolute; top:250px; left:600px; display:none; width:400px; height:200px; background-color: #cad3ff; border: 5px solid gray;">
+		<div id="divImport" style="position:absolute; top:180px; left:600px; display:none; width:400px; height:200px; background-color: #cad3ff; border: 5px solid gray;">
 			<table style="width:100%;">
 				<tr style="height:1px;">
 					<td style="width:150px;"></td>
@@ -604,6 +636,38 @@
 				</tr>
 			</table>
 		</div>
+		
+		<div id="div2pay" style="position:absolute; top:250px; left:600px; display:none; width:400px; height:150px; background-color: #cad3ff; border: 5px solid gray;">
+			<table style="width:100%;">
+				<tr style="height:1px;">
+					<td style="width:150px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+					<td style="width:80px;"></td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblDatea_2pay" style="float:right; color: blue; font-size: medium;">立帳日期</a></td>
+					<td colspan="4">
+					<input id="textDate_2pay"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblDriverno_2pay" style="float:right; color: blue; font-size: medium;">司機</a></td>
+					<td colspan="4">
+						<input id="textDriverno_2pay"  type="text" style="float:left; width:225px; font-size: medium;" title="多個司機用,區隔"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td> </td>
+					<td><input id="btnImport_2pay" type="button" value="轉付款作業"/></td>
+					<td></td>
+					<td></td>
+					<td><input id="btnCancel_2pay" type="button" value="關閉"/></td>
+				</tr>
+			</table>
+		</div>
+		
 		<div id='dmain' >
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
@@ -679,6 +743,9 @@
 						</td>
 						<td> </td>
 						<td> </td>
+						<td> </td>
+						<td> </td>
+						<td><input id="btn2pay" type="button" class="txt c1" value="轉付款作業"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>
