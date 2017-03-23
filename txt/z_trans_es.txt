@@ -2,9 +2,8 @@ z_trans_es10:--z_trans_es10 客戶信封標籤  11cm*3.5cm
 	SET QUOTED_IDENTIFIER OFF
 	declare @t_path nvarchar(max) = '[1]'
 	declare @t_db nvarchar(max) = '[2]'
-	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
-	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
-	declare @t_addrfield nvarchar(20) = case when '#non'=[25] then '' else [25] end
+	declare @t_custno nvarchar(20) = case when '#non'=[25] then '' else [25] end
+	declare @t_addrfield nvarchar(20) = case when '#non'=[26] then '' else [26] end
 	------------------------------------------------------------------------------
 	declare @cmd nvarchar(max)
 	

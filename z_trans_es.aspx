@@ -114,7 +114,10 @@
                         type : '6', //[24]             17
                         name : 'xmon'
                     },{
-                        type : '5', //[25]             18
+                        type : '6', //[25]             18
+                        name : 'xmulti_cust'
+                    },{
+                        type : '5', //[26]             19
                         name : 'xoption2',
                         value : "invo@發票地址,comp@公司地址,fact@工廠地址,home@通信地址".split(',')
                     }]
@@ -168,8 +171,8 @@
             	$('#btnOk2').click(function(e){
             		switch($('#q_report').data('info').radioIndex) {
                         case 9:
-                        	console.log("./custlabel_es.aspx?db="+q_db+"&bcustno="+$('#txtXcust1a').val()+"&ecustno="+$('#txtXcust2a').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
-                        	window.open("./custlabel_es.aspx?db="+q_db+"&bcustno="+$('#txtXcust1a').val()+"&ecustno="+$('#txtXcust2a').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
+                        	console.log("./custlabel_es.aspx?db="+q_db+"&custno="+$('#txtXmulti_cust').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
+                        	window.open("./custlabel_es.aspx?db="+q_db+"&custno="+$('#txtXmulti_cust').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
                             break;
                         default:
                            	$('#btnOk').click();
@@ -177,8 +180,37 @@
                     }
             	});
             	
+            	$('#Xmulti_cust').removeClass('a2').addClass('a1');
+            	$('#txtXmulti_cust').css('width','500px');
+            	$('#lblXmulti_cust').click(function() {
+            		var custno= $('#txtXmulti_cust').val().length==0?new Array():$('#txtXmulti_cust').val().split(',');
+                	q_box("multi_cust_b.aspx?" + r_userno + ";" + r_name + ";" + q_id + ";" + "　" +";"+r_accy+";"+JSON.stringify({custno:custno,condition:""}), "multi_cust", "95%", "95%", '');
+				});
+            	
             }
-
+			function q_boxClose(s2) {///   q_boxClose 2/4
+				var
+				ret;
+				switch (b_pop) {
+					case 'multi_cust':
+                        if (b_ret != null) {
+                        	as = b_ret;
+                        	if(as!=undefined){
+                        		var t_cust="";
+	                        	for(var i=0;i<as.length;i++){
+	                        		t_cust +=(t_cust.length>0?',':'')+as[i].noa;
+	                        	}
+	                        	$('#txtXmulti_cust').val(t_cust);
+                        	}
+                        }
+                        break;
+					case q_name + '_s':
+						q_boxClose2(s2);
+						break;
+				}/// end Switch
+				b_pop = '';
+			}
+			
 			function q_funcPost(t_func, result) {
                 switch(t_func) {
                     default:

@@ -2,7 +2,7 @@
     <script language="c#" runat="server">     
         public class ParaIn
         {
-            public string bcustno = "", ecustno = "", addrfield = "";
+            public string custno = "", addrfield = "";
         }
         
         public class Para
@@ -20,20 +20,16 @@
         	connectionString = "Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database="+db;
             //connectionString = "Data Source=59.125.143.171,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=" + db;
 			var item = new ParaIn();
-            if (Request.QueryString["bcustno"] != null && Request.QueryString["bcustno"].Length > 0)
+            if (Request.QueryString["custno"] != null && Request.QueryString["custno"].Length > 0)
             {
-                item.bcustno = Request.QueryString["bcustno"];
+                item.custno = Request.QueryString["custno"];
             }
-            if (Request.QueryString["ecustno"] != null && Request.QueryString["ecustno"].Length > 0)
-            {
-                item.ecustno = Request.QueryString["ecustno"];
-            }
+  
             if (Request.QueryString["addrfield"] != null && Request.QueryString["addrfield"].Length > 0)
             {
                 item.addrfield = Request.QueryString["addrfield"];
             }
-            /*item.bcustno = "A0008";
-            item.ecustno = "A0010";
+            /*item.custno = "A0008";
             item.addrfield = "invo";*/
         
             //資料
@@ -42,7 +38,8 @@
             {
                 System.Data.SqlClient.SqlDataAdapter adapter = new System.Data.SqlClient.SqlDataAdapter();
                 connSource.Open();
-                string queryString = @"declare @cmd nvarchar(max)
+                string queryString = @"SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(max)
 	
 	declare @tmp table(
 		sel int identity(1,1)
@@ -51,20 +48,19 @@
 		,zip nvarchar(20)
 		,addr nvarchar(max)
 	)
-	set @cmd = 'select noa,comp,zip_'+@t_addrfield+',addr_'+@t_addrfield+'
+	set @cmd = ""select noa,comp,zip_""+@t_addrfield+"",addr_""+@t_addrfield+""
 	from cust 
-	where noa between @t_bcustno and @t_ecustno'
+	where charindex(','+noa+',',','+@t_custno+',')>0""
 	
 	insert into @tmp(custno,cust,zip,addr)
-	execute sp_executesql @cmd,N'@t_bcustno nvarchar(20),@t_ecustno nvarchar(20)',@t_bcustno=@t_bcustno,@t_ecustno=@t_ecustno
+	execute sp_executesql @cmd,N'@t_custno nvarchar(max)',@t_custno=@t_custno
 	select custno
         ,isnull(cust,'') + case when len(isnull(cust,''))>0 then '收' else '' end cust
 		,zip
 		,addr
 	from @tmp;";
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
-                cmd.Parameters.AddWithValue("@t_bcustno", item.bcustno);
-                cmd.Parameters.AddWithValue("@t_ecustno", item.ecustno);
+                cmd.Parameters.AddWithValue("@t_custno", item.custno);
                 cmd.Parameters.AddWithValue("@t_addrfield", item.addrfield);
                 adapter.SelectCommand = cmd;
                 adapter.Fill(dt);
