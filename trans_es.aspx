@@ -245,7 +245,26 @@
 					var t_custno = $.trim($('#textCustno_modi').val());
 					q_func('qtxt.query.batch_transmoney_es', 'trans_es.txt,batch_transmoney_es,' + encodeURI(t_btrandate)+';'+encodeURI(t_etrandate)+';'+encodeURI(t_custno));
 				});
+				
+				AddDataList('txtCasetype','3.5T車,8.8T車,10.5T車,15T車,17T車,26T車,板車');
 			}
+			
+			function AddDataList(elementid,string){
+				var obj = $('#'+elementid);
+				var dl_id = guid();
+				var options = '<datalist id="'+dl_id+'">';
+				var data = string.split(',');
+				for(var i=0;i<data.length;i++){
+					options += '<option value="'+data[i]+'"></option>';
+                }
+                options+='</datalist>';
+				obj.attr('list',dl_id);
+				$(options).insertAfter(obj);
+			}
+			var guid = (function() {
+				function s4() {return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);}
+				return function() {return s4() + s4() + '-' + s4() + '-' + s4() + '-' +s4() + '-' + s4() + s4() + s4();};
+			})();
 			
 			function  q_onkeydown(e){
 				if(!e.altKey)

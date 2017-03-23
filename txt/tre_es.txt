@@ -234,8 +234,8 @@ import:--import	 tre_es.txt
 
 	begin try
 		set @cmd =
-		"insert into tre"+@accy+"(noa,datea,driverno,driver,tggno,tgg,carchgno,[money],plusmoney,minusmoney,[total],memo)
-		select noa,datea,driverno,driver,driverno,driver,carchgno,[money],plusmoney,minusmoney,[total],memo from #tre_es"
+		"insert into tre"+@accy+"(noa,datea,driverno,driver,tggno,tgg,carchgno,[money],plusmoney,minusmoney,[total],memo,payed,unpay)
+		select noa,datea,driverno,driver,driverno,driver,carchgno,[money],plusmoney,minusmoney,[total],memo,0,[total] from #tre_es"
 		execute sp_executesql @cmd
 		
 		set @cmd=

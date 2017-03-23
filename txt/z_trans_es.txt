@@ -840,7 +840,7 @@ z_trans_es05:--z_trans_es05
 	declare @t_paytype_cust nvarchar(max)=case when '#non'=[22] then '' else [22] end
 	declare @t_payday nvarchar(20) =case when '#non'=[23] then '' else [23] end
 	declare @t_mon nvarchar(20) =case when '#non'=[24] then '' else [24] end
-		------------------------------------------------------------------
+	-----------------------------------------------------------------
 	declare @x_rate float =0
 	begin try
 		set @x_rate = CAST(@t_rate as float) 
@@ -888,6 +888,7 @@ z_trans_es05:--z_trans_es05
 		
 		,xmemo nvarchar(max)
 		,conn nvarchar(max)
+		,casetype nvarchar(20)
 	)
 	declare @xbdate nvarchar(20) = ''
 	declare @xedate nvarchar(20) = char(255)
@@ -906,10 +907,10 @@ z_trans_es05:--z_trans_es05
 	
 	insert into @tmpa(gno,pno,tranaccy,tranno,trannoq,custno,cust,serial,trandate
 		,mount3,mount4,[status],[weight],addr
-		,[money],tax,rs)
+		,[money],tax,rs,casetype)
 	select '1',1,a.accy,a.noa,a.noq,a.custno,b.comp,b.serial,a.trandate
 		,a.mount3,a.mount4,a.[status],a.[weight],aaddr
-		,a.total,reserve,rs
+		,a.total,reserve,rs,a.casetype
 	from view_trans a 
 	left join cust b on a.custno=b.noa
 	where a.trandate between @t_btrandate and @t_etrandate
@@ -1062,7 +1063,8 @@ z_trans_es05:--z_trans_es05
 		,case when mount3>0 then CAST(mount3 as nvarchar)+'才' else '' end
 		+case when mount4>0 then CAST(mount4 as nvarchar)+'件' else '' end
 		+case when len([status])>0 then [status]+'板' else '' end
-		+case when [weight]>0 then CAST([weight] as nvarchar) + 'Kg' else '' end b02
+		+case when [weight]>0 then CAST([weight] as nvarchar) + 'Kg' else '' end 
+		+case when len([casetype])>0 then [casetype] else '' end b02
 		,addr b03
 		,dbo.getComma([money],-1) b04
 		,dbo.getComma([tax],-1) b05
@@ -1098,6 +1100,7 @@ z_trans_es04:--z_trans_es04
 		,mount2 float --件數
 		,mount3 float --重量
 		,mount4 nvarchar(50) --板數
+		,casetype nvarchar(20)
 		
 		,eaddr nvarchar(max)
 		,eaddress nvarchar(max)
@@ -1116,11 +1119,11 @@ z_trans_es04:--z_trans_es04
 		,productno,product
 		,custno,cust,conn,saddr,dtime,mount1,mount2,mount3,mount4
 		,eaddr,eaddress,stime,sender,stel
-		,paytype,tranmoney,carno,driverno,driver,drivermobile)
+		,paytype,tranmoney,carno,driverno,driver,drivermobile,casetype)
 	select a.noa,a.datea,a.trandate,a.salesno,a.sales,a.straddrno,a.straddr,a.uccno,a.product
 		,a.custno,a.comp,'' conn,a.saddr,a.dtime,a.mount3,a.mount4,a.[weight],a.status
 		,a.aaddr,a.addressee,a.stime,a.sender,a.stel
-		,'' paytype,a.total,a.carno,a.driverno,a.driver,'' drivermobile
+		,'' paytype,a.total,a.carno,a.driverno,a.driver,'' drivermobile,a.casetype
 	from view_trans a
 	left join car2 b on a.carno=b.carno
 	where a.noa=@t_noa
@@ -1159,10 +1162,11 @@ z_trans_es04:--z_trans_es04
 	,conn b06
 	,saddr b07
 	,dtime b08
-	,dbo.getComma(mount2,-1) + '件' b09a
-	,dbo.getComma(mount1,-1) + '才' b09b
-	,mount4 +'板' b09c
-	,dbo.getComma(mount3,-1) + 'KG' b09d
+	,case when mount1>0 then CAST(mount1 as nvarchar)+'才' else '' end
+		+case when mount2>0 then CAST(mount2 as nvarchar)+'件' else '' end
+		+case when len([mount4])>0 then [mount4]+'板' else '' end
+		+case when [mount3]>0 then CAST([mount3] as nvarchar) + 'Kg' else '' end 
+		+case when len([casetype])>0 then [casetype] else '' end b09
 	,eaddr b10
 	,eaddress b11	
 	,stime b12
@@ -1194,19 +1198,18 @@ z_trans_es03:--z_trans_es03
 		,mount2 float --件數
 		,mount3 float --重量
 		,mount4 nvarchar(50) --板數
-		,cartype nvarchar(50) -- car2.carspecno
+		,casetype nvarchar(50)
 		,driverno nvarchar(20)
 		,driver nvarchar(50)
 		,carno nvarchar(20)
 		,tranmoney float
 	)
-	insert into @tmp(noa,datea,trandate,custno,cust,saddr,eaddr,memo,mount1,mount2,mount3,mount4,cartype
+	insert into @tmp(noa,datea,trandate,custno,cust,saddr,eaddr,memo,mount1,mount2,mount3,mount4,casetype
 		,driverno,driver,carno,tranmoney)
 	select a.noa,a.datea,a.trandate,a.custno,a.comp,a.saddr,a.aaddr,a.memo
-		,a.mount3,a.mount4,a.[status],a.[weight],b.carspecno
+		,a.mount3,a.mount4,a.[weight],a.[status],a.casetype
 		,a.driverno,a.driver,a.carno,a.total
 	from view_trans a
-	left join car2 b on a.carno=b.carno
 	where a.noa=@t_noa
 	---------------------------------------------------------------------
 	declare @address nvarchar(max) = ''
@@ -1230,7 +1233,7 @@ z_trans_es03:--z_trans_es03
 		,dbo.getComma(mount2,-1) b07
 		,dbo.getComma(mount3,-1) b08
 		,mount4 b09
-		,cartype b10
+		,casetype b10
 		,dbo.getComma(tranmoney,-1) b11
 		,'司機：'+ISNULL(driver,'') c01
 		,'車牌：'+ISNULL(carno,'') c02
