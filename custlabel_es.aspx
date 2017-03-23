@@ -77,8 +77,9 @@
                 custLabel.Add(pa);
             }
             //-----PDF--------------------------------------------------------------------------------------------------
-           /// W*H 3.5*11
-            var doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(320, 99), 0, 0, 0, 0);
+           /// W*H 3.5*11 320, 99)
+            //var doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(320, 99), 0, 0, 0, 0);
+            var doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(340, 99), 0, 0, 0, 0);
             iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
             //font   
             iTextSharp.text.pdf.BaseFont bfChinese = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\kaiu.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
@@ -106,11 +107,11 @@
                      //TEXT
                      cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
                      cb.BeginText();
-                     cb.SetFontAndSize(bfChinese, 14);
+                     cb.SetFontAndSize(bfChinese, 13);
                      cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).zip, 55, 82 , 0);
-                     cb.SetFontAndSize(bfChinese,16);
+                     cb.SetFontAndSize(bfChinese,14);
                      cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).addr, 55, 57, 0);
-                     cb.SetFontAndSize(bfChinese, 17);
+                     cb.SetFontAndSize(bfChinese, 15);
                      cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)custLabel[i]).cust, 55, 27, 0);
                      
                      cb.EndText();
