@@ -176,7 +176,7 @@
                    if(q_cur != 1 && q_cur != 2){
                    		var t_key = q_getPara('sys.key_pay');
                    		var t_date = $('#textDate_2pay').val();
-                   		var t_driverno = $('#textDriverno_2pay').val();
+                   		var t_driverno = $('#textDriverno_2pay').val().replace(',','&');
                    		
                    		t_key = (t_key.length==0?'FD':t_key);//一定要有值
                    		q_func('qtxt.query.tre2pay', 'tre_es.txt,tre2pay,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';' + encodeURI(t_driverno));

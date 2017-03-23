@@ -6,6 +6,7 @@ tre2pay:--tre2pay  tre_es.txt
 	declare @t_date nvarchar(10) = [2] --'106/02/28'
 	declare @t_tggno nvarchar(max) = [3] --'B894'
 	-----------------------------------------------------------------------------------------------------
+	set @t_tggno = ','+replace(@t_tggno,'&',',')+','
 	declare @tmp table(
 		sel int identity(1,1)
 		,accy nvarchar(20)
@@ -24,7 +25,7 @@ tre2pay:--tre2pay  tre_es.txt
 		,a.total,0,a.total 
 	from view_tre a
 	where a.datea=@t_date
-	and (len(@t_tggno)=0 or a.tggno=@t_tggno)
+	and (len(@t_tggno)=0 or charindex(','+a.tggno+',',@t_tggno)>0)
 	
 	update @tmp set payed=isnull(b.paysale,0)
 	from @tmp a
