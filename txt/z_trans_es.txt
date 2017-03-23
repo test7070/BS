@@ -1286,6 +1286,8 @@ z_trans_es01:--z_trans_es01
 		,mount float
 		,price float
 		,total float
+		,tax float
+		,ttotal float
 		
 		,outmount float
 		,pton2 float
@@ -1307,10 +1309,12 @@ z_trans_es01:--z_trans_es01
 		,aaddr nvarchar(max)
 	)
 	insert into @tmp(pno,gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
-	,straddrno,straddr,inmount,pton,mount,price,total,outmount,pton2,mount2,price2,price3,discount,total2
+	,straddrno,straddr,inmount,pton,mount,price,total,tax,ttotal
+	,outmount,pton2,mount2,price2,price3,discount,total2
 	,mount3,mount4,[status],[weight],ship,rs,aaddr)
 	select 1,'1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
-	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.outmount,a.pton2,a.mount2,a.price2,a.price3
+	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.reserve,ISNULL(a.total,0)+ISNULL(a.reserve,0)
+	,a.outmount,a.pton2,a.mount2,a.price2,a.price3
 	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship,a.rs,a.aaddr
 	from view_trans a
 	where a.trandate between @t_btrandate and @t_etrandate
@@ -1347,8 +1351,8 @@ z_trans_es01:--z_trans_es01
 		
 	update @tmp set gno='3' where istrd=0
 
-	insert into @tmp(pno,gno,total,total2)
-	select 2,'2',SUM(ISNULL(total,0)),SUM(ISNULL(total2,0))
+	insert into @tmp(pno,gno,total,total2,tax,ttotal)
+	select 2,'2',SUM(ISNULL(total,0)),SUM(ISNULL(total2,0)),SUM(ISNULL(tax,0)),SUM(ISNULL(ttotal,0))
 	from @tmp
 	where pno=1
 	
@@ -1375,6 +1379,8 @@ z_trans_es01:--z_trans_es01
 		,dbo.getComma(isnull([price2],0)+isnull([price3],0),-1) a13
 		,dbo.getComma([discount],-1) a14
 		,dbo.getComma([total2],-1) a15
+		,dbo.getComma([tax],-1) a16
+		,dbo.getComma([ttotal],-1) a17
 	from @tmp
 	order by pno,sel;
 	
