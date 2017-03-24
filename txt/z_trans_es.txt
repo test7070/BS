@@ -71,7 +71,7 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,isnull(a.[total2],0)
 	from view_trans a
 	left join driver b on a.driverno=b.noa
-	where charindex('公司',b.cartype)>0  --顯示公司車
+	where charindex('公司',isnull(b.cartype,''))>0  --顯示公司車
 	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo
 	from carchg a
 	left join driver b on a.driverno=b.noa
-	where charindex('公司',b.cartype)>0  --顯示公司車
+	where charindex('公司',isnull(b.cartype,''))>0  --顯示公司車
 	and ISNULL(a.datea,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	---------------------------------------------------------------------------------
@@ -287,7 +287,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
 	from view_trans a
 	left join driver b on a.driverno=b.noa
-	where charindex('公司',b.cartype)=0  --不顯示公司車
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
 	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	------------------------------------------------------------------------------
@@ -312,7 +312,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo
 	from carchg a
 	left join driver b on a.driverno=b.noa
-	where charindex('公司',b.cartype)=0  --不顯示公司車
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
 	and ISNULL(a.datea,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	---------------------------------------------------------------------------------
@@ -505,7 +505,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
 	from view_trans a
 	left join driver b on a.driverno=b.noa
-	where charindex('公司',b.cartype)=0  --不顯示公司車
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
 	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	------------------------------------------------------------------------------
@@ -530,7 +530,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo
 	from carchg a
 	left join driver b on a.driverno=b.noa
-	where charindex('公司',b.cartype)=0  --不顯示公司車
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
 	and ISNULL(a.datea,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	---------------------------------------------------------------------------------
