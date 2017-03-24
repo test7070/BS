@@ -920,6 +920,7 @@ z_trans_es05:--z_trans_es05
 	and (len(@t_payday)=0 or @t_payday=b.[getdate])
 	--
 	and a.trandate between @xbdate and @xedate
+	order by a.custno,a.trandate,a.noa
 	
 	if @t_isinvo = 'Y'
 		delete @tmpa where rs != 'Y'
