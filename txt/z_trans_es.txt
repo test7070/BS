@@ -893,10 +893,12 @@ z_trans_es05:--z_trans_es05
 	declare @xedate nvarchar(20) = char(255)
 	if len(@t_mon)>0 and len(@t_payday)>0
 	begin
-		set @xbdate = @t_mon + '/' + RIGHT('00'+@t_payday,2)
-		set @xbdate = dbo.AD2ChineseEraName(DATEADD(DAY,1,dbo.ChineseEraName2AD(@xbdate)))
-		set @xedate = @t_mon + '/01'
-		set @xedate = left(dbo.AD2ChineseEraName(DATEADD(MM,1,dbo.ChineseEraName2AD(@xedate))),7)+RIGHT('00'+@t_payday,2)
+		set @xbdate = left(dbo.AD2ChineseEraName( DATEADD(MM,-1, dbo.ChineseEraName2AD(@t_mon+'/01'))),6)+'/'+RIGHT('00'+cast(cast(@t_payday as int)+1 as nvarchar),2)
+		set @xedate = @t_mon + '/' + RIGHT('00'+@t_payday,2)
+		
+		--set @xbdate = dbo.AD2ChineseEraName(DATEADD(DAY,1,dbo.ChineseEraName2AD(@xbdate)))
+		--set @xedate = @t_mon + '/01'
+		--set @xedate = left(dbo.AD2ChineseEraName(DATEADD(MM,1,dbo.ChineseEraName2AD(@xedate))),7)+RIGHT('00'+@t_payday,2)
 	end
 	else if len(@t_mon)>0
 	begin
@@ -921,6 +923,7 @@ z_trans_es05:--z_trans_es05
 	--
 	and a.trandate between @xbdate and @xedate
 	order by a.custno,a.trandate,a.noa
+
 	
 	if @t_isinvo = 'Y'
 		delete @tmpa where rs != 'Y'
