@@ -63,6 +63,11 @@ appendData:--appendData   trans_bs.txt
 		select noa,noq,trandate,datea
 		from #append_trans_es"
 		execute sp_executesql @cmd
+	
+		insert into drun(datea,timea,usera,[action],noa,tablea,accno,title,memo)
+			select left(CONVERT(nvarchar,getdate(),111),10) 
+				,left(CONVERT(nvarchar,getdate(),108),5)
+				,'批次產生','Insert','appendData','trans'+@accy,'出車單','','日期：'+@t_date+'  筆數：'+@t_n
 		
 		Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
 		select 'done' msg 
