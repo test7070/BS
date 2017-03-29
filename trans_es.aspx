@@ -123,7 +123,6 @@
 				month = month.substring(month.length-2,month.length);
 				q_content += ' order=^^trandate,noa^^';
 			    q_gt(q_name, q_content + "where=^^ trandate>='"+year+'/'+month+"'^^", q_sqlCount, 1, 0, '', r_accy);
-
 			});
 			function main() {
 				if (dataErr) {
@@ -247,6 +246,53 @@
 				});
 				
 				AddDataList('txtCasetype','3.5T車,8.8T車,10.5T車,15T車,17T車,26T車,板車');
+				
+				$('#txtComp').bind('contextmenu', function(e) {
+                    /*滑鼠右鍵*/
+                    e.preventDefault();
+                    var t_noa = $.trim($('#txtCustno').val());
+                    var t_comp = $.trim($(this).val());
+                    var t_where = '';
+                    if(t_noa.length>0 && t_comp.length>0){
+                    	t_where = "(noa='" + t_noa + "' or charindex('"+t_comp+"',comp)>0 or charindex('"+t_comp+"',nick)>0)";
+                    }else if(t_noa.length>0){
+                    	t_where = "(noa='" + t_noa + "')";
+                    }else if(t_comp.length>0){
+                    	t_where = "(charindex('"+t_comp+"',comp)>0 or charindex('"+t_comp+"',nick)>0)";
+                    }
+                    if (t_where.length > 0) {
+                        q_box("custtran.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";"+t_where+";" + r_accy, 'cust', "95%", "95%", q_getMsg("popCust"));
+                    }
+                });
+                $('#txtDriver').bind('contextmenu', function(e) {
+                    /*滑鼠右鍵*/
+                    e.preventDefault();
+                    var t_noa = $.trim($('#txtDriverno').val());
+                    var t_name = $.trim($(this).val());
+                    var t_where = '';
+                    if(t_noa.length>0 && t_name.length>0){
+                    	t_where = "(noa='" + t_noa + "' or charindex('"+t_name+"',namea)>0)";
+                    }else if(t_noa.length>0){
+                    	t_where = "(noa='" + t_noa + "')";
+                    }else if(t_name.length>0){
+                    	t_where = "(charindex('"+t_name+"',namea)>0 )";
+                    }
+                    if (t_where.length > 0) {
+                        q_box("driver.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";"+t_where+";" + r_accy, 'driver', "95%", "95%", q_getMsg("popDriver"));
+                    }
+                });
+                $('#txtCarno').bind('contextmenu', function(e) {
+                    /*滑鼠右鍵*/
+                    e.preventDefault();
+                    var t_noa = $.trim($(this).val());
+                    var t_where = '';
+                    if(t_noa.length>0){
+                    	t_where = "(carno='" + t_noa + "')";
+                    }
+                    if (t_where.length > 0) {
+                        q_box("car2.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";"+t_where+";" + r_accy, 'car2', "95%", "95%", q_getMsg("popCar2"));
+                    }
+                });
 			}
 			
 			function AddDataList(elementid,string){
