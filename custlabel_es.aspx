@@ -47,6 +47,24 @@
 		select top 1 @t_custno=memo from drun where noa='z_trans_es05' order by datea desc,timea desc
 	end
 	
+	--要按順序印
+	declare @tmpa table(
+		sel int identity(1,1)
+		,custno nvarchar(max)
+	)
+	declare @custno nvarchar(max)
+	while CHARINDEX(',',@t_custno)>0
+	begin
+		set @custno = left(@t_custno,CHARINDEX(',',@t_custno)-1)
+		if LEN(@custno)>0
+		insert into @tmpa(custno)values(@custno)
+		set @t_custno = SUBSTRING(@t_custno,LEN(@custno)+2,len(@t_custno))
+	end
+	if LEN(@t_custno)>0
+	begin
+		insert into @tmpa(custno)values(@t_custno)
+	end
+	
 	declare @tmp table(
 		sel int identity(1,1)
 		,custno nvarchar(20)
@@ -54,12 +72,26 @@
 		,zip nvarchar(20)
 		,addr nvarchar(max)
 	)
-	set @cmd = ""select noa,comp,zip_""+@t_addrfield+"",addr_""+@t_addrfield+""
-	from cust 
-	where charindex(','+noa+',',','+@t_custno+',')>0""
 	
-	insert into @tmp(custno,cust,zip,addr)
-	execute sp_executesql @cmd,N'@t_custno nvarchar(max)',@t_custno=@t_custno
+	declare cursor_table cursor for
+	select custno from @tmpa order by sel
+	open cursor_table
+	fetch next from cursor_table
+	into @custno
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		set @cmd = ""select noa,comp,zip_""+@t_addrfield+"",addr_""+@t_addrfield+""
+			from cust 
+			where noa=@custno""
+			insert into @tmp(custno,cust,zip,addr)
+			execute sp_executesql @cmd,N'@custno nvarchar(max)',@custno=@custno
+	
+		fetch next from cursor_table
+		into @custno
+	end
+	close cursor_table
+	deallocate cursor_table
+
 	select custno
         ,isnull(cust,'') + case when len(isnull(cust,''))>0 then '收' else '' end cust
 		,zip
