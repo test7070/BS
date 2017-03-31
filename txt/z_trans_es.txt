@@ -840,6 +840,7 @@ z_trans_es05:--z_trans_es05
 	declare @t_payday nvarchar(20) =case when '#non'=[23] then '' else [23] end
 	declare @t_mon nvarchar(20) =case when '#non'=[24] then '' else [24] end
 	-----------------------------------------------------------------
+	-----------------------------------------------------------------
 	declare @x_rate float =0
 	begin try
 		set @x_rate = CAST(@t_rate as float) 
@@ -1052,6 +1053,30 @@ z_trans_es05:--z_trans_es05
 	from @tmpa a
 	outer apply(select top 1 * from conn where noa=a.custno order by noq) b
 ----------------------------------------------------------------------------	
+	--記錄有哪些客戶,  客戶標籤要印
+	declare @memo nvarchar(max)=''
+	declare cursor_table cursor for
+	select isnull(custno,'') from @tmpa where len(isnull(custno,''))>0 group by isnull(custno,'')
+	open cursor_table
+	fetch next from cursor_table
+	into @custno
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		set @memo = @memo + case when LEN(@memo)>0 then ',' else '' end +@custno
+		fetch next from cursor_table
+		into @custno
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	insert into drun(datea,timea,usera,action,noa,tablea,title,memo)
+		select convert(nvarchar,getdate(),111)
+			,left(convert(nvarchar,getdate(),108),5)
+			,'auto'
+			,'客戶標籤'
+			,'z_trans_es05'
+			,'z_trans_es05','',@memo
+	
 	select gno
 		,CONVERT(nvarchar,GETDATE(),111)+'  第'+CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar)+'頁' f01
 		,conn f02

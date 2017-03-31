@@ -120,6 +120,10 @@
                         type : '5', //[26]             19
                         name : 'xoption2',
                         value : "invo@發票地址,comp@公司地址,fact@工廠地址,home@通信地址".split(',')
+                    },{
+                        type : '8', //[27]             20
+                        name : 'xoption3',
+                        value : "1@依客戶對帳單".split(',')
                     }]
 				});
 				q_popAssign();
@@ -171,8 +175,8 @@
             	$('#btnOk2').click(function(e){
             		switch($('#q_report').data('info').radioIndex) {
                         case 9:
-                        	console.log("./custlabel_es.aspx?db="+q_db+"&custno="+$('#txtXmulti_cust').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
-                        	window.open("./custlabel_es.aspx?db="+q_db+"&custno="+$('#txtXmulti_cust').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val());
+                        	console.log("./custlabel_es.aspx?db="+q_db+"&custno="+$('#txtXmulti_cust').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val()+"&option="+($('#Xoption3').find('input').eq(0).prop('checked')?'1':''));
+                        	window.open("./custlabel_es.aspx?db="+q_db+"&custno="+$('#txtXmulti_cust').val()+"&addrfield="+$('#Xoption2').find('select').eq(0).val()+"&option="+($('#Xoption3').find('input').eq(0).prop('checked')?'1':''));
                             break;
                         default:
                            	$('#btnOk').click();

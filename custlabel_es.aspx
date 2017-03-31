@@ -2,7 +2,7 @@
     <script language="c#" runat="server">     
         public class ParaIn
         {
-            public string custno = "", addrfield = "";
+            public string custno = "", addrfield = "", option="";
         }
         
         public class Para
@@ -29,9 +29,10 @@
             {
                 item.addrfield = Request.QueryString["addrfield"];
             }
-            /*item.custno = "A0008";
-            item.addrfield = "invo";*/
-        
+            if (Request.QueryString["option"] != null && Request.QueryString["option"].Length > 0)
+            {
+                item.option = Request.QueryString["option"];
+            }
             //資料
             System.Data.DataTable dt = new System.Data.DataTable();
             using (System.Data.SqlClient.SqlConnection connSource = new System.Data.SqlClient.SqlConnection(connectionString))
@@ -40,6 +41,11 @@
                 connSource.Open();
                 string queryString = @"SET QUOTED_IDENTIFIER OFF
 	declare @cmd nvarchar(max)
+	
+	if len(@t_option)>0
+	begin
+		select top 1 @t_custno=memo from drun where noa='z_trans_es05' order by datea desc,timea desc
+	end
 	
 	declare @tmp table(
 		sel int identity(1,1)
@@ -62,6 +68,8 @@
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
                 cmd.Parameters.AddWithValue("@t_custno", item.custno);
                 cmd.Parameters.AddWithValue("@t_addrfield", item.addrfield);
+                cmd.Parameters.AddWithValue("@t_option", item.option);
+                
                 adapter.SelectCommand = cmd;
                 adapter.Fill(dt);
                 connSource.Close();
