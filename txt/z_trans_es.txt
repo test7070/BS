@@ -841,6 +841,7 @@ z_trans_es05:--z_trans_es05
 	declare @t_mon nvarchar(20) =case when '#non'=[24] then '' else [24] end
 	-----------------------------------------------------------------
 	-----------------------------------------------------------------
+	-----------------------------------------------------------------
 	declare @x_rate float =0
 	begin try
 		set @x_rate = CAST(@t_rate as float) 
@@ -849,7 +850,11 @@ z_trans_es05:--z_trans_es05
 		set @x_rate = 0 
 	end catch
 
-	declare @tmpa table(
+	IF OBJECT_ID('tempdb..#z_trans_es05')is not null
+	BEGIN
+		drop table #z_trans_es05
+	END
+	create table #z_trans_es05(
 		sel int identity(1,1)
 		,recno int
 		,pp int 
@@ -907,7 +912,7 @@ z_trans_es05:--z_trans_es05
 		set @xedate = dbo.AD2ChineseEraName(dateadd(DAY,-1, dateadd(MM,1,dbo.ChineseEraName2AD(@xbdate))))
 	end 
 	
-	insert into @tmpa(gno,pno,tranaccy,tranno,trannoq,custno,cust,serial,trandate
+	insert into #z_trans_es05(gno,pno,tranaccy,tranno,trannoq,custno,cust,serial,trandate
 		,mount3,mount4,[status],[weight],addr
 		,[money],tax,rs,casetype)
 	select '1',1,a.accy,a.noa,a.noq,a.custno,b.comp,b.serial,a.trandate
@@ -920,18 +925,17 @@ z_trans_es05:--z_trans_es05
 	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
 	--依客戶主檔上的收款方式來過濾條件
 	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
-	and (len(@t_payday)=0 or @t_payday=b.[getdate])
+	and ((len(@t_payday)=0 and len(isnull(b.[getdate],''))=0) or @t_payday=b.[getdate])
 	--
 	and a.trandate between @xbdate and @xedate
 	order by a.custno,a.trandate,a.noa
-
 	
 	if @t_isinvo = 'Y'
-		delete @tmpa where rs != 'Y'
+		delete #z_trans_es05 where rs != 'Y'
 	if @t_isinvo = 'N'
-		delete @tmpa where rs = 'Y'	
+		delete #z_trans_es05 where rs = 'Y'	
 	
-	insert into @tmpa(gno,pno,custno,cust,serial,trandate
+	insert into #z_trans_es05(gno,pno,custno,cust,serial,trandate
 		,item,itemmoney)
 	select '2',2,a.custno,b.comp,b.serial,a.datea
 		,ISNULL(a.plusitem,'')+ISNULL(a.minusitem,'')
@@ -946,60 +950,60 @@ z_trans_es05:--z_trans_es05
 	--
 	and a.datea between @xbdate and @xedate
 		
-	update @tmpa set total = ISNULL([money],0)+ISNULL([tax],0)
+	update #z_trans_es05 set total = ISNULL([money],0)+ISNULL([tax],0)
 	
 	--運費
-	insert into @tmpa(gno,pno,custno,[money],xmemo)
+	insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
 	select '3',3,custno,SUM(ISNULL([money],0)),'運費'
-	from @tmpa
+	from #z_trans_es05
 	where gno='1'
 	group by custno
 	--折扣
 	if @x_rate!=0
 	begin
-		insert into @tmpa(gno,pno,custno,[money],xmemo)
+		insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
 		select '4',4,a.custno,SUM(ISNULL(a.[money],0)),'折扣'+CAST(@x_rate as nvarchar)+'%'
 		from (select custno
 			,SUM( round(ISNULL([money],0)*@x_rate/100,0)) [money]
-			from @tmpa 
+			from #z_trans_es05 
 			where gno='1'
 			group by custno) a
 		group by a.custno
 	end
 	--稅金
-	insert into @tmpa(gno,pno,custno,[money],xmemo)
+	insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
 	select '4',5,custno,SUM(ISNULL([tax],0)),'稅金'
-	from @tmpa
+	from #z_trans_es05
 	where gno='1'
 	group by custno
 	--加減項
-	insert into @tmpa(gno,pno,custno,[money],xmemo)
+	insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
 	select '4',6,custno,SUM(ISNULL([itemmoney],0)),'加減項'
-	from @tmpa
+	from #z_trans_es05
 	where gno='2'
 	group by custno
 	--總計
 	if @x_rate!=0
 	begin
-		insert into @tmpa(gno,pno,custno,[money],xmemo)
+		insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
 		select '5',7,custno,SUM(ISNULL([money],0)),'總計'
-		from @tmpa
+		from #z_trans_es05
 		where gno='4'
 		group by custno
 	end
 	else
 	begin
-		insert into @tmpa(gno,pno,custno,[money],xmemo)
+		insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
 		select '5',7,custno,SUM(ISNULL([money],0)),'總計'
-		from @tmpa
+		from #z_trans_es05
 		where (gno='3' or gno='4') and pno!=4
 		group by custno
 	end
 	--請確認對帳的明細及金額，若有問題請於十天內反應本公司。
 	--移到總計那欄
-	--insert into @tmpa(gno,pno,custno)
+	--insert into #z_trans_es05(gno,pno,custno)
 	--select '5',8,custno
-	--from @tmpa
+	--from #z_trans_es05
 	--group by custno
 	------------------------------------------------------------------
 	declare @pagecount int = 37  --　　一頁幾筆
@@ -1007,7 +1011,7 @@ z_trans_es05:--z_trans_es05
 	declare @n int
 	
 	declare cursor_table cursor for
-	select custno,count(1) from @tmpa group by custno
+	select custno,count(1) from #z_trans_es05 group by custno
 	open cursor_table
 	fetch next from cursor_table
 	into @custno,@n
@@ -1015,7 +1019,7 @@ z_trans_es05:--z_trans_es05
 	begin	
 		while @n%@pagecount != 0
 		begin
-			insert into @tmpa(gno,pno,custno)values('6',9,@custno)
+			insert into #z_trans_es05(gno,pno,custno)values('6',9,@custno)
 			set @n = @n +1
 		end
 		fetch next from cursor_table
@@ -1025,38 +1029,41 @@ z_trans_es05:--z_trans_es05
 	deallocate cursor_table	
 	
 	-----------------------------------------------------------------------------
-	update @tmpa set cust=ISNULL(b.comp,'')
+	update #z_trans_es05 set cust=ISNULL(b.comp,'')
 		,tel = ISNULL(b.tel,'')
 		,fax = ISNULL(b.fax,'')
 		,[address] = ISNULL(b.addr_invo,'')
-	from @tmpa a
+	from #z_trans_es05 a
 	left join cust b on a.custno=b.noa 
 	
-	update @tmpa set cno=@t_cno
+	update #z_trans_es05 set cno=@t_cno
 		,acomp = ISNULL(b.acomp,'')
 		,atel = ISNULL(b.tel,'')
 		,afax = ISNULL(b.fax,'')
 		,aaddr= ISNULL(b.addr,'')
-	from @tmpa a
+	from #z_trans_es05 a
 	left join acomp b on b.noa=@t_cno
 ----------------------------------------------------------------------------
-	update @tmpa set recno=b.recno
-	from @tmpa a
-	left join (select sel,ROW_NUMBER()over(partition by custno order by pno,sel) recno from @tmpa) b on a.sel=b.sel
+	update #z_trans_es05 set recno=b.recno
+	from #z_trans_es05 a
+	left join (select sel,ROW_NUMBER()over(partition by custno order by pno,sel) recno from #z_trans_es05) b on a.sel=b.sel
 	
-	update @tmpa set pp= ceiling((recno-1)/@pagecount)+1
-	update @tmpa set qq = b.pp
-	from @tmpa a
-	outer apply (select MAX(pp) pp from @tmpa) b
+	update #z_trans_es05 set pp= ceiling((recno-1)/@pagecount)+1
+	update #z_trans_es05 set qq = b.pp
+	from #z_trans_es05 a
+	outer apply (select MAX(pp) pp from #z_trans_es05) b
 	
-	update @tmpa set conn=ISNULL(b.namea,'')
-	from @tmpa a
+	update #z_trans_es05 set conn=ISNULL(b.namea,'')
+	from #z_trans_es05 a
 	outer apply(select top 1 * from conn where noa=a.custno order by noq) b
+	
 ----------------------------------------------------------------------------	
 	--記錄有哪些客戶,  客戶標籤要印
 	declare @memo nvarchar(max)=''
 	declare cursor_table cursor for
-	select isnull(custno,'') from @tmpa where len(isnull(custno,''))>0 group by isnull(custno,'')
+	select isnull(custno,'') from #z_trans_es05 where len(isnull(custno,''))>0 
+	group by isnull(custno,'')
+	order by isnull(custno,'')
 	open cursor_table
 	fetch next from cursor_table
 	into @custno
@@ -1102,7 +1109,7 @@ z_trans_es05:--z_trans_es05
 		,dbo.getComma(itemmoney,-1) d02
 		,xmemo e01
 		,dbo.getComma([money],-1) e02
-	from @tmpa order by custno,pno,sel;
+	from #z_trans_es05 order by custno,pno,sel;
 
 z_trans_es04:--z_trans_es04 	
 	SET QUOTED_IDENTIFIER OFF	
