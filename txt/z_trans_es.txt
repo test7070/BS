@@ -243,7 +243,7 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,'應付：'+dbo.getComma(isnull([total],0),-1) d04	
 	from @tmp order by driverno,recno;
 
-z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
+z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
 	SET QUOTED_IDENTIFIER OFF
 	declare @t_path nvarchar(max) = '[1]'
 	declare @t_db nvarchar(max) = '[2]'
@@ -252,6 +252,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 	declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
 	declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
 	declare @t_cno nvarchar(20) = case when '#non'=[20] then '' else [20] end	
+	------------------------------------------------------------------------------
 	------------------------------------------------------------------------------
 	--出車單
 	declare @tmpa table(
@@ -373,7 +374,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車中一刀)
 	from @tmp 
 	group by driverno
 	-------------------------------------------------------------------------------------
-	declare @pagecount int = 12 --  一頁可印幾筆明細
+	declare @pagecount int = 34 --  一頁可印幾筆明細
 	declare @n int
 	declare @driverno nvarchar(20)
 	declare @tcarno nvarchar(max)
