@@ -373,6 +373,11 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
 		,SUM(isnull([money3],0)+isnull([money4],0))
 	from @tmp 
 	group by driverno
+	
+	insert into @tmp(gno,driverno)
+	select '4',driverno
+	from @tmp 
+	group by driverno
 	-------------------------------------------------------------------------------------
 	declare @pagecount int = 34 --  一頁可印幾筆明細
 	declare @n int
@@ -389,7 +394,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
 	begin	
 		while @n%@pagecount != 0
 		begin
-			insert into @tmp(gno,driverno)values('4',@driverno)
+			insert into @tmp(gno,driverno)values('5',@driverno)
 			set @n = @n +1
 		end
 		set @tcarno = ''
@@ -460,6 +465,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
 		,'扣佣金：'+dbo.getComma([money3],-1)d03
 		,'加減項：'+dbo.getComma([money4],-1) d04	
 		,'應付：'+dbo.getComma([total],-1) d05	
+		,'列印日期：'+dbo.AD2ChineseEraName(GETDATE())+'  帳單日期：'+@t_btrandate+' 到 '+@t_etrandate d06
 	from @tmp order by driverno,recno;
 		
 z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
@@ -591,6 +597,11 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,SUM(isnull([money3],0)+isnull([money4],0))
 	from @tmp 
 	group by driverno
+	
+	insert into @tmp(gno,driverno)
+	select '4',driverno
+	from @tmp 
+	group by driverno
 	-------------------------------------------------------------------------------------
 	declare @pagecount int = 35 --  一頁可印幾筆明細
 	declare @n int
@@ -607,7 +618,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	begin	
 		while @n%@pagecount != 0
 		begin
-			insert into @tmp(gno,driverno)values('4',@driverno)
+			insert into @tmp(gno,driverno)values('5',@driverno)
 			set @n = @n +1
 		end
 		set @tcarno = ''
@@ -650,6 +661,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	from @tmp a
 	left join driver b on a.driverno=b.noa
 	
+
 	select gno
 		,acomp c01
 		,aaddr c02
@@ -678,6 +690,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,'扣佣金：'+dbo.getComma([money3],-1)d03
 		,'加減項：'+dbo.getComma([money4],-1) d04	
 		,'應付：'+dbo.getComma([total],-1) d05	
+		,'列印日期：'+dbo.AD2ChineseEraName(GETDATE())+'  帳單日期：'+@t_btrandate+' 到 '+@t_etrandate d06
 	from @tmp order by driverno,recno;
 	
 
