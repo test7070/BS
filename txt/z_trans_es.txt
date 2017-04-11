@@ -500,7 +500,8 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	)
 	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
 		,size,addr,paytype,[money1],[money2],[money3])
-	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,c.nick
+	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno
+		,case when len(isnull(c.nick,''))=0 then a.nick else c.nick end
 		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
 		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
 		+case when len(ISNULL(a.[status],''))=0 then '' else a.[status]+'板' end
@@ -512,7 +513,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
 	from view_trans a
 	left join driver b on a.driverno=b.noa
-	left join cust c on a.custno=b.noa
+	left join cust c on a.custno=c.noa
 	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
 	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
@@ -907,8 +908,6 @@ z_trans_es05:--z_trans_es05
 	declare @t_payday nvarchar(20) =case when '#non'=[23] then '' else [23] end
 	declare @t_mon nvarchar(20) =case when '#non'=[24] then '' else [24] end
 	-----------------------------------------------------------------
-	-----------------------------------------------------------------
-	-----------------------------------------------------------------
 	declare @x_rate float =0
 	begin try
 		set @x_rate = CAST(@t_rate as float) 
@@ -968,16 +967,17 @@ z_trans_es05:--z_trans_es05
 	begin
 		set @xbdate = left(dbo.AD2ChineseEraName( DATEADD(MM,-1, dbo.ChineseEraName2AD(@t_mon+'/01'))),6)+'/'+RIGHT('00'+cast(cast(@t_payday as int)+1 as nvarchar),2)
 		set @xedate = @t_mon + '/' + RIGHT('00'+@t_payday,2)
-		
-		--set @xbdate = dbo.AD2ChineseEraName(DATEADD(DAY,1,dbo.ChineseEraName2AD(@xbdate)))
-		--set @xedate = @t_mon + '/01'
-		--set @xedate = left(dbo.AD2ChineseEraName(DATEADD(MM,1,dbo.ChineseEraName2AD(@xedate))),7)+RIGHT('00'+@t_payday,2)
 	end
 	else if len(@t_mon)>0
 	begin
 		set @xbdate = @t_mon + '/01'
 		set @xedate = dbo.AD2ChineseEraName(dateadd(DAY,-1, dateadd(MM,1,dbo.ChineseEraName2AD(@xbdate))))
 	end 
+	else
+	begin
+		set @xbdate = ''
+		set @xedate = CHAR(255)
+	end
 	
 	insert into #z_trans_es05(gno,pno,tranaccy,tranno,trannoq,custno,cust,serial,trandate
 		,mount3,mount4,[status],[weight],addr
@@ -992,7 +992,7 @@ z_trans_es05:--z_trans_es05
 	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
 	--依客戶主檔上的收款方式來過濾條件
 	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
-	and ((len(@t_payday)=0 and len(isnull(b.[getdate],''))=0) or @t_payday=b.[getdate])
+	and ((len(@t_payday)=0 and len(isnull(b.[getdate],''))=0) or @t_payday=b.[getdate] or len(@t_mon)=0)
 	--
 	and a.trandate between @xbdate and @xedate
 	order by a.custno,a.trandate,a.noa
