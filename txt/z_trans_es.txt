@@ -500,7 +500,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	)
 	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
 		,size,addr,paytype,[money1],[money2],[money3])
-	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,a.nick
+	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,c.nick
 		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
 		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
 		+case when len(ISNULL(a.[status],''))=0 then '' else a.[status]+'板' end
@@ -512,9 +512,64 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
 	from view_trans a
 	left join driver b on a.driverno=b.noa
+	left join cust c on a.custno=b.noa
 	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
 	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	
+	declare @n int
+	declare @driverno nvarchar(20)
+	declare @carno nvarchar(20)
+	---斷行
+	declare @slen int = 26
+	declare @sel int
+	
+	declare @accy nvarchar(10)
+	declare @noa nvarchar(20)
+	declare @noq nvarchar(10)
+	declare @date nvarchar(10)
+	declare @addr nvarchar(max)
+	
+	declare @string nvarchar(max)
+	
+	
+	declare cursor_table cursor for
+	select sel,driverno,carno,tranaccy,tranno,trannoq,trandate,addr from @tmpa where len(dbo.qleft(addr,@slen))!=len(addr)
+	open cursor_table
+	fetch next from cursor_table
+	into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		set @n = 0
+		while len(@addr)>0
+		begin
+			set @n = @n + 1
+			set @string = dbo.qleft(@addr,@slen)	
+			if LEN(@string)<LEN(@addr)
+				set @addr = SUBSTRING(@addr,LEN(@string)+1,len(@addr))
+			else
+			begin
+				set @string = @addr
+				set @addr = ''
+			end
+			if @n=1
+			begin
+				update @tmpa set addr=@string where sel=@sel
+			end
+			else
+			begin
+				insert into @tmpa(driverno,carno,tranaccy,tranno,trannoq,trandate,addr)
+				select @driverno,@carno,@accy,@noa,@noq,@date,@string 
+			end
+		end
+		
+
+		fetch next from cursor_table
+		into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
 	------------------------------------------------------------------------------
 	--加減項
 	declare @tmpb table(
@@ -582,7 +637,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	select '1' gno,driverno,carno,'trans_es',tranaccy,tranno,trannoq
 		,trandate,cust,size,addr,paytype,[money1],[money2],[money3]
 	from @tmpa
-	order by driverno,trandate,tranaccy,tranno,trannoq
+	order by driverno,trandate,tranaccy,tranno,trannoq,sel
 	
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
 		,datea,cust,size,addr,paytype,[money4])
@@ -604,10 +659,8 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	group by driverno
 	-------------------------------------------------------------------------------------
 	declare @pagecount int = 35 --  一頁可印幾筆明細
-	declare @n int
-	declare @driverno nvarchar(20)
 	declare @tcarno nvarchar(max)
-	declare @carno nvarchar(20)
+	
 	
 	declare cursor_table cursor for
 	select driverno,count(1) from @tmp group by driverno
