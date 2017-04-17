@@ -683,12 +683,16 @@
 			function btnPrevPage() {
 				_btnPrevPage();
 			}
-
+			
 			function btnNext() {
-				_btnNext();
+			    if (isUpDown == 1)
+                    return;
+                _btnNext();
 			}
 
 			function btnNextPage() {
+			    if (isUpDown == 1)
+			        return;
 				_btnNextPage();
 			}
 
