@@ -780,7 +780,8 @@
 					<td align="center" style="width:200px;">卸貨地點</td>
 					<td align="center" style="width:80px;">司機運費</td>
 					<td align="center" style="width:50px;">折扣</td>
-					<td align="center" style="width:80px;">司機淨付額</td>
+					<td align="center" style="width:100px;">實付<BR>(司機淨付額)</td>
+					<td align="center" style="width:100px;">應付</td>
 					<td align="center" style="width:150px;">出車單號</td>
 				</tr>
 				<tr  style='background:#cad3ff;'>
@@ -790,11 +791,12 @@
 					</td>
 					<td><a id="lblNo.*" style="font-weight: bold;text-align: center;display: block;"> </a></td>
 					<td><input type="text" id="txtTrandate.*" style="width:95%;" /></td>
-					<td><input type="text" id="txtShip.*" style="width:95%;" /></td>
+					<td><input type="text" id="txtCasetype.*" style="width:95%;" /></td>
 					<td><input type="text" id="txtComp.*" style="width:95%;" /></td>
 					<td><input type="text" id="txtStraddr.*" style="width:95%;" /></td>
 					<td><input type="text" id="txtPrice.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtDiscount.*" style="width:95%;text-align: right;" /></td>
+					<td><input type="text" id="txtTolls.*" style="width:95%;text-align: right;" /></td>
 					<td><input type="text" id="txtMoney.*" style="width:95%;text-align: right;" /></td>
 					<td>
 						<input type="text" id="txtTranaccy.*" style="display:none"/>

@@ -192,17 +192,19 @@ import:--import	 tre_es.txt
 		,mount4 float	
 		
 		,aaddr nvarchar(max)
+		,ship nvarchar(20)
 	)
 	insert into @tmp(tranaccy,tranno,trannoq,datea,trandate,comp,straddrno,straddr,carno,driverno,driver
 		,inmount,pton,mount,price,price2,price3,discount,reserve,[weight],outmount,pton2,mount2
-		,total,total2,[status],mount3,mount4,aaddr)
+		,total,total2,[status],mount3,mount4,aaddr,ship)
 	select a.accy,a.noa,a.noq,a.datea,a.trandate,a.comp,a.straddrno,a.straddr,a.carno,isnull(a.driverno,''),isnull(a.driver,'')
 		,a.inmount,a.pton,a.mount,a.price,a.price2,a.price3,a.discount,a.reserve,a.[weight],a.outmount,a.pton2,a.mount2
-		,a.total,a.total2,a.[status],a.mount3,a.mount4,a.aaddr
+		,a.total,a.total2,a.[status],a.mount3,a.mount4,a.aaddr,a.ship
 	from view_trans a
 	where isnull(a.trandate,'') between @t_bdate and @t_edate
 	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
 	and (len(@t_driverno)=0 or CHARINDEX(','+a.driverno+',',','+@t_driverno+',')>0)
+	order by a.trandate,a.noa,a.noq
 	
 	--刪除已匯入過的
 	delete @tmp 
@@ -261,16 +263,22 @@ import:--import	 tre_es.txt
 		,addr nvarchar(50)
 		,price float
 		,discount float
-		,[money] float
+		,[money1] float
+		,[money2] float
 		
 		,tranaccy nvarchar(10)
 		,tranno nvarchar(20)
 		,trannoq nvarchar(10)
 	)
-	insert into #tres_es(noa,noq,trandate,comp,carno,driverno,driver,addrno,addr,price,discount,[money],tranaccy,tranno,trannoq)
-	select '' noa,''noq,trandate,comp,carno,driverno,driver,''straddrno,aaddr,price2,discount,total2,tranaccy,tranno,trannoq
-	from @tmp
-	
+	insert into #tres_es(noa,noq,trandate,comp,carno,driverno,driver,addrno,addr,price,discount,[money1],[money2],tranaccy,tranno,trannoq)
+	select '' noa,'' noq,a.trandate,a.comp,a.carno,a.driverno,a.driver,''straddrno,a.aaddr,a.price2,a.discount
+		,a.total2
+		,case when charindex('公司',isnull(b.cartype,''))>0  then a.total2 else isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end end
+		,a.tranaccy,a.tranno,a.trannoq
+	from @tmp a
+	left join driver b on a.driverno=b.noa
+	order by a.trandate,a.sel
+
 	-----------------------------------------------------------------------------------------------
 	declare @string nvarchar(max) = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 	
@@ -320,7 +328,7 @@ import:--import	 tre_es.txt
 		close cursor_table2
 		deallocate cursor_table2	
 	
-		select @money=SUM(ISNULL([money],0)) from #tres_es where driverno=@driverno
+		select @money=SUM(ISNULL([money2],0)) from #tres_es where driverno=@driverno
 		select @total = isnull(@money,0) + isnull(@plusmoney,0) - isnull(@minusmoney,0)
 		-----------------------------------------------------
 		select @noa='',@maxno1='',@maxno2=''
@@ -386,8 +394,8 @@ import:--import	 tre_es.txt
 		execute sp_executesql @cmd
 		
 		set @cmd=
-		"insert into tres"+@accy+"(noa,noq,trandate,comp,driverno,driver,ship,straddr,price,discount,[money],tranaccy,tranno,trannoq)
-		select noa,noq,trandate,comp,driverno,driver,carno,addr,price,discount,[money],tranaccy,tranno,trannoq from #tres_es"
+		"insert into tres"+@accy+"(noa,noq,trandate,comp,driverno,driver,casetype,straddr,price,discount,tolls,[money],tranaccy,tranno,trannoq)
+		select noa,noq,trandate,comp,driverno,driver,carno,addr,price,discount,[money1],[money2],tranaccy,tranno,trannoq from #tres_es"
 		execute sp_executesql @cmd
 		
 		insert into tgg(noa,comp,nick,serial,tel,mobile,zip_home,addr_home,memo)
