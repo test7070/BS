@@ -5,6 +5,8 @@ tre2pay:--tre2pay  tre_es.txt
 	declare @t_key nvarchar(10) = [1] --'FD'
 	declare @t_date nvarchar(10) = [2] --'106/02/28'
 	declare @t_tggno nvarchar(max) = [3] --'B894'
+	declare @t_paydate nvarchar(max) = [4] --''
+	declare @t_cno nvarchar(max) = [5] --''
 	-----------------------------------------------------------------------------------------------------
 	set @t_tggno = ','+replace(@t_tggno,'&',',')+','
 	declare @tmp table(
@@ -21,7 +23,7 @@ tre2pay:--tre2pay  tre_es.txt
 	)
 	insert into @tmp(accy,noa,datea,mon,tggno,tgg
 		,total,payed,unpay)
-	select a.accy,a.noa,a.datea,a.mon,a.tggno,a.tgg
+	select a.accy,a.noa,@t_paydate,a.mon,a.tggno,a.tgg
 		,a.total,0,a.total 
 	from view_tre a
 	where a.datea=@t_date
@@ -35,6 +37,7 @@ tre2pay:--tre2pay  tre_es.txt
 	---------------------------------------------------------------------------------------
 	declare @tmpPay table(
 		sel int identity(1,1)
+		,cno nvarchar(20)
 		,noa nvarchar(20)
 		,datea nvarchar(20)
 		,mon nvarchar(10)
@@ -89,8 +92,8 @@ tre2pay:--tre2pay  tre_es.txt
 		set @n = (charindex(left(RIGHT(@noa,3),1),@string)-1)*100 + cast(RIGHT(@noa,2) as int) + 1
 		set @noa = @t_key+REPLACE(@datea,'/','')+SUBSTRING(@string, floor(@n/100)+1,1) + right('00'+cast(@n%100 as nvarchar),2)
 		----PAY
-	    insert into @tmpPay(noa,datea,mon,tggno,tgg,sale,total,paysale)
-	    select @noa,a.datea,a.mon,a.tggno,a.tgg,a.unpay,a.unpay,a.unpay
+	    insert into @tmpPay(cno,noa,datea,mon,tggno,tgg,sale,total,paysale)
+	    select @t_cno,@noa,a.datea,a.mon,a.tggno,a.tgg,a.unpay,a.unpay,a.unpay
 	    from @tmp a
 	    where a.sel=@sel
 		----PAYS
@@ -118,7 +121,7 @@ tre2pay:--tre2pay  tre_es.txt
 
 	begin try
 		insert into pay(cno,noa,datea,mon,tggno,comp,sale,total,paysale)
-		select '',noa,datea,mon,tggno,tgg,sale,total,paysale
+		select cno,noa,datea,mon,tggno,tgg,sale,total,paysale
 		from @tmpPay
 		
 		insert into pays(noa,noq,acc1,acc2,[money],bankno,bank,account
@@ -154,6 +157,7 @@ import:--import	 tre_es.txt
 	declare @t_edate nvarchar(20) = [4] --'105/09/30'
 	declare @t_carno nvarchar(max) = [5] --''
 	declare @t_driverno nvarchar(max) = [6] --''
+	declare @t_cartype nvarchar(max) = [7] -- 公司車  OR 外車
 	----------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------
 	declare @tmp table(
@@ -201,9 +205,11 @@ import:--import	 tre_es.txt
 		,a.inmount,a.pton,a.mount,a.price,a.price2,a.price3,a.discount,a.reserve,a.[weight],a.outmount,a.pton2,a.mount2
 		,a.total,a.total2,a.[status],a.mount3,a.mount4,a.aaddr,a.ship
 	from view_trans a
+	left join driver b on a.driverno=b.noa
 	where isnull(a.trandate,'') between @t_bdate and @t_edate
 	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
 	and (len(@t_driverno)=0 or CHARINDEX(','+a.driverno+',',','+@t_driverno+',')>0)
+	and ((@t_cartype='公司車' and charindex('公司',isnull(b.cartype,''))>0) or (@t_cartype!='公司車' and charindex('公司',isnull(b.cartype,''))=0) )
 	order by a.trandate,a.noa,a.noq
 	
 	--刪除已匯入過的

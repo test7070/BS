@@ -33,7 +33,8 @@
 
             q_xchg = 1;
             brwCount2 = 20;
-
+			
+			var t_acomp= "";
             function sum(){
             	
             }
@@ -42,7 +43,7 @@
                 bbmKey = ['noa'];
                 bbsKey = ['noa', 'noq'];
                 q_brwCount();
-                q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
+                q_gt('acomp', '', 0, 0, 0, "");
             });
             function main() {
                 if (dataErr) {
@@ -55,9 +56,13 @@
             function mainPost() {
             	
                 q_getFormat();
-                bbmMask = [['txtDatea_import', r_picd],['txtBdate_import', r_picd], ['txtEdate_import', r_picd],['txtDatea', r_picd], ['txtDate2', r_picd], ['txtBdate', r_picd], ['txtEdate', r_picd], ['txtPaydate', r_picd], ['txtMon', r_picm]];
+                bbmMask = [['txtDatea_import', r_picd],['txtBdate_import', r_picd], ['txtEdate_import', r_picd],['txtDatea', r_picd], ['txtDate2', r_picd], ['txtBdate', r_picd], ['txtEdate', r_picd], ['txtPaydate', r_picd]
+                	, ['txtMon', r_picm], ['textDate', r_picd], ['textBdate', r_picd], ['textEdate', r_picd], ['textDate_2pay', r_picd], ['textPaydate_2pay', r_picd]];
                 q_mask(bbmMask);
                 
+                q_cmbParse("combAcomp_2pay", t_acomp);
+                q_cmbParse("combCartype", "外車,公司車");
+               
                 $('#lblDate_import').text('取貨日期');
 
                 $('#lblAccno').click(function() {
@@ -130,9 +135,10 @@
                    		var t_edate = $('#textEdate').val();
                    		var t_carno = $('#textCarno').val();
                    		var t_driverno = $('#textDriverno').val();
+                   		var t_cartype = $('#combCartype').val();
                    		
                    		t_key = (t_key.length==0?'BJ':t_key);//一定要有值
-                   		q_func('qtxt.query.tre_es', 'tre_es.txt,import,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';'+ encodeURI(t_bdate) + ';' + encodeURI(t_edate)+ ';' + encodeURI(t_carno)+ ';' + encodeURI(t_driverno));
+                   		q_func('qtxt.query.tre_es', 'tre_es.txt,import,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';'+ encodeURI(t_bdate) + ';' + encodeURI(t_edate)+ ';' + encodeURI(t_carno)+ ';' + encodeURI(t_driverno)+ ';' + encodeURI(t_cartype));
                 	}
                 });
                 $('#textDate').keydown(function(e) {
@@ -150,6 +156,8 @@
                 $('#textEdate').datepicker();
                 //-----------------------------------------------
                 $('#textDate_2pay').datepicker();
+                $('#textPaydate_2pay').datepicker();
+                
                 $('#div2pay').mousedown(function(e) {
                     if (e.button == 2) {
                         $(this).data('xtop', parseInt($(this).css('top')) - e.clientY);
@@ -177,9 +185,15 @@
                    		var t_key = q_getPara('sys.key_pay');
                    		var t_date = $('#textDate_2pay').val();
                    		var t_driverno = $('#textDriverno_2pay').val().replace(',','&');
+                   		var t_paydate = $('#textPaydate_2pay').val();
+                   		var t_cno = $('#combAcomp_2pay').val();
                    		
-                   		t_key = (t_key.length==0?'FD':t_key);//一定要有值
-                   		q_func('qtxt.query.tre2pay', 'tre_es.txt,tre2pay,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';' + encodeURI(t_driverno));
+                   		if(t_paydate.length==0){
+                   			alert('請輸入付款日期');
+                   		}else{
+                   			t_key = (t_key.length==0?'FD':t_key);//一定要有值
+                   			q_func('qtxt.query.tre2pay', 'tre_es.txt,tre2pay,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';' + encodeURI(t_driverno)+ ';' + encodeURI(t_paydate)+ ';' + encodeURI(t_cno));
+                   		}
                 	}
                 });
             }
@@ -231,6 +245,16 @@
 
             function q_gtPost(t_name) {
                 switch (t_name) {
+                	case 'acomp':
+                		var as = _q_appendData("acomp", "", true);
+						if (as[0] != undefined) {
+							t_acomp = "@";
+							for ( i = 0; i < as.length; i++) {
+								t_acomp = t_acomp + (t_acomp.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].acomp;
+							}
+						}
+                		q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
+                		break;
                 	case 'btnDele':
                 		var as = _q_appendData("pays", "", true);
                         if (as[0] != undefined) {
@@ -592,7 +616,7 @@
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	>
 		<!--#include file="../inc/toolbar.inc"-->
-		<div id="divImport" style="position:absolute; top:180px; left:600px; display:none; width:400px; height:200px; background-color: #cad3ff; border: 5px solid gray;">
+		<div id="divImport" style="position:absolute; top:180px; left:600px; display:none; width:400px; height:230px; background-color: #cad3ff; border: 5px solid gray;">
 			<table style="width:100%;">
 				<tr style="height:1px;">
 					<td style="width:150px;"></td>
@@ -613,6 +637,12 @@
 					<input id="textBdate"  type="text" style="float:left; width:100px; font-size: medium;"/>
 					<span style="float:left; display:block; width:25px;"><a>～</a></span>
 					<input id="textEdate"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblCartype_import" style="float:right; color: blue; font-size: medium;">類別</a></td>
+					<td colspan="4">
+						<select id="combCartype" style="float:left; width:225px; font-size: medium;"> </select>
 					</td>
 				</tr>
 				<tr style="height:35px;">
@@ -637,7 +667,7 @@
 			</table>
 		</div>
 		
-		<div id="div2pay" style="position:absolute; top:250px; left:600px; display:none; width:400px; height:150px; background-color: #cad3ff; border: 5px solid gray;">
+		<div id="div2pay" style="position:absolute; top:250px; left:600px; display:none; width:400px; height:220px; background-color: #cad3ff; border: 5px solid gray;">
 			<table style="width:100%;">
 				<tr style="height:1px;">
 					<td style="width:150px;"></td>
@@ -656,6 +686,18 @@
 					<td><span> </span><a id="lblDriverno_2pay" style="float:right; color: blue; font-size: medium;">司機</a></td>
 					<td colspan="4">
 						<input id="textDriverno_2pay"  type="text" style="float:left; width:225px; font-size: medium;" title="多個司機用,區隔"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblPaydate_2pay" style="float:right; color: blue; font-size: medium;">付款日期</a></td>
+					<td colspan="4">
+					<input id="textPaydate_2pay"  type="text" style="float:left; width:100px; font-size: medium;"/>
+					</td>
+				</tr>
+				<tr style="height:35px;">
+					<td><span> </span><a id="lblAcomp_2pay" style="float:right; color: blue; font-size: medium;">公司</a></td>
+					<td colspan="4">
+						<select id="combAcomp_2pay" style="float:left; width:225px; font-size: medium;"> </select>
 					</td>
 				</tr>
 				<tr style="height:35px;">
