@@ -867,13 +867,15 @@ z_trans_es06:--z_trans_es06  ref.z_trans_es01
 		,rs nvarchar(20)
 		,aaddr nvarchar(max)
 		,custdiscount float
+		,casetype nvarchar(20)
 	)
 	insert into @tmp(pno,gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
 	,straddrno,straddr,inmount,pton,mount,price,total,outmount,pton2,mount2,price2,price3,discount,total2
-	,mount3,mount4,[status],[weight],ship,rs,aaddr,custdiscount)
+	,mount3,mount4,[status],[weight],ship,rs,aaddr,custdiscount,casetype)
 	select 1,'1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
 	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.outmount,a.pton2,a.mount2,a.price2,a.price3
 	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship,a.rs,a.aaddr,a.custdiscount
+	,a.casetype
 	from view_trans a
 	where a.trandate between @t_btrandate and @t_etrandate
 	and a.datea between @t_bdate and @t_edate
@@ -1461,15 +1463,17 @@ z_trans_es01:--z_trans_es01
 		,ship nvarchar(20) --收款方式
 		,rs nvarchar(20)
 		,aaddr nvarchar(max)
+		,casetype nvarchar(20)
 	)
 	insert into @tmp(pno,gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
 	,straddrno,straddr,inmount,pton,mount,price,total,tax,ttotal
 	,outmount,pton2,mount2,price2,price3,discount,total2
-	,mount3,mount4,[status],[weight],ship,rs,aaddr)
+	,mount3,mount4,[status],[weight],ship,rs,aaddr,casetype)
 	select 1,'1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
 	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.reserve,ISNULL(a.total,0)+ISNULL(a.reserve,0)
 	,a.outmount,a.pton2,a.mount2,a.price2,a.price3
 	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship,a.rs,a.aaddr
+	,a.casetype
 	from view_trans a
 	where a.trandate between @t_btrandate and @t_etrandate
 	and a.datea between @t_bdate and @t_edate
@@ -1535,6 +1539,7 @@ z_trans_es01:--z_trans_es01
 		,dbo.getComma([total2],-1) a15
 		,dbo.getComma([tax],-1) a16
 		,dbo.getComma([ttotal],-1) a17
+		,casetype a18
 	from @tmp
 	order by pno,sel;
 	
