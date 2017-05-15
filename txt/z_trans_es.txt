@@ -142,12 +142,13 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 		,minusitem nvarchar(max)
 		,minusmoney float
 		,memo nvarchar(max)
+		,cust nvarchar(max)
 	)
 	insert into @tmpb(driverno,driver,carno,noa,datea
-		,plusitem,plusmoney,minusitem,minusmoney,memo)
+		,plusitem,plusmoney,minusitem,minusmoney,memo,cust)
 	select a.driverno,a.driver,a.carno,a.noa,a.datea
 		,isnull(a.plusitem,''),isnull(a.plusmoney,'')
-		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo
+		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo,a.cust
 	from carchg a
 	left join driver b on a.driverno=b.noa
 	where charindex('公司',isnull(b.cartype,''))>0  --顯示公司車
@@ -200,7 +201,7 @@ z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
 		,datea,cust,size,addr,paytype,[money4])
 	select '2' gno,driverno,carno,'carchg','',noa,''
-		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
+		,datea,cust,'' size,plusitem+minusitem,'' paytype
 		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
@@ -394,6 +395,8 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
 	end
 	close cursor_table
 	deallocate cursor_table	
+	
+	------------------------------------------------------------------------------
 	------------------------------------------------------------------------------
 	--加減項
 	declare @tmpb table(
@@ -408,12 +411,13 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
 		,minusitem nvarchar(max)
 		,minusmoney float
 		,memo nvarchar(max)
+		,cust nvarchar(max)
 	)
 	insert into @tmpb(driverno,driver,carno,noa,datea
-		,plusitem,plusmoney,minusitem,minusmoney,memo)
+		,plusitem,plusmoney,minusitem,minusmoney,memo,cust)
 	select a.driverno,a.driver,a.carno,a.noa,a.datea
 		,isnull(a.plusitem,''),isnull(a.plusmoney,'')
-		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo
+		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo,isnull(a.cust,'')
 	from carchg a
 	left join driver b on a.driverno=b.noa
 	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
@@ -466,7 +470,7 @@ z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
 		,datea,cust,size,addr,paytype,[money4])
 	select '2' gno,driverno,carno,'carchg','',noa,''
-		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
+		,datea,cust,'' size,plusitem+minusitem,'' paytype
 		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
@@ -685,12 +689,13 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 		,minusitem nvarchar(max)
 		,minusmoney float
 		,memo nvarchar(max)
+		,cust nvarchar(max)
 	)
 	insert into @tmpb(driverno,driver,carno,noa,datea
-		,plusitem,plusmoney,minusitem,minusmoney,memo)
+		,plusitem,plusmoney,minusitem,minusmoney,memo,cust)
 	select a.driverno,a.driver,a.carno,a.noa,a.datea
 		,isnull(a.plusitem,''),isnull(a.plusmoney,'')
-		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo
+		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo,isnull(a.cust,'')
 	from carchg a
 	left join driver b on a.driverno=b.noa
 	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
@@ -743,7 +748,7 @@ z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
 	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
 		,datea,cust,size,addr,paytype,[money4])
 	select '2' gno,driverno,carno,'carchg','',noa,''
-		,datea,'' cust,'' size,plusitem+minusitem,'' paytype
+		,datea,cust,'' size,plusitem+minusitem,'' paytype
 		,plusmoney-minusmoney
 	from @tmpb
 	order by driverno,datea,noa
