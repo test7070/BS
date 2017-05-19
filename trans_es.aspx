@@ -245,7 +245,7 @@
 					q_func('qtxt.query.batch_transmoney_es', 'trans_es.txt,batch_transmoney_es,' + encodeURI(t_btrandate)+';'+encodeURI(t_etrandate)+';'+encodeURI(t_custno));
 				});
 				
-				AddDataList('txtCasetype','3.5T車,8.8T車,10.5T車,15T車,17T車,26T車,板車');
+				AddDataList('txtCasetype','3.5T車,8.8T車,10.5T車,15T車,17T車,23T車,26T車,板車');
 				
 				$('#txtComp').bind('contextmenu', function(e) {
                     /*滑鼠右鍵*/
