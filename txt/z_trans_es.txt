@@ -1099,7 +1099,10 @@ z_trans_es05:--z_trans_es05
 	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
 	--依客戶主檔上的收款方式來過濾條件
 	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
-	and ((len(@t_payday)=0 and len(isnull(b.[getdate],''))=0) or @t_payday=b.[getdate] or len(@t_mon)=0)
+	and ((@t_paytype_cust='月結' and @t_payday=isnull(b.[getdate],''))
+		or @t_paytype_cust!='月結')
+	
+	--and ((len(@t_payday)=0 and len(isnull(b.[getdate],''))=0) or @t_payday=b.[getdate] or len(@t_mon)=0)
 	--
 	and a.trandate between @xbdate and @xedate
 	order by a.custno,a.trandate,a.noa

@@ -159,7 +159,6 @@ import:--import	 tre_es.txt
 	declare @t_driverno nvarchar(max) = [6] --''
 	declare @t_cartype nvarchar(max) = [7] -- 公司車  OR 外車
 	----------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
 		,tranaccy nvarchar(10)
@@ -325,7 +324,7 @@ import:--import	 tre_es.txt
 		into @noa,@plus,@minus
 		while(@@FETCH_STATUS <> -1)
 		begin
-			select @carchgno = case when len(@carchgno)>0 then ',' else '' end+@noa
+			select @carchgno = @carchgno + case when len(@carchgno)>0 then ',' else '' end+@noa
 				,@plusmoney=@plusmoney+ISNULL(@plus,0)
 				,@minusmoney=@minusmoney+ISNULL(@minus,0)
 			fetch next from cursor_table2
