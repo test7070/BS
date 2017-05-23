@@ -8,7 +8,7 @@ tre2pay:--tre2pay  tre_es.txt
 	declare @t_paydate nvarchar(max) = [4] --''
 	declare @t_cno nvarchar(max) = [5] --''
 	-----------------------------------------------------------------------------------------------------
-	set @t_tggno = ','+replace(@t_tggno,'&',',')+','
+	set @t_tggno = replace(@t_tggno,'&',',')
 	declare @tmp table(
 		sel int identity(1,1)
 		,accy nvarchar(20)
