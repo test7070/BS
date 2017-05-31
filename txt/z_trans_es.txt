@@ -12,6 +12,7 @@ z_trans_es11:--z_trans_es11
 	declare @t_paytype nvarchar(max) = case when '#non'=[15] then '' else [15] end
 	declare @t_isinvo nvarchar(max) = case when '#non'=[16] then '' else [16] end
 	----------------------------------------------------------------------
+	----------------------------------------------------------------------
 	declare @tmp table(
 		sel int identity(1,1)
 		,gno nvarchar(10)
@@ -21,6 +22,7 @@ z_trans_es11:--z_trans_es11
 		,noa nvarchar(20)
 		,noq nvarchar(10)
 		,custno nvarchar(20)
+		,cust nvarchar(50)
 		,driverno nvarchar(20)
 		,paytype nvarchar(20)  -- 月結,現金,回收
 		,isTax nvarchar(10)    -- 開發票
@@ -53,13 +55,36 @@ z_trans_es11:--z_trans_es11
 	from @tmp a
 	left join driver b on a.driverno=b.noa
 	
-	insert into @tmp(gno,pno,m01,m02,m03,m04,m05,m06)
-	select '2',2,SUM(ISNULL(m01,0)),SUM(ISNULL(m02,0)),SUM(ISNULL(m03,0))
+	insert into @tmp(gno,pno,custno,m01,m02,m03,m04,m05,m06)
+	select '2',2,custno,SUM(ISNULL(m01,0)),SUM(ISNULL(m02,0)),SUM(ISNULL(m03,0))
 		,SUM(ISNULL(m04,0)),SUM(ISNULL(m05,0)),SUM(ISNULL(m06,0))
 	from @tmp
+	where gno='1'
+	group by custno
 	
+	insert into @tmp(gno,pno,custno,m01,m02,m03,m04,m05,m06)
+	select '3',3,CHAR(255),SUM(ISNULL(m01,0)),SUM(ISNULL(m02,0)),SUM(ISNULL(m03,0))
+		,SUM(ISNULL(m04,0)),SUM(ISNULL(m05,0)),SUM(ISNULL(m06,0))
+	from @tmp
+	where gno='1'
 	
-	select * from @tmp order by pno,sel;
+	delete @tmp where gno='1'
+	
+	update @tmp set cust=b.nick
+	from @tmp a
+	left join cust b on a.custno=b.noa
+	
+	select gno 
+		,@t_btrandate + '～' + @t_etrandate a01
+		,custno b01
+		,cust b02
+		,dbo.getComma(m01,-1) b03
+		,dbo.getComma(m02,-1) b04
+		,dbo.getComma(m03,-1) b05
+		,dbo.getComma(m04,-1) b06
+		,dbo.getComma(m05,-1) b07
+		,dbo.getComma(m06,-1) b08
+	from @tmp order by pno,sel;;
 
 
 z_trans_es10:--z_trans_es10 客戶信封標籤  11cm*3.5cm
