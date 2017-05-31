@@ -35,7 +35,7 @@ z_trans_es11:--z_trans_es11
 		,m03 float -- 回收
 		,m04 float -- 稅額
 		,m05 float -- 毛利
-		,m06 float -- 差額
+		,m06 float -- 差額 (應付)
 	)
 	insert into @tmp(gno,pno,tablea,accy,noa,noq,custno,driverno,paytype,isTax,total,total2,tax)
 	select '1',1,'trans',a.accy,a.noa,a.noq,a.custno,a.driverno,a.ship,a.rs,a.total,a.total2,a.reserve
@@ -44,6 +44,8 @@ z_trans_es11:--z_trans_es11
 	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
 	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
 	and not(a.total=0 and a.total2=0 and a.reserve=0)
+	and (len(@t_paytype)=0 or @t_paytype=a.ship)
+	and (len(@t_isinvo)=0 or @t_isinvo=a.rs or (@t_isinvo='N' and len(ISNULL(a.rs,''))=0))
 	
 	
 	update @tmp set m01 = case paytype when '月結' then total else 0 end
@@ -84,7 +86,7 @@ z_trans_es11:--z_trans_es11
 		,dbo.getComma(m04,-1) b06
 		,dbo.getComma(m05,-1) b07
 		,dbo.getComma(m06,-1) b08
-	from @tmp order by pno,sel;;
+	from @tmp order by pno,sel;
 
 
 z_trans_es10:--z_trans_es10 客戶信封標籤  11cm*3.5cm
