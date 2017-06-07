@@ -75,7 +75,7 @@
                 });
                 
                 $('#buttonTran').click(function(e){
-                	Lock(2);
+                	//Lock(2);
                 	q_cur=2;
                 	$('#divTran').show();
                 });
@@ -424,7 +424,7 @@
 	ondragover="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	>
-		<div id="divTran" style="z-index: 1000;position:absolute; top:300px; left:300px; display:none; width:400px; height:250px; background-color: #cad3ff; border: 5px solid gray;">
+		<div id="divTran" style="position:absolute; top:300px; left:300px; display:none; width:400px; height:250px; background-color: #cad3ff; border: 5px solid gray;">
 			<table style="width:100%;">
 				<tr style="height:1px;">
 					<td style="width:150px;"> </td>
