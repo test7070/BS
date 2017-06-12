@@ -61,9 +61,11 @@
                 + q_sqlPara2("tggno", t_tggno) ;
                 
                 if (t_driverno.length > 0)
-                    t_where += " and exists(select view_tres"+r_accy+".noa from view_tres"+r_accy+" where view_tres"+r_accy+".noa=view_tre"+r_accy+".noa and  charindex('"+t_driverno+"',view_tres"+r_accy+".driverno)>0)";
+                	t_where += " and charindex('"+t_driverno+"',driverno)>0";
+                    //t_where += " and exists(select view_tres"+r_accy+".noa from view_tres"+r_accy+" where view_tres"+r_accy+".noa=view_tre"+r_accy+".noa and  charindex('"+t_driverno+"',view_tres"+r_accy+".driverno)>0)";
                 if (t_driver.length > 0)
-                    t_where += " and exists(select view_tres"+r_accy+".noa from view_tres"+r_accy+" where view_tres"+r_accy+".noa=view_tre"+r_accy+".noa and  charindex('"+t_driver+"',view_tres"+r_accy+".driver)>0)";
+                	t_where += " and  charindex('"+t_driver+"',driver)>0";
+                    //t_where += " and exists(select view_tres"+r_accy+".noa from view_tres"+r_accy+" where view_tres"+r_accy+".noa=view_tre"+r_accy+".noa and  charindex('"+t_driver+"',view_tres"+r_accy+".driver)>0)";
 				if(t_tranno.length>0)
 		       		t_where += " and exists(select view_tres"+r_accy+".noa from view_tres"+r_accy+" where view_tres"+r_accy+".noa=view_tre"+r_accy+".noa and view_tres"+r_accy+".tranno='"+t_tranno+"')";
                
