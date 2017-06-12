@@ -36,7 +36,12 @@
 			
 			var t_acomp= "";
             function sum(){
-            	
+            	var t_money=0,t_total=0;
+            	for(var i=0;i<q_bbsCount;i++){
+            		t_money = q_add(t_money,q_float('txtMoney_'+i));
+            	}
+            	t_total = t_money + q_float('txtPlusmoney') - q_float('txtMinusmoney');
+            	$('#txtTotal').val(t_total);
             }
 
             $(document).ready(function() {
