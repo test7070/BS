@@ -232,6 +232,12 @@ import:--import	 tre_es.txt
 	outer apply (select top 1 * from view_tre where CHARINDEX(','+a.noa+',',','+carchgno+',')>0) b
 	where b.noa is null
 	and a.datea between @t_bdate and @t_edate
+	
+	--刪除沒有出車單的
+	delete @tmpcarchg 
+	from @tmpcarchg a
+	outer apply (select top 1 noa from @tmp where driverno=a.driverno) b
+	where b.noa is null
 	---------------------------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#tre_es')is not null
 	BEGIN
