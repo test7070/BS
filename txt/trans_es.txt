@@ -37,6 +37,9 @@ batch_transmoney_es:--batch_transmoney_es  批次修改金額
 	declare @addrno nvarchar(20)
 	declare @weight float
 	
+	declare @preprice float
+	declare @premoney float
+	
 	declare @price float
 	declare @rate float
 	declare @money float
@@ -49,14 +52,15 @@ batch_transmoney_es:--batch_transmoney_es  批次修改金額
 	
 		declare cursor_table cursor for
 		
-		select accy,noa,noq,trandate,straddrno,[weight]
+		select accy,noa,noq,trandate,straddrno,[weight],price,total
 		from view_trans 
 		where custno=@t_custno
 		and trandate between @t_btrandate and @t_etrandate
-		
+		and len(isnull(straddrno,''))>0 --要有地點,不然沒單價
+		 
 		open cursor_table
 		fetch next from cursor_table
-		into @accy,@noa,@noq,@trandate,@addrno,@weight
+		into @accy,@noa,@noq,@trandate,@addrno,@weight,@preprice,@premoney
 		while(@@FETCH_STATUS <> -1)
 		begin
 			select @price=0,@rate=0,@money=0,@msg=''
@@ -73,9 +77,20 @@ batch_transmoney_es:--batch_transmoney_es  批次修改金額
 				execute sp_executesql @cmd,N'@noa nvarchar(20),@noq nvarchar(10),@price float,@rate float,@money float'
 					,@noa=@noa,@noq=@noq,@price=@price,@rate=@rate,@money=@money
 				IF @@Error <> 0 BEGIN SET @chk = 1 END
+				
+				insert into drun(datea,timea,usera,[action],noa,tablea,accno,title,memo)
+				select left(CONVERT(nvarchar,getdate(),111),10) 
+					,left(CONVERT(nvarchar,getdate(),108),5)
+					,'batch_transmoney_es','Edit',isnull(@noa,'')+'-'+isnull(@noq,'')
+					,'trans'+@accy,'出車單'
+					,'批次修改金額'
+					,'PRIEC:'+CAST(isnull(@preprice,0) as nvarchar)+'->'+CAST(@price as nvarchar)
+					+' TOTAL:'+CAST(isnull(@premoney,0) as nvarchar)+'->'+CAST(@money as nvarchar)
+				IF @@Error <> 0 BEGIN SET @chk = 1 END
+			
 			end
 			fetch next from cursor_table
-			into @accy,@noa,@noq,@trandate,@addrno,@weight
+			into @accy,@noa,@noq,@trandate,@addrno,@weight,@preprice,@premoney
 		end
 		close cursor_table
 		deallocate cursor_table
