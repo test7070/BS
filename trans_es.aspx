@@ -610,6 +610,16 @@
             		return;
 				}
 				
+				var t_custno = $.trim($('#txtCustno').val()); 
+				var t_driverno = $.trim($('#txtDriverno').val());
+				if(t_custno.length==0 && t_driverno.length==0){
+					alert('請輸入客戶、司機編號');
+				}else if(t_custno.length==0){
+					alert('請輸入客戶編號');
+				}else if(t_driverno.length==0){
+					alert('請輸入司機編號');
+				}
+				
 				if(q_cur ==1){
                 	$('#txtWorker').val(r_name);
                 }else if(q_cur ==2){
