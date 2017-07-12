@@ -156,9 +156,9 @@
                 });
                 $('#textEdate').keydown(function(e) {
                 });
-                $('#textDate').datepicker();
-                $('#textBdate').datepicker();
-                $('#textEdate').datepicker();
+                //$('#textDate').datepicker();
+               // $('#textBdate').datepicker();
+                //$('#textEdate').datepicker();
                 //-----------------------------------------------
                 $('#textDate_2pay').datepicker();
                 $('#textPaydate_2pay').datepicker();
