@@ -20,6 +20,8 @@ z_vccap_es01:--z_vccap_es01
 		,[money] float
 		,tax float
 		,total float
+		
+		,product nvarchar(max)
 	)
 	
 	insert into @tmp(gno,noa,cno,acomp,aserial,tel,addr,datea,serial
@@ -31,6 +33,10 @@ z_vccap_es01:--z_vccap_es01
 	left join acomp b on a.cno=b.noa
 	where a.noa between @t_bno and @t_eno
 	
+	update @tmp set product=b.product
+	from @tmp a
+	outer apply(select top 1 product from vccas where noa=a.noa and len(isnull(product,''))>0 order by noq) b
+	
 	select gno
 		,acomp a01
 		,'#'+aserial a02
@@ -41,4 +47,5 @@ z_vccap_es01:--z_vccap_es01
 		,dbo.getComma([money],-1)+'元' a07
 		,dbo.getComma([tax],-1)+'元' a08
 		,dbo.getComma([total],-1)+'元' a09 
+		,product+'：' a10
 	from @tmp order by noa;
