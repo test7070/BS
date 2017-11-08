@@ -1,4 +1,4 @@
-appendData:--appendData   trans_bs.txt	
+appendData:--appendData   trans_bs.txt	 
 	SET QUOTED_IDENTIFIER OFF
 	declare @cmd nvarchar(MAX)
 	declare @t_key nvarchar(20) = [1]
