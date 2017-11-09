@@ -1415,17 +1415,19 @@ z_trans_es04:--z_trans_es04
 		,driverno nvarchar(20)
 		,driver nvarchar(20)
 		,drivermobile nvarchar(max)
-	
+		,memo nvarchar(max)
 	)
 	insert into @tmp(noa,datea,trandate,salesno,sales,straddrno,straddr
 		,productno,product
 		,custno,cust,conn,saddr,dtime,mount1,mount2,mount3,mount4
 		,eaddr,eaddress,stime,sender,stel
-		,paytype,tranmoney,carno,driverno,driver,drivermobile,casetype)
+		,paytype,tranmoney,carno,driverno,driver,drivermobile,casetype
+		,memo)
 	select a.noa,a.datea,a.trandate,a.salesno,a.sales,a.straddrno,a.straddr,a.uccno,a.product
 		,a.custno,a.comp,'' conn,a.saddr,a.dtime,a.mount3,a.mount4,a.[weight],a.status
 		,a.aaddr,a.addressee,a.stime,a.sender,a.stel
 		,'' paytype,a.total,a.carno,a.driverno,a.driver,'' drivermobile,a.casetype
+		,a.memo
 	from view_trans a
 	left join car2 b on a.carno=b.carno
 	where a.noa=@t_noa
@@ -1455,12 +1457,11 @@ z_trans_es04:--z_trans_es04
 	+case when len(@fax)>0 then '　傳真：'+@fax else '' end a01
 	,'單號：'+noa a02 
 	,'日期：'+datea a03
-	
 	,trandate b01
 	,sales b02
 	,straddr b03
 	,product b04
-	,cust b05 
+	,isnull(custno,'')+' '+isnull(cust,'') b05 
 	,conn b06
 	,saddr b07
 	,dtime b08
@@ -1479,6 +1480,7 @@ z_trans_es04:--z_trans_es04
 	,carno b17
 	,driver b18
 	,drivermobile b19
+	,memo b20
 	from @tmp;
 
 
