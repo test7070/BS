@@ -1411,6 +1411,8 @@ z_trans_es04:--z_trans_es04
 		,stel nvarchar(50)
 		,paytype nvarchar(20)
 		,tranmoney float
+		,tax float
+		,total float
 		,carno nvarchar(20)
 		,driverno nvarchar(20)
 		,driver nvarchar(20)
@@ -1421,12 +1423,13 @@ z_trans_es04:--z_trans_es04
 		,productno,product
 		,custno,cust,conn,saddr,dtime,mount1,mount2,mount3,mount4
 		,eaddr,eaddress,stime,sender,stel
-		,paytype,tranmoney,carno,driverno,driver,drivermobile,casetype
+		,paytype,tranmoney,tax,total,carno,driverno,driver,drivermobile,casetype
 		,memo)
 	select a.noa,a.datea,a.trandate,a.salesno,a.sales,a.straddrno,a.straddr,a.uccno,a.product
 		,a.custno,a.comp,'' conn,a.saddr,a.dtime,a.mount3,a.mount4,a.[weight],a.status
 		,a.aaddr,a.addressee,a.stime,a.sender,a.stel
-		,'' paytype,a.total,a.carno,a.driverno,a.driver,'' drivermobile,a.casetype
+		,'' paytype,a.total,a.reserve,ISNULL(a.total,0)+ISNULL(a.reserve,0)
+		,a.carno,a.driverno,a.driver,'' drivermobile,a.casetype
 		,a.memo
 	from view_trans a
 	left join car2 b on a.carno=b.carno
@@ -1481,6 +1484,8 @@ z_trans_es04:--z_trans_es04
 	,driver b18
 	,drivermobile b19
 	,memo b20
+	,dbo.getComma(tax,-1) b21
+	,dbo.getComma(total,-1) b22
 	from @tmp;
 
 
