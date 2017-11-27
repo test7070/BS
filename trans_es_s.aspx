@@ -70,6 +70,41 @@
 				t_rs = $.trim($('#cmbRs').val());
 				t_memo = $.trim($('#txtMemo').val());
 				
+				var msg = "";
+				/*if(t_noa.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_noa;
+				if(t_driverno.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_driverno;
+				if(t_driver.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_driver;
+				if(t_custno.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_custno;
+				if(t_comp.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_comp;		
+				if(t_carno.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_carno;
+				if(t_straddrno.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_straddrno;
+				if(t_bdate.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_bdate;
+				if(t_edate.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_edate;	
+				if(t_btrandate.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_btrandate;
+				if(t_etrandate.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_etrandate;	
+				if(t_aaddr.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_aaddr;	
+				if(t_ship.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_ship;	
+				if(t_rs.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_rs;	
+				if(t_memo.length>0)
+					msg += (msg.length>0?",":"") + "單號:"+t_memo;		
+				
+				$(document).parent().parent().find('seekMsg').html(msg);*/
+				
+				
 		        var t_where = " 1=1 " 
 		        + q_sqlPara2("noa", t_noa) 
 		        + q_sqlPara2("datea", t_bdate, t_edate) 

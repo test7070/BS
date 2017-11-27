@@ -910,6 +910,7 @@
 		<!--#include file="../inc/toolbar.inc"-->
 		<!--<input type="button" id="btnBatInsert" style="float:left;width:100px;" value="整批新增">-->
 		<!--<input type="button" id="btnBatModi" style="float:left;width:100px;" value="整批修改">-->
+		<div id="seekMsg"> </div>
 		<div id="dmain">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview">
