@@ -38,6 +38,7 @@ z_trans_es12:--z_trans_es12
 	and a.custno between @t_bcustno and @t_ecustno
 	and a.total != 0
 	and (len(@t_paytype)=0 or CHARINDEX(','+a.ship+',',','+@t_paytype+',')>0)
+	and (len(@t_isinvo)=0 or @t_isinvo=a.rs or (@t_isinvo='N' and len(ISNULL(a.rs,''))=0))
 	
 	update @tmp set trdaccy=b.accy,trdnoa=b.noa,trdnoq=b.noq
 	from @tmp a
