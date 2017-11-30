@@ -30,7 +30,8 @@
             brwCount2 = 20;
             //不能彈出瀏覽視窗
             aPop = new Array(['txtCarno', 'lblCarno', 'car2', 'a.noa,driverno,driver', 'txtCarno,txtDriverno,txtDriver', 'car2_b.aspx']
-			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,ext,post,addr_fact', 'txtCustno,txtComp,txtNick,txtStraddrno,txtStraddr,txtSaddr,cmbShip', 'cust_b.aspx']
+			,['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,paytype,addr_fact,option01'
+				, 'txtCustno,txtComp,txtNick,cmbShip,txtSaddr,textRs', 'cust_b.aspx']
 			,['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtTgg', 'tgg_b.aspx']
 			,['txtDriverno', 'lblDriver', 'driver', 'noa,namea', 'txtDriverno,txtDriver', 'driver_b.aspx']
 			,['txtStraddrno', 'lblXstraddr', 'addr', 'noa,addr', 'txtStraddrno,txtStraddr', 'addr_b.aspx'] 
@@ -457,6 +458,19 @@
 			}
 			function q_popPost(id) {
 				switch(id) {
+					case 'txtCustno':
+						switch($('#textRs').val().toUpperCase()){
+							case "1":
+								$('#cmbRs').val("Y");
+								break;
+							case "TRUE":
+								$('#cmbRs').val("Y");
+								break;
+							default: 
+								$('#cmbRs').val("");
+								break;
+						}
+						break;
 					case 'txtDriverno':
 						sum();	
 						break;
@@ -983,7 +997,10 @@
 						<td><span> </span><a class="lbl">結帳方式</a></td>
 						<td><select id="cmbShip" class="txt c1" > </select></td>
 						<td><span> </span><a class="lbl">發票</a></td>
-						<td><select id="cmbRs" class="txt c1" > </select></td>
+						<td><select id="cmbRs" class="txt c1" > </select>
+							<input id='textRs' style="display:none;" />
+							<!--先記錄APOP的值,之後再寫回CMBRS -->
+						</td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblXstraddr" class="lbl btn">區域</a></td>
