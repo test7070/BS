@@ -43,6 +43,7 @@
                 
                 q_cmbParse("cmbShip", "@,月結,現金,回收");
                 q_cmbParse("cmbRs", "@,Y@是,N@否");
+                (window.parent).$('#seekMsg').text("");
             }
 
             function q_gtPost(t_name) {
@@ -72,40 +73,38 @@
 				t_memo = $.trim($('#txtMemo').val());
 				
 				var msg = "";
-				/*if(t_noa.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_noa;
-				if(t_driverno.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_driverno;
-				if(t_driver.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_driver;
-				if(t_custno.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_custno;
-				if(t_comp.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_comp;		
+				if(t_noa.length>0)
+					msg += (msg.length>0?",":"") + "電腦編號:"+t_noa;
+				if(t_bdate.length>0 || t_edate.length>0)
+					msg += (msg.length>0?",":"") + "回單日期:"+t_bdate + '～' + t_edate;
+				if(t_btrandate.length>0 || t_etrandate.length>0)
+					msg += (msg.length>0?",":"") + "取貨日期:"+t_btrandate + '～' + t_etrandate;;
 				if(t_carno.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_carno;
-				if(t_straddrno.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_straddrno;
-				if(t_bdate.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_bdate;
-				if(t_edate.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_edate;	
-				if(t_btrandate.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_btrandate;
-				if(t_etrandate.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_etrandate;	
-				if(t_aaddr.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_aaddr;	
+					msg += (msg.length>0?",":"") + "車牌號碼:"+t_carno;	
+				if(t_driverno.length>0)
+					msg += (msg.length>0?",":"") + "司機編號:"+t_driverno;
+				if(t_driver.length>0)
+					msg += (msg.length>0?",":"") + "司機名稱:"+t_driver;
+				if(t_custno.length>0)
+					msg += (msg.length>0?",":"") + "客戶編號:"+t_custno;
+				if(t_comp.length>0)
+					msg += (msg.length>0?",":"") + "客戶名稱:"+t_comp;		
 				if(t_ship.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_ship;	
+					msg += (msg.length>0?",":"") + "結帳方式:"+t_ship;		
 				if(t_rs.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_rs;	
+					msg += (msg.length>0?",":"") + "發票:"+t_rs;	
+				if(t_straddrno.length>0)
+					msg += (msg.length>0?",":"") + "運送區域:"+t_straddrno;	
+				if(t_aaddr.length>0)
+					msg += (msg.length>0?",":"") + "卸貨地點:"+t_aaddr;	
 				if(t_memo.length>0)
-					msg += (msg.length>0?",":"") + "單號:"+t_memo;		
+					msg += (msg.length>0?",":"") + "備註:"+t_memo;
 				
-				$(document).parent().parent().find('seekMsg').html(msg);*/
-				
-				
+				if(msg.length>0){
+					console.log(msg);
+					(window.parent).$('#seekMsg').text('【查詢條件】'+msg).css('color','red');
+				}
+					
 		        var t_where = " 1=1 " 
 		        + q_sqlPara2("noa", t_noa) 
 		        + q_sqlPara2("datea", t_bdate, t_edate) 
