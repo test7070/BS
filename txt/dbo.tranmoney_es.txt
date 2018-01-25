@@ -1,0 +1,129 @@
+ALTER function [dbo].[tranmoney_es](@t_date nvarchar(10),@t_addrno nvarchar(20),@t_weight float)
+RETURNS @tmp TABLE (price float,rate float,rate2 float,[money] float,[money2] float,memo nvarchar(max),msg NVARCHAR(MAX))
+as
+begin	
+	--T01
+	if @t_addrno='T01'
+	begin
+		insert into @tmp([money],[money2],memo,msg)
+		select top 1 custprice,driverprice,memo,'' from addrs where noa='T01' and custmount>@t_weight order by custmount
+		return
+	end
+	--N01,C01,S01
+	if ISDATE( cast(dbo.ChineseEraName2AD(@t_date) as nvarchar)) = 0
+	begin
+		insert into @tmp(price,rate,[money],msg)values(0,0,0,'日期異常')
+		return
+	end
+
+	declare @tmpa table(
+		sel int identity(1,1)
+		,value float
+		,rate float
+		,rate2 float
+	)
+	insert into @tmpa(value,rate,rate2)
+	select value,rate,rate2 from addr2s order by noq
+	
+	declare @tmpb table(
+		sel int identity(1,1)
+		,addrno nvarchar(20)
+		,recno int
+		,[weight] float
+		,price float
+		,price2 float
+	)
+	insert into @tmpb(addrno,recno,[weight],price,price2)
+	select noa,row_number()over(partition by noa order by noq) recno,custmount,custprice,driverprice from addrs order by recno
+	---------------------------
+	--再興  抓5號當日的油價
+	--WEEKDAY <=3 就是第2週,不然就是第一週
+	--榮剛10號結帳
+	-- 11/11 ~ 12/10  以 12/5號的油價為主,假如還未有資料就依11/5號的油價
+	declare @oilmon nvarchar(10)
+	if DAY(dbo.ChineseEraName2AD(@t_date))>10
+	begin
+		set @oilmon = left(dbo.AD2ChineseEraName(Dateadd(MM,1,dbo.ChineseEraName2AD(@t_date))),6)
+	end
+	else
+	begin
+		set @oilmon = left(@t_date,6)
+	end
+	
+	declare @oilprice float = 0
+	if DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/05'))-DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/01'))=1
+	begin
+		select @oilprice=price2 from oilbase where mon=@oilmon
+	end
+	else
+	begin
+		select @oilprice=price1 from oilbase where mon=@oilmon
+	end
+	--假如找不到,代表要先抓上個月的
+	if ISNULL(@oilprice,0)=0
+	begin
+		set @oilmon = left(dbo.AD2ChineseEraName( DATEADD(MM,-1, dbo.ChineseEraName2AD(@oilmon+'/01'))),6)
+		if DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/05'))-DATEPART(WEEK,dbo.ChineseEraName2AD(@oilmon+'/01'))=1
+		begin
+			select @oilprice=price2 from oilbase where mon=@oilmon
+		end
+		else
+		begin
+			select @oilprice=price1 from oilbase where mon=@oilmon
+		end
+	end
+	--假如還是找不到,就回傳0
+	if ISNULL(@oilprice,0)=0
+	begin
+		--select 0,'not found',@oilmon
+		insert into @tmp(price,rate,rate2,[money],msg)values(0,0,0,0,'找不到油價')
+		return
+	end
+	--找出單價要增減多少
+	declare @rate float = 0
+	declare @rate2 float = 0
+	select top 1 @rate=rate,@rate2=rate2 from @tmpa where @oilprice<=value order by sel
+	--找出運輸基價
+	declare @minMoney float = 0
+	declare @minMoney2 float = 0
+	declare @price float = 0
+	declare @price2 float = 0
+	
+	select @minMoney=price*1000,@minMoney2=price2*1000
+	from @tmpb a
+	where a.addrno = @t_addrno
+	and a.recno = 1
+	
+	if exists(select top 1 *
+		from @tmpb a
+		where a.addrno = @t_addrno
+		and a.[weight]>=@t_weight
+		order by a.recno)
+	begin
+		select top 1 @price=price,@price2=price2
+		from @tmpb a
+		where a.addrno = @t_addrno
+		and a.[weight]>=@t_weight
+		order by a.recno
+	end
+	else
+	begin
+		select top 1 @price=price,@price2=price2
+		from @tmpb a
+		where a.addrno = @t_addrno
+		order by a.recno desc
+	end
+	
+	declare @money float = 0,@drivermoney float =0
+	set @money = @t_weight * @price
+	set @money = case when @minMoney> @money then @minMoney else @money end
+	set @money = round(@money * (100+@rate) / 100,0)
+	
+	set @drivermoney = round(@t_weight * @price2,0)
+	set @drivermoney = case when @minMoney2> @drivermoney then @minMoney2 else @drivermoney end
+	set @drivermoney = round(@drivermoney * (100+@rate2) / 100,0)
+	
+	insert into @tmp(price,rate,rate2,[money],[money2],msg)
+	values(@price,(100+@rate),(100+@rate2),@money,@drivermoney,'')
+	return
+end

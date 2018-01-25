@@ -1,0 +1,1829 @@
+z_trans_es12:--z_trans_es12
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+		
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	--declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	--declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
+	declare @t_paytype nvarchar(max) = case when '#non'=[15] then '' else [15] end
+	declare @t_isinvo nvarchar(max) = case when '#non'=[16] then '' else [16] end
+	-----------------------------------------------------------------------------
+	-- umms 有收款過的,就當那張TRD已經付款了,不論是否有全收
+	
+	declare @tmp table(
+		sel int identity(1,1)
+		,accy nvarchar(20)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,ship nvarchar(20) --付款方式
+		,rs nvarchar(20) --發票
+		,total float
+		
+		,trdaccy nvarchar(20)
+		,trdnoa nvarchar(20)
+		,trdnoq nvarchar(10)
+		
+		,isumm bit
+	)
+	insert into @tmp(accy,noa,noq,custno,cust,ship,rs,total)
+	select a.accy,a.noa,a.noq,a.custno,a.comp,a.ship,a.rs,a.total
+	from view_trans a
+	where a.trandate between @t_btrandate and @t_etrandate
+	and a.custno between @t_bcustno and @t_ecustno
+	and a.total != 0
+	and (len(@t_paytype)=0 or CHARINDEX(','+a.ship+',',','+@t_paytype+',')>0)
+	and (len(@t_isinvo)=0 or @t_isinvo=a.rs or (@t_isinvo='N' and len(ISNULL(a.rs,''))=0))
+	
+	update @tmp set trdaccy=b.accy,trdnoa=b.noa,trdnoq=b.noq
+	from @tmp a
+	left join view_trds b on a.noa=b.tranno
+	where b.noa is not null
+	
+	update @tmp set isumm=1
+	from @tmp a
+	left join umms b on a.trdnoa=b.vccno
+	where len(isnull(a.trdnoa,''))>0 
+	and b.paysale!=0
+	------------------------------------------------------------------------
+	declare @tmpa table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,money01 float --月結
+		,money02 float --回收
+		,money03 float --現金
+		,total float  --金額小計
+		,payed float  --已收
+		,unpay float  --未收
+	)
+	insert into @tmpa(gno,custno,cust,money01,money02,money03,total,payed,unpay)
+	select '1',custno,cust
+		,SUM(case ship when '月結' then total else 0 end)
+		,SUM(case ship when '回收' then total else 0 end)
+		,SUM(case ship when '現金' then total else 0 end)
+		,SUM(ISNULL(total,0))
+		,sum(case ISNULL(isumm,0) when 1 then total else 0 end )
+		,sum(case ISNULL(isumm,0) when 1 then 0 else total end )
+	from @tmp
+	group by custno,cust
+	-----------------------------------------------------------------------------------------
+	delete @tmpa where unpay=0
+	-- 合計
+	insert into @tmpa(gno,custno,cust,money01,money02,money03,total,payed,unpay)
+	select '2',CHAR(255),'',SUM(ISNULL(money01,0)),SUM(ISNULL(money02,0)),SUM(ISNULL(money03,0))
+		,SUM(ISNULL(total,0)),SUM(ISNULL(payed,0)),SUM(ISNULL(unpay,0))
+	from @tmpa 
+	where gno='1'
+	
+	select gno 
+		,'日期：'+@t_btrandate+'~'+@t_etrandate a01
+		,custno b01
+		,cust   b02
+		,dbo.getComma(money01,-1)  b03
+		,dbo.getComma(money02,-1)  b04
+		,dbo.getComma(money03,-1)  b05
+		,dbo.getComma(total,-1)  b06
+		,dbo.getComma(payed,-1)  b07
+		,dbo.getComma(unpay,-1)  b08
+	from @tmpa
+	order by sel;
+
+
+z_trans_es11:--z_trans_es11 
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+		
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
+	declare @t_paytype nvarchar(max) = case when '#non'=[15] then '' else [15] end
+	declare @t_isinvo nvarchar(max) = case when '#non'=[16] then '' else [16] end
+	----------------------------------------------------------------------
+	----------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,pno int
+		,tablea nvarchar(20)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,driverno nvarchar(20)
+		,paytype nvarchar(20)  -- 月結,現金,回收
+		,isTax nvarchar(10)    -- 開發票
+		,total float
+		,total2 float
+		,tax float
+		
+		,m01 float -- 月結
+		,m02 float -- 現金
+		,m03 float -- 回收
+		,m04 float -- 稅額
+		,m05 float -- 毛利
+		,m06 float -- 差額 (應付)
+	)
+	insert into @tmp(gno,pno,tablea,accy,noa,noq,custno,driverno,paytype,isTax,total,total2,tax)
+	select '1',1,'trans',a.accy,a.noa,a.noq,a.custno,a.driverno,a.ship,a.rs,a.total,a.total2,a.reserve
+	from view_trans a
+	where a.trandate between @t_btrandate and @t_etrandate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	and not(a.total=0 and a.total2=0 and a.reserve=0)
+	and (len(@t_paytype)=0 or @t_paytype=a.ship)
+	and (len(@t_isinvo)=0 or @t_isinvo=a.rs or (@t_isinvo='N' and len(ISNULL(a.rs,''))=0))
+	
+	
+	update @tmp set m01 = case paytype when '月結' then total else 0 end
+		,m02 = case paytype when '現金' then total else 0 end
+		,m03 = case paytype when '回收' then total else 0 end
+		,m04 = tax
+		,m05 = total-total2
+		,m06 = case when charindex('公司',isnull(b.cartype,''))>0  then a.total2 else isnull(a.[total2],0)-case when a.paytype='現金' then isnull(a.[total],0)+isnull(a.tax,0) else 0 end end
+	from @tmp a
+	left join driver b on a.driverno=b.noa
+	
+	insert into @tmp(gno,pno,custno,m01,m02,m03,m04,m05,m06)
+	select '2',2,custno,SUM(ISNULL(m01,0)),SUM(ISNULL(m02,0)),SUM(ISNULL(m03,0))
+		,SUM(ISNULL(m04,0)),SUM(ISNULL(m05,0)),SUM(ISNULL(m06,0))
+	from @tmp
+	where gno='1'
+	group by custno
+	
+	insert into @tmp(gno,pno,custno,m01,m02,m03,m04,m05,m06)
+	select '3',3,CHAR(255),SUM(ISNULL(m01,0)),SUM(ISNULL(m02,0)),SUM(ISNULL(m03,0))
+		,SUM(ISNULL(m04,0)),SUM(ISNULL(m05,0)),SUM(ISNULL(m06,0))
+	from @tmp
+	where gno='1'
+	
+	delete @tmp where gno='1'
+	
+	update @tmp set cust=b.nick
+	from @tmp a
+	left join cust b on a.custno=b.noa
+	
+	select gno 
+		,@t_btrandate + '～' + @t_etrandate a01
+		,custno b01
+		,cust b02
+		,dbo.getComma(m01,-1) b03
+		,dbo.getComma(m02,-1) b04
+		,dbo.getComma(m03,-1) b05
+		,dbo.getComma(m04,-1) b06
+		,dbo.getComma(m05,-1) b07
+		,dbo.getComma(m06,-1) b08
+	from @tmp order by pno,sel;
+
+
+z_trans_es10:--z_trans_es10 客戶信封標籤  11cm*3.5cm
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_custno nvarchar(20) = case when '#non'=[25] then '' else [25] end
+	declare @t_addrfield nvarchar(20) = case when '#non'=[26] then '' else [26] end
+	------------------------------------------------------------------------------
+	declare @cmd nvarchar(max)
+	
+	declare @tmp table(
+		sel int identity(1,1)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,zip nvarchar(20)
+		,addr nvarchar(max)
+	)
+	set @cmd = 'select noa,comp,zip_'+@t_addrfield+',addr_'+@t_addrfield+'
+	from cust 
+	where noa between @t_bcustno and @t_ecustno'
+	
+	insert into @tmp(custno,cust,zip,addr)
+	execute sp_executesql @cmd,N'@t_bcustno nvarchar(20),@t_ecustno nvarchar(20)',@t_bcustno=@t_bcustno,@t_ecustno=@t_ecustno
+	
+	select '1' gno
+		,custno
+		,zip a01
+		,addr a02
+		,isnull(cust,'') + case when len(isnull(cust,''))>0 then ' 收' else '' end a03
+	from @tmp;
+	
+
+
+z_trans_es09:--z_trans_es09 司機對帳單(公司車A4)
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
+	declare @t_cno nvarchar(20) = case when '#non'=[20] then '' else [20] end	
+	------------------------------------------------------------------------------
+	--出車單
+	declare @tmpa table(
+		sel int identity(1,1)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,tranaccy nvarchar(10)
+		,tranno nvarchar(20)
+		,trannoq nvarchar(10)
+		,trandate nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,size nvarchar(max)
+		,addr nvarchar(max)
+		,paytype nvarchar(20)
+		,[money1] float --運費 
+		,[money2] float --實付
+	)
+	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
+		,size,addr,paytype,[money1],[money2])
+	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,a.nick
+		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
+		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
+		+case when len(ISNULL(a.[status],''))=0 then '' else a.[status]+'板' end
+		+case when ISNULL(a.[weight],0)=0 then '' else dbo.getComma(a.[weight],0)+'Kg' end
+		,a.aaddr
+		,case when a.ship='現金' and a.rs='Y' then '現發' when a.ship='現金' then '現收' else a.ship end
+		,isnull(a.[price2],0)
+		,isnull(a.[total2],0)
+	from view_trans a
+	left join driver b on a.driverno=b.noa
+	where charindex('公司',isnull(b.cartype,''))>0  --顯示公司車
+	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	
+	declare @n int
+	declare @driverno nvarchar(20)
+	declare @carno nvarchar(20)
+	---斷行
+	declare @slen int = 30
+	declare @sel int
+	
+	declare @accy nvarchar(10)
+	declare @noa nvarchar(20)
+	declare @noq nvarchar(10)
+	declare @date nvarchar(10)
+	declare @addr nvarchar(max)
+	
+	declare @string nvarchar(max)
+	
+	
+	declare cursor_table cursor for
+	select sel,driverno,carno,tranaccy,tranno,trannoq,trandate,addr from @tmpa where len(dbo.qleft(addr,@slen))!=len(addr)
+	open cursor_table
+	fetch next from cursor_table
+	into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		set @n = 0
+		while len(@addr)>0
+		begin
+			set @n = @n + 1
+			set @string = dbo.qleft(@addr,@slen)	
+			if LEN(@string)<LEN(@addr)
+				set @addr = SUBSTRING(@addr,LEN(@string)+1,len(@addr))
+			else
+			begin
+				set @string = @addr
+				set @addr = ''
+			end
+			if @n=1
+			begin
+				update @tmpa set addr=@string where sel=@sel
+			end
+			else
+			begin
+				insert into @tmpa(driverno,carno,tranaccy,tranno,trannoq,trandate,addr)
+				select @driverno,@carno,@accy,@noa,@noq,@date,@string 
+			end
+		end
+		
+
+		fetch next from cursor_table
+		into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	------------------------------------------------------------------------------
+	--加減項
+	declare @tmpb table(
+		sel int identity(1,1)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,datea nvarchar(20)
+		,noa nvarchar(20)
+		,plusitem nvarchar(max)
+		,plusmoney float
+		,minusitem nvarchar(max)
+		,minusmoney float
+		,memo nvarchar(max)
+		,cust nvarchar(max)
+	)
+	insert into @tmpb(driverno,driver,carno,noa,datea
+		,plusitem,plusmoney,minusitem,minusmoney,memo,cust)
+	select a.driverno,a.driver,a.carno,a.noa,a.datea
+		,isnull(a.plusitem,''),isnull(a.plusmoney,'')
+		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo,a.cust
+	from carchg a
+	left join driver b on a.driverno=b.noa
+	where charindex('公司',isnull(b.cartype,''))>0  --顯示公司車
+	and ISNULL(a.datea,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	---------------------------------------------------------------------------------
+	--===============================================================================
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,recno int
+		,pp int
+		,qq int
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,tcarno nvarchar(max)
+		,dtel nvarchar(50)
+		,dmobile nvarchar(50)
+		
+		,tablea nvarchar(20)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		
+		,datea nvarchar(20)
+		,cust nvarchar(20)
+		,size nvarchar(max)
+		,addr nvarchar(max)
+		,paytype nvarchar(20)
+		,[money1] float --運費 
+		,[money2] float --實付
+
+		,[money4] float --加減項
+		,total float    --應付
+		
+		,cno nvarchar(20)
+		,acomp nvarchar(50)
+		,aaddr nvarchar(100)
+		,atel nvarchar(50)
+		,afax nvarchar(50)
+	)
+	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
+		,datea,cust,size,addr,paytype,[money1],[money2])
+	select '1' gno,driverno,carno,'trans_es',tranaccy,tranno,trannoq
+		,trandate,cust,size,addr,paytype,[money1],[money2]
+	from @tmpa
+	order by driverno,trandate,tranaccy,tranno,trannoq
+	
+	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
+		,datea,cust,size,addr,paytype,[money4])
+	select '2' gno,driverno,carno,'carchg','',noa,''
+		,datea,cust,'' size,plusitem+minusitem,'' paytype
+		,plusmoney-minusmoney
+	from @tmpb
+	order by driverno,datea,noa
+	
+	insert into @tmp(gno,driverno,[money1],[money2],[money4],total)
+	select '3',driverno,SUM(isnull([money1],0)),SUM(isnull([money2],0)),SUM(isnull([money4],0))
+		,SUM(isnull([money2],0)+isnull([money4],0))
+	from @tmp 
+	group by driverno
+	-------------------------------------------------------------------------------------
+	declare @pagecount int = 35 --  一頁可印幾筆明細
+	declare @tcarno nvarchar(max)
+	
+	declare cursor_table cursor for
+	select driverno,count(1) from @tmp group by driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @driverno,@n
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		while @n%@pagecount != 0
+		begin
+			insert into @tmp(gno,driverno)values('4',@driverno)
+			set @n = @n +1
+		end
+		set @tcarno = ''
+		declare cursor_table2 cursor for
+		select carno from @tmp where driverno=@driverno and len(isnull(carno,''))>0 group by carno
+		open cursor_table2
+		fetch next from cursor_table2
+		into @carno
+		while(@@FETCH_STATUS <> -1)
+		begin	
+			set @tcarno = @tcarno + case when len(@tcarno)>0 then ',' else '' end + @carno
+ 			fetch next from cursor_table2
+			into @carno
+		end
+		close cursor_table2
+		deallocate cursor_table2
+		
+		update @tmp set tcarno=@tcarno where driverno=@driverno
+		
+		fetch next from cursor_table
+		into @driverno,@n
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	update @tmp set recno=b.recno
+	from @tmp a
+	left join (select sel,ROW_NUMBER()over(partition by driverno order by gno,datea,accy,noa,noq) recno from @tmp) b on a.sel=b.sel
+	
+	update @tmp set pp=floor((recno-1)/@pagecount) + 1
+	update @tmp set qq=b.qq
+	from @tmp a
+	left join(select driverno,floor((max(recno)-1)/@pagecount) + 1 qq from @tmp group by driverno)b on a.driverno=b.driverno
+	
+	update @tmp set cno=@t_cno,acomp=b.acomp,atel=b.tel,afax=b.fax,aaddr=b.addr
+	from @tmp a
+	outer apply(select * from acomp where noa=@t_cno) b
+	
+	update @tmp set driver=ISNULL(b.namea,''),dtel=ISNULL(b.tel,''),dmobile=ISNULL(b.mobile,'')
+	from @tmp a
+	left join driver b on a.driverno=b.noa
+	
+	select gno
+		,acomp c01
+		,aaddr c02
+		,'電話：'+ISNULL(atel,'')+'  傳真：'+ISNULL(afax,'') c03
+		
+		,'車牌：'+isnull(carno,'') a01
+		,'貨運名稱：' a02 --貨運名稱
+		,'電話：' a03 --電話
+		,'司機：'+isnull(driver,'') a04
+		,'電話：'+isnull(dtel,'') a05 --電話
+		,'手機：'+isnull(dmobile,'') a06 --手機
+		,CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar) a07
+		
+		,datea b01
+		,cust b02
+		,size b03
+		,addr b04
+		,paytype b05
+		,dbo.getComma([money1],-1) b06 
+		,dbo.getComma([money2],-1) b07 
+		,dbo.getComma([money4],-1) b08
+		
+		,'運費：'+dbo.getComma([money1],-1) d01	
+		,'實付：'+dbo.getComma([money2],-1) d02	
+		,'加減項：'+dbo.getComma([money4],-1) d03
+		,'應付：'+dbo.getComma(isnull([total],0),-1) d04	
+	from @tmp order by driverno,recno;
+
+z_trans_es08:--z_trans_es08 司機對帳單(外車連續報表紙)
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
+	declare @t_cno nvarchar(20) = case when '#non'=[20] then '' else [20] end	
+	------------------------------------------------------------------------------
+	--出車單
+	declare @tmpa table(
+		sel int identity(1,1)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,tranaccy nvarchar(10)
+		,tranno nvarchar(20)
+		,trannoq nvarchar(10)
+		,trandate nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,size nvarchar(max)
+		,addr nvarchar(max)
+		,paytype nvarchar(20)
+		
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
+	)
+	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
+		,size,addr,paytype,[money1],[money2],[money3])
+	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno,a.nick
+		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
+		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
+		+case when len(ISNULL(a.[status],''))=0 then '' else a.[status]+'板' end
+		+case when ISNULL(a.[weight],0)=0 then '' else dbo.getComma(a.[weight],0)+'Kg' end
+		,a.aaddr
+		,case when a.ship='現金' and a.rs='Y' then '現發' when a.ship='現金' then '現收' else a.ship end
+		,case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
+		,isnull(a.[total2],0)
+		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
+	from view_trans a
+	left join driver b on a.driverno=b.noa
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
+	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	
+	declare @n int
+	declare @driverno nvarchar(20)
+	declare @carno nvarchar(20)
+	---斷行
+	declare @slen int = 26
+	declare @sel int
+	
+	declare @accy nvarchar(10)
+	declare @noa nvarchar(20)
+	declare @noq nvarchar(10)
+	declare @date nvarchar(10)
+	declare @addr nvarchar(max)
+	
+	declare @string nvarchar(max)
+	
+	
+	declare cursor_table cursor for
+	select sel,driverno,carno,tranaccy,tranno,trannoq,trandate,addr from @tmpa where len(dbo.qleft(addr,@slen))!=len(addr)
+	open cursor_table
+	fetch next from cursor_table
+	into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		set @n = 0
+		while len(@addr)>0
+		begin
+			set @n = @n + 1
+			set @string = dbo.qleft(@addr,@slen)	
+			if LEN(@string)<LEN(@addr)
+				set @addr = SUBSTRING(@addr,LEN(@string)+1,len(@addr))
+			else
+			begin
+				set @string = @addr
+				set @addr = ''
+			end
+			if @n=1
+			begin
+				update @tmpa set addr=@string where sel=@sel
+			end
+			else
+			begin
+				insert into @tmpa(driverno,carno,tranaccy,tranno,trannoq,trandate,addr)
+				select @driverno,@carno,@accy,@noa,@noq,@date,@string 
+			end
+		end
+		
+
+		fetch next from cursor_table
+		into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	------------------------------------------------------------------------------
+	------------------------------------------------------------------------------
+	--加減項
+	declare @tmpb table(
+		sel int identity(1,1)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,datea nvarchar(20)
+		,noa nvarchar(20)
+		,plusitem nvarchar(max)
+		,plusmoney float
+		,minusitem nvarchar(max)
+		,minusmoney float
+		,memo nvarchar(max)
+		,cust nvarchar(max)
+	)
+	insert into @tmpb(driverno,driver,carno,noa,datea
+		,plusitem,plusmoney,minusitem,minusmoney,memo,cust)
+	select a.driverno,a.driver,a.carno,a.noa,a.datea
+		,isnull(a.plusitem,''),isnull(a.plusmoney,'')
+		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo,isnull(a.cust,'')
+	from carchg a
+	left join driver b on a.driverno=b.noa
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
+	and ISNULL(a.datea,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	---------------------------------------------------------------------------------
+	--===============================================================================
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,recno int
+		,pp int
+		,qq int
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,tcarno nvarchar(max)
+		,dtel nvarchar(50)
+		,dmobile nvarchar(50)
+		
+		,tablea nvarchar(20)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		
+		,datea nvarchar(20)
+		,cust nvarchar(20)
+		,size nvarchar(max)
+		,addr nvarchar(max)
+		,paytype nvarchar(20)
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
+		,[money4] float --加減項
+		,total float    --應付
+		
+		,cno nvarchar(20)
+		,acomp nvarchar(50)
+		,aaddr nvarchar(100)
+		,atel nvarchar(50)
+		,afax nvarchar(50)
+	)
+	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
+		,datea,cust,size,addr,paytype,[money1],[money2],[money3])
+	select '1' gno,driverno,carno,'trans_es',tranaccy,tranno,trannoq
+		,trandate,cust,size,addr,paytype,[money1],[money2],[money3]
+	from @tmpa
+	order by driverno,trandate,tranaccy,tranno,trannoq
+	
+	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
+		,datea,cust,size,addr,paytype,[money4])
+	select '2' gno,driverno,carno,'carchg','',noa,''
+		,datea,cust,'' size,plusitem+minusitem,'' paytype
+		,plusmoney-minusmoney
+	from @tmpb
+	order by driverno,datea,noa
+	
+	insert into @tmp(gno,driverno,[money1],[money2],[money3],[money4],total)
+	select '3',driverno,SUM(isnull([money1],0)),SUM(isnull([money2],0)),SUM(isnull([money2],0)-isnull([money3],0)),SUM(isnull([money4],0))
+		,SUM(isnull([money3],0)+isnull([money4],0))
+	from @tmp 
+	group by driverno
+	
+	insert into @tmp(gno,driverno)
+	select '4',driverno
+	from @tmp 
+	group by driverno
+	-------------------------------------------------------------------------------------
+	declare @pagecount int = 34 --  一頁可印幾筆明細
+	declare @tcarno nvarchar(max)
+	
+	declare cursor_table cursor for
+	select driverno,count(1) from @tmp group by driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @driverno,@n
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		while @n%@pagecount != 0
+		begin
+			insert into @tmp(gno,driverno)values('5',@driverno)
+			set @n = @n +1
+		end
+		set @tcarno = ''
+		declare cursor_table2 cursor for
+		select carno from @tmp where driverno=@driverno and len(isnull(carno,''))>0 group by carno
+		open cursor_table2
+		fetch next from cursor_table2
+		into @carno
+		while(@@FETCH_STATUS <> -1)
+		begin	
+			set @tcarno = @tcarno + case when len(@tcarno)>0 then ',' else '' end + @carno
+ 			fetch next from cursor_table2
+			into @carno
+		end
+		close cursor_table2
+		deallocate cursor_table2
+		
+		update @tmp set tcarno=@tcarno where driverno=@driverno
+		
+		fetch next from cursor_table
+		into @driverno,@n
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	update @tmp set recno=b.recno
+	from @tmp a
+	left join (select sel,ROW_NUMBER()over(partition by driverno order by gno,datea,accy,noa,noq) recno from @tmp) b on a.sel=b.sel
+	
+	update @tmp set pp=floor((recno-1)/@pagecount) + 1
+	update @tmp set qq=b.qq
+	from @tmp a
+	left join(select driverno,floor((max(recno)-1)/@pagecount) + 1 qq from @tmp group by driverno)b on a.driverno=b.driverno
+	
+	update @tmp set cno=@t_cno,acomp=b.acomp,atel=b.tel,afax=b.fax,aaddr=b.addr
+	from @tmp a
+	outer apply(select * from acomp where noa=@t_cno) b
+	
+	update @tmp set driver=ISNULL(b.namea,''),dtel=ISNULL(b.tel,''),dmobile=ISNULL(b.mobile,'')
+	from @tmp a
+	left join driver b on a.driverno=b.noa
+	
+	select gno
+		,acomp c01
+		,aaddr c02
+		,'電話：'+ISNULL(atel,'')+'  傳真：'+ISNULL(afax,'') c03
+		
+		,'車牌：'+isnull(carno,'') a01
+		,'貨運名稱：' a02 --貨運名稱
+		,'電話：' a03 --電話
+		,'司機：'+isnull(driver,'') a04
+		,'電話：'+isnull(dtel,'') a05 --電話
+		,'手機：'+isnull(dmobile,'') a06 --手機
+		,CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar) a07
+		
+		,datea b01
+		,cust b02
+		,size b03
+		,addr b04
+		,paytype b05
+		,case when paytype='現發' or paytype='現收' then dbo.getComma([money1],-1) else '' end b06
+		,dbo.getComma([money2],-1) b07 
+		,dbo.getComma([money3],-1) b08
+		,dbo.getComma([money4],-1) b09
+		
+		,'' d01	
+		,'實付：'+dbo.getComma([money2],-1) d02	
+		,'扣佣金：'+dbo.getComma([money3],-1)d03
+		,'加減項：'+dbo.getComma([money4],-1) d04	
+		,'應付：'+dbo.getComma([total],-1) d05	
+		,'列印日期：'+dbo.AD2ChineseEraName(GETDATE())+'  帳單日期：'+@t_btrandate+' 到 '+@t_etrandate d06
+	from @tmp order by driverno,recno;
+		
+z_trans_es07:--z_trans_es07 司機對帳單(外車A4)
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
+	declare @t_cno nvarchar(20) = case when '#non'=[20] then '' else [20] end	
+	------------------------------------------------------------------------------
+	--出車單
+	declare @tmpa table(
+		sel int identity(1,1)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,tranaccy nvarchar(10)
+		,tranno nvarchar(20)
+		,trannoq nvarchar(10)
+		,trandate nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,size nvarchar(max)
+		,addr nvarchar(max)
+		,paytype nvarchar(20)
+		
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
+	)
+	insert into @tmpa(driverno,driver,carno,tranaccy,tranno,trannoq,trandate,custno,cust
+		,size,addr,paytype,[money1],[money2],[money3])
+	select isnull(a.driverno,''),a.driver,a.carno,a.accy,a.noa,a.noq,a.trandate,a.custno
+		,case when len(isnull(c.nick,''))=0 then a.nick else c.nick end
+		,case when ISNULL(a.mount3,0)=0 then '' else cast(a.mount3 as nvarchar)+'才' end
+		+case when ISNULL(a.mount4,0)=0 then '' else cast(a.mount4 as nvarchar)+'件' end
+		+case when len(ISNULL(a.[status],''))=0 then '' else a.[status]+'板' end
+		+case when ISNULL(a.[weight],0)=0 then '' else dbo.getComma(a.[weight],0)+'Kg' end
+		,a.aaddr
+		,case when a.ship='現金' and a.rs='Y' then '現發' when a.ship='現金' then '現收' else a.ship end
+		,case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
+		,isnull(a.[total2],0)
+		,isnull(a.[total2],0)-case when a.ship='現金' then isnull(a.[total],0)+isnull(a.[reserve],0) else 0 end
+	from view_trans a
+	left join driver b on a.driverno=b.noa
+	left join cust c on a.custno=c.noa
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
+	and ISNULL(a.trandate,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	
+	declare @n int
+	declare @driverno nvarchar(20)
+	declare @carno nvarchar(20)
+	---斷行
+	declare @slen int = 26
+	declare @sel int
+	
+	declare @accy nvarchar(10)
+	declare @noa nvarchar(20)
+	declare @noq nvarchar(10)
+	declare @date nvarchar(10)
+	declare @addr nvarchar(max)
+	
+	declare @string nvarchar(max)
+	
+	
+	declare cursor_table cursor for
+	select sel,driverno,carno,tranaccy,tranno,trannoq,trandate,addr from @tmpa where len(dbo.qleft(addr,@slen))!=len(addr)
+	open cursor_table
+	fetch next from cursor_table
+	into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		set @n = 0
+		while len(@addr)>0
+		begin
+			set @n = @n + 1
+			set @string = dbo.qleft(@addr,@slen)	
+			if LEN(@string)<LEN(@addr)
+				set @addr = SUBSTRING(@addr,LEN(@string)+1,len(@addr))
+			else
+			begin
+				set @string = @addr
+				set @addr = ''
+			end
+			if @n=1
+			begin
+				update @tmpa set addr=@string where sel=@sel
+			end
+			else
+			begin
+				insert into @tmpa(driverno,carno,tranaccy,tranno,trannoq,trandate,addr)
+				select @driverno,@carno,@accy,@noa,@noq,@date,@string 
+			end
+		end
+		
+
+		fetch next from cursor_table
+		into @sel,@driverno,@carno,@accy,@noa,@noq,@date,@addr
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	------------------------------------------------------------------------------
+	--加減項
+	declare @tmpb table(
+		sel int identity(1,1)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,datea nvarchar(20)
+		,noa nvarchar(20)
+		,plusitem nvarchar(max)
+		,plusmoney float
+		,minusitem nvarchar(max)
+		,minusmoney float
+		,memo nvarchar(max)
+		,cust nvarchar(max)
+	)
+	insert into @tmpb(driverno,driver,carno,noa,datea
+		,plusitem,plusmoney,minusitem,minusmoney,memo,cust)
+	select a.driverno,a.driver,a.carno,a.noa,a.datea
+		,isnull(a.plusitem,''),isnull(a.plusmoney,'')
+		,isnull(a.minusitem,0),isnull(a.minusmoney,0),a.memo,isnull(a.cust,'')
+	from carchg a
+	left join driver b on a.driverno=b.noa
+	where charindex('公司',isnull(b.cartype,''))=0  --不顯示公司車
+	and ISNULL(a.datea,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	---------------------------------------------------------------------------------
+	--===============================================================================
+	declare @tmp table(
+		sel int identity(1,1)
+		,gno nvarchar(10)
+		,recno int
+		,pp int
+		,qq int
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,carno nvarchar(20)
+		,tcarno nvarchar(max)
+		,dtel nvarchar(50)
+		,dmobile nvarchar(50)
+		
+		,tablea nvarchar(20)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		
+		,datea nvarchar(20)
+		,cust nvarchar(20)
+		,size nvarchar(max)
+		,addr nvarchar(max)
+		,paytype nvarchar(20)
+		,[money1] float --運費   (現金才顯示)
+		,[money2] float --實付
+		,[money3] float --差額
+		,[money4] float --加減項
+		,total float    --應付
+		
+		,cno nvarchar(20)
+		,acomp nvarchar(50)
+		,aaddr nvarchar(100)
+		,atel nvarchar(50)
+		,afax nvarchar(50)
+	)
+	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
+		,datea,cust,size,addr,paytype,[money1],[money2],[money3])
+	select '1' gno,driverno,carno,'trans_es',tranaccy,tranno,trannoq
+		,trandate,cust,size,addr,paytype,[money1],[money2],[money3]
+	from @tmpa
+	order by driverno,trandate,tranaccy,tranno,trannoq,sel
+	
+	insert into @tmp(gno,driverno,carno,tablea,accy,noa,noq
+		,datea,cust,size,addr,paytype,[money4])
+	select '2' gno,driverno,carno,'carchg','',noa,''
+		,datea,cust,'' size,plusitem+minusitem,'' paytype
+		,plusmoney-minusmoney
+	from @tmpb
+	order by driverno,datea,noa
+	
+	insert into @tmp(gno,driverno,[money1],[money2],[money3],[money4],total)
+	select '3',driverno,SUM(isnull([money1],0)),SUM(isnull([money2],0)),SUM(isnull([money2],0)-isnull([money3],0)),SUM(isnull([money4],0))
+		,SUM(isnull([money3],0)+isnull([money4],0))
+	from @tmp 
+	group by driverno
+	
+	insert into @tmp(gno,driverno)
+	select '4',driverno
+	from @tmp 
+	group by driverno
+	-------------------------------------------------------------------------------------
+	declare @pagecount int = 35 --  一頁可印幾筆明細
+	declare @tcarno nvarchar(max)
+	
+	
+	declare cursor_table cursor for
+	select driverno,count(1) from @tmp group by driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @driverno,@n
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		while @n%@pagecount != 0
+		begin
+			insert into @tmp(gno,driverno)values('5',@driverno)
+			set @n = @n +1
+		end
+		set @tcarno = ''
+		declare cursor_table2 cursor for
+		select carno from @tmp where driverno=@driverno and len(isnull(carno,''))>0 group by carno
+		open cursor_table2
+		fetch next from cursor_table2
+		into @carno
+		while(@@FETCH_STATUS <> -1)
+		begin	
+			set @tcarno = @tcarno + case when len(@tcarno)>0 then ',' else '' end + @carno
+ 			fetch next from cursor_table2
+			into @carno
+		end
+		close cursor_table2
+		deallocate cursor_table2
+		
+		update @tmp set tcarno=@tcarno where driverno=@driverno
+		
+		fetch next from cursor_table
+		into @driverno,@n
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	update @tmp set recno=b.recno
+	from @tmp a
+	left join (select sel,ROW_NUMBER()over(partition by driverno order by gno,datea,accy,noa,noq) recno from @tmp) b on a.sel=b.sel
+	
+	update @tmp set pp=floor((recno-1)/@pagecount) + 1
+	update @tmp set qq=b.qq
+	from @tmp a
+	left join(select driverno,floor((max(recno)-1)/@pagecount) + 1 qq from @tmp group by driverno)b on a.driverno=b.driverno
+	
+	update @tmp set cno=@t_cno,acomp=b.acomp,atel=b.tel,afax=b.fax,aaddr=b.addr
+	from @tmp a
+	outer apply(select * from acomp where noa=@t_cno) b
+	
+	update @tmp set driver=ISNULL(b.namea,''),dtel=ISNULL(b.tel,''),dmobile=ISNULL(b.mobile,'')
+	from @tmp a
+	left join driver b on a.driverno=b.noa
+	
+
+	select gno
+		,acomp c01
+		,aaddr c02
+		,'電話：'+ISNULL(atel,'')+'  傳真：'+ISNULL(afax,'') c03
+		
+		,'車牌：'+isnull(carno,'') a01
+		,'貨運名稱：' a02 --貨運名稱
+		,'電話：' a03 --電話
+		,'司機：'+isnull(driver,'') a04
+		,'電話：'+isnull(dtel,'') a05 --電話
+		,'手機：'+isnull(dmobile,'') a06 --手機
+		,CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar) a07
+		
+		,datea b01
+		,cust b02
+		,size b03
+		,addr b04
+		,paytype b05
+		,case when paytype='現發' or paytype='現收' then dbo.getComma([money1],-1) else '' end b06
+		,dbo.getComma([money2],-1) b07 
+		,dbo.getComma([money3],-1) b08
+		,dbo.getComma([money4],-1) b09
+		
+		,'' d01	
+		,'實付：'+dbo.getComma([money2],-1) d02	
+		,'扣佣金：'+dbo.getComma([money3],-1)d03
+		,'加減項：'+dbo.getComma([money4],-1) d04	
+		,'應付：'+dbo.getComma([total],-1) d05	
+		,'列印日期：'+dbo.AD2ChineseEraName(GETDATE())+'  帳單日期：'+@t_btrandate+' 到 '+@t_etrandate d06
+	from @tmp order by driverno,recno;
+	
+z_trans_es06:--z_trans_es06  ref.z_trans_es01 	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdate nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edate nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
+	declare @t_carno nvarchar(max) = case when '#non'=[11] then '' else [11] end
+	declare @t_baddrno nvarchar(20) = case when '#non'=[12] then '' else [12] end
+	declare @t_eaddrno nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
+	declare @t_paytype nvarchar(max)=case when '#non'=[15] then '' else [15] end
+	declare @t_isinvo nvarchar(max)=case when '#non'=[16] then '' else [16] end
+	declare @t_istrd nvarchar(max)=case when '#non'=[17] then '' else [17] end
+	declare @t_istre nvarchar(max)=case when '#non'=[18] then '' else [18] end
+	declare @t_aaddr nvarchar(max)=case when '#non'=[19] then '' else [19] end
+	-----------------------------------------------------------------------------
+	-- 尚未立帳   報表顯示紅色提醒
+	-----------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,pno int
+		,gno nvarchar(10)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,trandate nvarchar(20)
+		,datea nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(max)
+		,driverno nvarchar(20)
+		,driver nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(50)
+		,carno nvarchar(20)
+		,straddrno nvarchar(20)
+		,straddr nvarchar(50)
+		
+		,inmount float
+		,pton float
+		,mount float
+		,price float
+		,total float
+		
+		,outmount float
+		,pton2 float
+		,mount2 float
+		,price2 float
+		,price3 float
+		,discount float
+		,total2 float
+		
+		,mount3 float
+		,mount4 float
+		,[status] nvarchar(20)
+		,[weight] float
+		
+		,istrd int
+		,istre int
+		,ship nvarchar(20) --收款方式
+		,rs nvarchar(20)
+		,aaddr nvarchar(max)
+		,custdiscount float
+		,casetype nvarchar(20)
+	)
+	insert into @tmp(pno,gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
+	,straddrno,straddr,inmount,pton,mount,price,total,outmount,pton2,mount2,price2,price3,discount,total2
+	,mount3,mount4,[status],[weight],ship,rs,aaddr,custdiscount,casetype)
+	select 1,'1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
+	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.outmount,a.pton2,a.mount2,a.price2,a.price3
+	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship,a.rs,a.aaddr,a.custdiscount
+	,a.casetype
+	from view_trans a
+	where a.trandate between @t_btrandate and @t_etrandate
+	and a.datea between @t_bdate and @t_edate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
+	and ISNULL(a.straddrno,'') between @t_baddrno and @t_eaddrno
+	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
+	order by a.accy,a.noa,a.noq
+	
+	update @tmp set istrd=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
+	from @tmp a
+	left join view_trds b on a.noa=b.tranno and a.noq=b.trannoq
+	
+	update @tmp set istre=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
+	from @tmp a
+	left join view_tres b on a.noa=b.tranno and a.noq=b.trannoq
+
+	if @t_isinvo = 'Y'
+		delete @tmp where rs != 'Y'
+	if @t_isinvo = 'N'
+		delete @tmp where rs = 'Y'	
+		
+	if @t_istrd = '0'
+		delete @tmp where istrd = 1
+	else if @t_istrd = '1'
+		delete @tmp where istrd = 0
+	
+	if @t_istre = '0'
+		delete @tmp where istre = 1
+	else if @t_istre = '1'
+		delete @tmp where istre = 0
+		
+	update @tmp set gno='3' where istrd=0
+
+	insert into @tmp(pno,gno,total,total2)
+	select 2,'2',SUM(ISNULL(total,0)),SUM(ISNULL(total2,0))
+	from @tmp
+	where pno=1
+	
+	select gno
+		,sel rr
+		,"trans_es?noa=\'"+noa+"\' and "+cast(sel as nvarchar)+"=$rr?"+accy ghref
+		,noa b01
+		,ship b02
+		,rs b03
+		,trandate a01
+		,cust a02
+		,driver a03
+		,carno a04
+		,product a05
+		,aaddr a06
+		,dbo.getComma(mount3,-1) a07
+		,dbo.getComma(mount4,-1) a08
+		,[status] a09
+		,dbo.getComma([weight],-1) a10
+		
+		,dbo.getComma([price],-1) a11
+		,dbo.getComma([total],-1) a12
+		
+		,dbo.getComma(isnull([price2],0)+isnull([price3],0),-1) a13
+		,dbo.getComma([discount],-1) a14
+		,dbo.getComma([total2],-1) a15
+		,straddr a16
+		,dbo.getComma(custdiscount,-1) a17
+	from @tmp
+	order by pno,sel;
+
+
+z_trans_es05:--z_trans_es05 	
+	SET QUOTED_IDENTIFIER OFF	
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end	
+	
+	declare @t_cno nvarchar(20) = case when '#non'=[20] then '' else [20] end	
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	declare @t_paytype nvarchar(max)=case when '#non'=[15] then '' else [15] end
+	declare @t_isinvo nvarchar(max)=case when '#non'=[16] then '' else [16] end
+	declare @t_rate nvarchar(max)=case when '#non'=[21] then '' else [21] end
+	declare @t_paytype_cust nvarchar(max)=case when '#non'=[22] then '' else [22] end
+	declare @t_payday nvarchar(20) =case when '#non'=[23] then '' else [23] end
+	declare @t_mon nvarchar(20) =case when '#non'=[24] then '' else [24] end
+	-----------------------------------------------------------------
+	declare @x_rate float =0
+	begin try
+		set @x_rate = CAST(@t_rate as float) 
+	end try
+	begin catch
+		set @x_rate = 0 
+	end catch
+
+	IF OBJECT_ID('tempdb..#z_trans_es05')is not null
+	BEGIN
+		drop table #z_trans_es05
+	END
+	create table #z_trans_es05(
+		sel int identity(1,1)
+		,recno int
+		,pp int 
+		,qq int
+		,gno nvarchar(10)
+		,pno int
+		,cno nvarchar(20)
+		,acomp nvarchar(max)
+		,atel nvarchar(max)
+		,afax nvarchar(max)
+		,aaddr nvarchar(max)
+		
+		,tranaccy nvarchar(10)
+		,tranno nvarchar(20)
+		,trannoq nvarchar(10)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,serial nvarchar(20)
+		,tel nvarchar(max)
+		,fax nvarchar(max)
+		,[address] nvarchar(max)
+			
+		,trandate nvarchar(20)
+		,mount3 float
+		,mount4 float
+		,[status] nvarchar(20)
+		,[weight] float
+		,addr nvarchar(max)
+		,[money] float
+		,tax float
+		,total float
+		
+		,rs nvarchar(20)
+		,item nvarchar(max)
+		,itemmoney float
+		
+		,xmemo nvarchar(max)
+		,conn nvarchar(max)
+		,casetype nvarchar(20)
+	)
+	declare @xbdate nvarchar(20) = ''
+	declare @xedate nvarchar(20) = char(255)
+	if len(@t_mon)>0 and len(@t_payday)>0
+	begin
+		set @xbdate = left(dbo.AD2ChineseEraName( DATEADD(MM,-1, dbo.ChineseEraName2AD(@t_mon+'/01'))),6)+'/'+RIGHT('00'+cast(cast(@t_payday as int)+1 as nvarchar),2)
+		set @xedate = @t_mon + '/' + RIGHT('00'+@t_payday,2)
+	end
+	else if len(@t_mon)>0
+	begin
+		set @xbdate = @t_mon + '/01'
+		set @xedate = dbo.AD2ChineseEraName(dateadd(DAY,-1, dateadd(MM,1,dbo.ChineseEraName2AD(@xbdate))))
+	end 
+	else
+	begin
+		set @xbdate = ''
+		set @xedate = CHAR(255)
+	end
+	
+	insert into #z_trans_es05(gno,pno,tranaccy,tranno,trannoq,custno,cust,serial,trandate
+		,mount3,mount4,[status],[weight],addr
+		,[money],tax,rs,casetype)
+	select '1',1,a.accy,a.noa,a.noq,a.custno,b.comp,b.serial,a.trandate
+		,a.mount3,a.mount4,a.[status],a.[weight],aaddr
+		,a.total,reserve,rs,a.casetype
+	from view_trans a 
+	left join cust b on a.custno=b.noa
+	where a.trandate between @t_btrandate and @t_etrandate
+	and a.custno between @t_bcustno and @t_ecustno
+	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
+	--依客戶主檔上的收款方式來過濾條件
+	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
+	and ((@t_paytype_cust='月結' and @t_payday=isnull(b.[getdate],''))
+		or @t_paytype_cust!='月結')
+	
+	--and ((len(@t_payday)=0 and len(isnull(b.[getdate],''))=0) or @t_payday=b.[getdate] or len(@t_mon)=0)
+	--
+	and a.trandate between @xbdate and @xedate
+	order by a.custno,a.trandate,a.noa
+	
+	if @t_isinvo = 'Y'
+		delete #z_trans_es05 where rs != 'Y'
+	if @t_isinvo = 'N'
+		delete #z_trans_es05 where rs = 'Y'	
+	
+	insert into #z_trans_es05(gno,pno,custno,cust,serial,trandate
+		,item,itemmoney)
+	select '2',2,a.custno,b.comp,b.serial,a.datea
+		,ISNULL(a.plusitem,'')+ISNULL(a.minusitem,'')
+		,ISNULL(a.plusmoney,0)-ISNULL(a.minusmoney,0)
+	from custchg a
+	left join cust b on a.custno=b.noa
+	where isnull(a.datea,'') between @t_btrandate and @t_etrandate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	--依客戶主檔上的收款方式來過濾條件
+	and (len(@t_paytype_cust)=0 or @t_paytype_cust=b.paytype)
+	and (len(@t_payday)=0 or @t_payday=b.[getdate])
+	--
+	and a.datea between @xbdate and @xedate
+		
+	update #z_trans_es05 set total = ISNULL([money],0)+ISNULL([tax],0)
+	
+	--運費
+	insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
+	select '3',3,custno,SUM(ISNULL([money],0)),'運費'
+	from #z_trans_es05
+	where gno='1'
+	group by custno
+	--折扣
+	if @x_rate!=0
+	begin
+		insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
+		select '4',4,a.custno,SUM(ISNULL(a.[money],0)),'折扣'+CAST(@x_rate as nvarchar)+'%'
+		from (select custno
+			,SUM( round(ISNULL([money],0)*@x_rate/100,0)) [money]
+			from #z_trans_es05 
+			where gno='1'
+			group by custno) a
+		group by a.custno
+	end
+	--稅金
+	insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
+	select '4',5,custno,SUM(ISNULL([tax],0)),'稅金'
+	from #z_trans_es05
+	where gno='1'
+	group by custno
+	--加減項
+	insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
+	select '4',6,custno,SUM(ISNULL([itemmoney],0)),'加減項'
+	from #z_trans_es05
+	where gno='2'
+	group by custno
+	--總計
+	if @x_rate!=0
+	begin
+		insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
+		select '5',7,custno,SUM(ISNULL([money],0)),'總計'
+		from #z_trans_es05
+		where gno='4'
+		group by custno
+	end
+	else
+	begin
+		insert into #z_trans_es05(gno,pno,custno,[money],xmemo)
+		select '5',7,custno,SUM(ISNULL([money],0)),'總計'
+		from #z_trans_es05
+		where (gno='3' or gno='4') and pno!=4
+		group by custno
+	end
+	--請確認對帳的明細及金額，若有問題請於十天內反應本公司。
+	--移到總計那欄
+	--insert into #z_trans_es05(gno,pno,custno)
+	--select '5',8,custno
+	--from #z_trans_es05
+	--group by custno
+	------------------------------------------------------------------
+	declare @pagecount int = 37  --　　一頁幾筆
+	declare @custno nvarchar(20)
+	declare @n int
+	
+	declare cursor_table cursor for
+	select custno,count(1) from #z_trans_es05 group by custno
+	open cursor_table
+	fetch next from cursor_table
+	into @custno,@n
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		while @n%@pagecount != 0
+		begin
+			insert into #z_trans_es05(gno,pno,custno)values('6',9,@custno)
+			set @n = @n +1
+		end
+		fetch next from cursor_table
+		into @custno,@n
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	-----------------------------------------------------------------------------
+	update #z_trans_es05 set cust=ISNULL(b.comp,'')
+		,tel = ISNULL(b.tel,'')
+		,fax = ISNULL(b.fax,'')
+		,[address] = ISNULL(b.addr_invo,'')
+	from #z_trans_es05 a
+	left join cust b on a.custno=b.noa 
+	
+	update #z_trans_es05 set cno=@t_cno
+		,acomp = ISNULL(b.acomp,'')
+		,atel = ISNULL(b.tel,'')
+		,afax = ISNULL(b.fax,'')
+		,aaddr= ISNULL(b.addr,'')
+	from #z_trans_es05 a
+	left join acomp b on b.noa=@t_cno
+----------------------------------------------------------------------------
+	update #z_trans_es05 set recno=b.recno
+	from #z_trans_es05 a
+	left join (select sel,ROW_NUMBER()over(partition by custno order by pno,sel) recno from #z_trans_es05) b on a.sel=b.sel
+	
+	update #z_trans_es05 set pp= ceiling((recno-1)/@pagecount)+1
+	update #z_trans_es05 set qq = b.pp
+	from #z_trans_es05 a
+	outer apply (select MAX(pp) pp from #z_trans_es05) b
+	
+	update #z_trans_es05 set conn=ISNULL(b.namea,'')
+	from #z_trans_es05 a
+	outer apply(select top 1 * from conn where noa=a.custno order by noq) b
+	
+----------------------------------------------------------------------------	
+	--記錄有哪些客戶,  客戶標籤要印
+	declare @memo nvarchar(max)=''
+	declare cursor_table cursor for
+	select isnull(custno,'') from #z_trans_es05 where len(isnull(custno,''))>0 
+	group by isnull(custno,'')
+	order by isnull(custno,'')
+	open cursor_table
+	fetch next from cursor_table
+	into @custno
+	while(@@FETCH_STATUS <> -1)
+	begin	
+		set @memo = @memo + case when LEN(@memo)>0 then ',' else '' end +@custno
+		fetch next from cursor_table
+		into @custno
+	end
+	close cursor_table
+	deallocate cursor_table	
+	
+	insert into drun(datea,timea,usera,action,noa,tablea,title,memo)
+		select convert(nvarchar,getdate(),111)
+			,left(convert(nvarchar,getdate(),108),5)
+			,'auto'
+			,'客戶標籤'
+			,'z_trans_es05'
+			,'z_trans_es05','',@memo
+	
+	select gno
+		,CONVERT(nvarchar,GETDATE(),111)+'  第'+CAST(pp as nvarchar)+'/'+CAST(qq as nvarchar)+'頁' f01
+		,conn f02
+		, acomp a00
+		, aaddr a01
+		, '電話：'+atel+'  傳真：'+afax a02
+		, '客戶：'+isnull(custno ,'')+ '  ' + isnull(cust,'') +'  '+isnull(serial,'') a03
+		, '電話：'+case when len(tel)>0 then tel else '　　　　' end
+		+ '　傳真：'+case when len(fax)>0 then fax else '　　　　' end
+		+ '　地址：'+case when len([address])>0 then [address] else '　　　　' end a04
+		,trandate b01
+		,case when mount3>0 then CAST(mount3 as nvarchar)+'才' else '' end
+		+case when mount4>0 then CAST(mount4 as nvarchar)+'件' else '' end
+		+case when len([status])>0 then [status]+'板' else '' end
+		+case when [weight]>0 then CAST([weight] as nvarchar) + 'Kg' else '' end 
+		+case when len([casetype])>0 then [casetype] else '' end b02
+		,addr b03
+		,dbo.getComma([money],-1) b04
+		,dbo.getComma([tax],-1) b05
+		,dbo.getComma([total],-1) b06
+		,'結帳日期：'+ case when @xedate!=CHAR(255) then @xbdate+'～'+@xedate else @t_btrandate+'～'+@t_etrandate end c01
+		,item d01
+		,dbo.getComma(itemmoney,-1) d02
+		,xmemo e01
+		,dbo.getComma([money],-1) e02
+	from #z_trans_es05 order by custno,pno,sel;
+
+z_trans_es04:--z_trans_es04 	
+	SET QUOTED_IDENTIFIER OFF	
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
+		
+	declare @tmp table(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,datea nvarchar(20)
+		,trandate nvarchar(20)
+		,salesno nvarchar(20)
+		,sales nvarchar(20)
+		,straddrno nvarchar(20)
+		,straddr nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(50)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,conn nvarchar(max)
+		,saddr nvarchar(max)
+		,dtime nvarchar(20)
+		,mount1 float --才數
+		,mount2 float --件數
+		,mount3 float --重量
+		,mount4 nvarchar(50) --板數
+		,casetype nvarchar(20)
+		
+		,eaddr nvarchar(max)
+		,eaddress nvarchar(max)
+		,stime nvarchar(20)
+		,sender nvarchar(50)
+		,stel nvarchar(50)
+		,paytype nvarchar(20)
+		,tranmoney float
+		,tax float
+		,total float
+		,carno nvarchar(20)
+		,driverno nvarchar(20)
+		,driver nvarchar(20)
+		,drivermobile nvarchar(max)
+		,memo nvarchar(max)
+	)
+	insert into @tmp(noa,datea,trandate,salesno,sales,straddrno,straddr
+		,productno,product
+		,custno,cust,conn,saddr,dtime,mount1,mount2,mount3,mount4
+		,eaddr,eaddress,stime,sender,stel
+		,paytype,tranmoney,tax,total,carno,driverno,driver,drivermobile,casetype
+		,memo)
+	select a.noa,a.datea,a.trandate,a.salesno,a.sales,a.straddrno,a.straddr,a.uccno,a.product
+		,a.custno,a.comp,'' conn,a.saddr,a.dtime,a.mount3,a.mount4,a.[weight],a.status
+		,a.aaddr,a.addressee,a.stime,a.sender,a.stel
+		,'' paytype,a.total,a.reserve,ISNULL(a.total,0)+ISNULL(a.reserve,0)
+		,a.carno,a.driverno,a.driver,'' drivermobile,a.casetype
+		,a.memo
+	from view_trans a
+	left join car2 b on a.carno=b.carno
+	where a.noa=@t_noa
+	-------------------------------------------------------------------------------------------------
+	
+	update @tmp set conn=ISNULL(b.namea,'')+' '+ISNULL(b.tel,'')
+	from @tmp a
+	outer apply(select top 1 * from conn where noa=a.custno order by noq) b
+	
+	update @tmp set paytype=ISNULL(b.paytype,'')
+	from @tmp a
+	left join cust b on a.custno=b.noa
+	
+	update @tmp set drivermobile=ISNULL(b.mobile,ISNULL(b.tel,''))
+	from @tmp a
+	left join driver b on a.driverno=b.noa 
+	----------------------------------------------------------------------------
+	declare @address nvarchar(max) = ''
+	declare @tel nvarchar(max) = ''
+	declare @fax nvarchar(max) = ''
+	select top 1 @address=ltrim(rtrim(addr)),@tel=ltrim(rtrim(tel)),@fax=ltrim(rtrim(fax)) 
+	from acomp order by noa 
+	
+	select '1' gno 
+	,@address
+	+case when len(@tel)>0 then '　電話：'+@tel else '' end
+	+case when len(@fax)>0 then '　傳真：'+@fax else '' end a01
+	,'單號：'+noa a02 
+	,'日期：'+datea a03
+	,trandate b01
+	,sales b02
+	,straddr b03
+	,product b04
+	,isnull(custno,'')+' '+isnull(cust,'') b05 
+	,conn b06
+	,saddr b07
+	,dtime b08
+	,case when mount1>0 then CAST(mount1 as nvarchar)+'才' else '' end
+		+case when mount2>0 then CAST(mount2 as nvarchar)+'件' else '' end
+		+case when len([mount4])>0 then [mount4]+'板' else '' end
+		+case when [mount3]>0 then CAST([mount3] as nvarchar) + 'Kg' else '' end 
+		+case when len([casetype])>0 then [casetype] else '' end b09
+	,eaddr b10
+	,eaddress b11	
+	,stime b12
+	,sender b13
+	,stel b14
+	,'' b15
+	,dbo.getComma(tranmoney,-1) b16
+	,carno b17
+	,driver b18
+	,drivermobile b19
+	,memo b20
+	,dbo.getComma(tax,-1) b21
+	,dbo.getComma(total,-1) b22
+	from @tmp;
+
+
+z_trans_es03:--z_trans_es03 	
+	SET QUOTED_IDENTIFIER OFF	
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
+	
+	declare @tmp table(
+		sel int identity(1,1)
+		,noa nvarchar(20)
+		,datea nvarchar(20)
+		,trandate nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(50)
+		,saddr nvarchar(50)
+		,eaddr nvarchar(50)
+		,memo nvarchar(max)
+		,mount1 float --才數
+		,mount2 float --件數
+		,mount3 float --重量
+		,mount4 nvarchar(50) --板數
+		,casetype nvarchar(50)
+		,driverno nvarchar(20)
+		,driver nvarchar(50)
+		,carno nvarchar(20)
+		,tranmoney float
+	)
+	insert into @tmp(noa,datea,trandate,custno,cust,saddr,eaddr,memo,mount1,mount2,mount3,mount4,casetype
+		,driverno,driver,carno,tranmoney)
+	select a.noa,a.datea,a.trandate,a.custno,a.comp,a.saddr,a.aaddr,a.memo
+		,a.mount3,a.mount4,a.[weight],a.[status],a.casetype
+		,a.driverno,a.driver,a.carno,a.total
+	from view_trans a
+	where a.noa=@t_noa
+	---------------------------------------------------------------------
+	declare @address nvarchar(max) = ''
+	declare @tel nvarchar(max) = ''
+	declare @fax nvarchar(max) = ''
+	select top 1 @address=ltrim(rtrim(addr)),@tel=ltrim(rtrim(tel)),@fax=ltrim(rtrim(fax)) 
+	from acomp order by noa 
+
+	select '0' gno 
+		,@address
+		+case when len(@tel)>0 then '　電話：'+@tel else '' end
+		+case when len(@fax)>0 then '　傳真：'+@fax else '' end a01
+		,'單號：'+noa a02 
+		,'日期：'+trandate a03
+		,cust b01
+		,saddr b02
+		,eaddr b03
+		,memo b04
+		,'' b05
+		,dbo.getComma(mount1,-1) b06
+		,dbo.getComma(mount2,-1) b07
+		,dbo.getComma(mount3,-1) b08
+		,mount4 b09
+		,casetype b10
+		,dbo.getComma(tranmoney,-1) b11
+		,'司機：'+ISNULL(driver,'') c01
+		,'車牌：'+ISNULL(carno,'') c02
+	from @tmp;
+
+z_trans_es01:--z_trans_es01 	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_btrandate nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_etrandate nvarchar(20) = case when '#non'=[4] then char(255) else [4] end
+	declare @t_bdate nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_edate nvarchar(20) = case when '#non'=[6] then char(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then char(255) else [8] end
+	declare @t_bdriverno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_edriverno nvarchar(20) = case when '#non'=[10] then char(255) else [10] end
+	declare @t_carno nvarchar(max) = case when '#non'=[11] then '' else [11] end
+	declare @t_baddrno nvarchar(20) = case when '#non'=[12] then '' else [12] end
+	declare @t_eaddrno nvarchar(20) = case when '#non'=[13] then char(255) else [13] end
+	declare @t_noa nvarchar(20)=case when '#non'=[14] then '' else [14] end
+	declare @t_paytype nvarchar(max)=case when '#non'=[15] then '' else [15] end
+	declare @t_isinvo nvarchar(max)=case when '#non'=[16] then '' else [16] end
+	declare @t_istrd nvarchar(max)=case when '#non'=[17] then '' else [17] end
+	declare @t_istre nvarchar(max)=case when '#non'=[18] then '' else [18] end
+	declare @t_aaddr nvarchar(max)=case when '#non'=[19] then '' else [19] end
+	-----------------------------------------------------------------------------
+	-- 尚未立帳   報表顯示紅色提醒
+	-----------------------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,pno int
+		,gno nvarchar(10)
+		,accy nvarchar(10)
+		,noa nvarchar(20)
+		,noq nvarchar(10)
+		,trandate nvarchar(20)
+		,datea nvarchar(20)
+		,custno nvarchar(20)
+		,cust nvarchar(max)
+		,driverno nvarchar(20)
+		,driver nvarchar(50)
+		,productno nvarchar(20)
+		,product nvarchar(50)
+		,carno nvarchar(20)
+		,straddrno nvarchar(20)
+		,straddr nvarchar(50)
+		
+		,inmount float
+		,pton float
+		,mount float
+		,price float
+		,total float
+		,tax float
+		,ttotal float
+		
+		,outmount float
+		,pton2 float
+		,mount2 float
+		,price2 float
+		,price3 float
+		,discount float
+		,total2 float
+		
+		,mount3 float
+		,mount4 float
+		,[status] nvarchar(20)
+		,[weight] float
+		
+		,istrd int
+		,istre int
+		,ship nvarchar(20) --收款方式
+		,rs nvarchar(20)
+		,aaddr nvarchar(max)
+		,casetype nvarchar(20)
+	)
+	insert into @tmp(pno,gno,accy,noa,noq,trandate,datea,custno,cust,driverno,driver,productno,product,carno
+	,straddrno,straddr,inmount,pton,mount,price,total,tax,ttotal
+	,outmount,pton2,mount2,price2,price3,discount,total2
+	,mount3,mount4,[status],[weight],ship,rs,aaddr,casetype)
+	select 1,'1',a.accy,a.noa,a.noq,a.trandate,a.datea,a.custno,a.nick,a.driverno,a.driver,a.uccno,a.product,a.carno
+	,a.straddrno,a.straddr,a.inmount,a.pton,a.mount,a.price,a.total,a.reserve,ISNULL(a.total,0)+ISNULL(a.reserve,0)
+	,a.outmount,a.pton2,a.mount2,a.price2,a.price3
+	,a.discount,a.total2,a.mount3,a.mount4,a.[status],a.[weight],a.ship,a.rs,a.aaddr
+	,a.casetype
+	from view_trans a
+	where a.trandate between @t_btrandate and @t_etrandate
+	and a.datea between @t_bdate and @t_edate
+	and ISNULL(a.custno,'') between @t_bcustno and @t_ecustno
+	and ISNULL(a.driverno,'') between @t_bdriverno and @t_edriverno
+	and (len(@t_carno)=0 or CHARINDEX(','+a.carno+',',','+@t_carno+',')>0)
+	and ISNULL(a.straddrno,'') between @t_baddrno and @t_eaddrno
+	and (len(@t_paytype)=0 or CHARINDEX(@t_paytype,a.ship)>0)
+	order by a.accy,a.noa,a.noq
+	
+	update @tmp set istrd=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
+	from @tmp a
+	left join view_trds b on a.noa=b.tranno and a.noq=b.trannoq
+	
+	update @tmp set istre=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
+	from @tmp a
+	left join view_tres b on a.noa=b.tranno and a.noq=b.trannoq
+
+	if @t_isinvo = 'Y'
+		delete @tmp where rs != 'Y'
+	if @t_isinvo = 'N'
+		delete @tmp where rs = 'Y'	
+		
+	if @t_istrd = '0'
+		delete @tmp where istrd = 1
+	else if @t_istrd = '1'
+		delete @tmp where istrd = 0
+	
+	if @t_istre = '0'
+		delete @tmp where istre = 1
+	else if @t_istre = '1'
+		delete @tmp where istre = 0
+		
+	update @tmp set gno='3' where istrd=0
+
+	insert into @tmp(pno,gno,total,total2,tax,ttotal)
+	select 2,'2',SUM(ISNULL(total,0)),SUM(ISNULL(total2,0)),SUM(ISNULL(tax,0)),SUM(ISNULL(ttotal,0))
+	from @tmp
+	where pno=1
+	
+	select gno
+		,sel rr
+		,"trans_es?noa=\'"+noa+"\' and "+cast(sel as nvarchar)+"=$rr?"+accy ghref
+		,noa b01
+		,ship b02
+		,rs b03
+		,trandate a01
+		,cust a02
+		,driver a03
+		,carno a04
+		,product a05
+		,aaddr a06
+		,dbo.getComma(mount3,-1) a07
+		,dbo.getComma(mount4,-1) a08
+		,[status] a09
+		,dbo.getComma([weight],-1) a10
+		
+		,dbo.getComma([price],-1) a11
+		,dbo.getComma([total],-1) a12
+		
+		,dbo.getComma(isnull([price2],0)+isnull([price3],0),-1) a13
+		,dbo.getComma([discount],-1) a14
+		,dbo.getComma([total2],-1) a15
+		,dbo.getComma([tax],-1) a16
+		,dbo.getComma([ttotal],-1) a17
+		,casetype a18
+	from @tmp
+	order by pno,sel;
+	
+---------------------------------------------------------------------------------------------------------------------
+z_trans_es02:--z_trans_es2 	
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_noa varchar(100)= case when '#non'=[14] then '' else [14] end
+	
+	declare @tmp table(
+		gno nvarchar(1),
+		noa nvarchar(100),
+		datea nvarchar(10),
+		custno nvarchar(100),
+		comp nvarchar(200),
+		tel nvarchar(100),
+		cartel nvarchar(100),
+		baddr nvarchar(max),
+		eaddr nvarchar(max),
+		namea nvarchar(100),
+		price float
+	)
+	 insert @tmp
+	 select '0',a.noa,a.datea,a.custno,a.comp,b.tel,case when c.tel1!='' then c.tel1 else d.mobile end,a.straddr,a.saddr,a.driver,a.total+a.reserve
+	 from view_trans a left join cust b on a.custno=b.noa
+	 left join cardeal c on a.cardeal=c.noa
+	 left join driver d on a.driverno=d.noa
+	 where @t_noa=a.noa
+	 
+	 select 
+	 LEFT(datea,3) yy,
+	 SUBSTRING(datea, 5, 2) mm,
+	 right(datea,2) dd,
+	 * from @tmp
+;
+	 
