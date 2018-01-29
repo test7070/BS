@@ -606,6 +606,13 @@
                     waitBtnNext();
                 }
                 
+                var t_custno = $.trim($('#txtCustno').val()); 
+                if(t_custno=='D2500'){
+                    var t_noa = $.trim($('#txtNoa').val());
+                    var t_accy = $.trim(r_accy);
+                    var t_custno = $.trim($('#txtCustno').val());
+                    q_func('qtxt.query.tran2trd_es', 'trans.txt,tran2trd_es,'+ encodeURI(t_noa) + ';'+ encodeURI(t_accy) + ';'+ encodeURI(t_custno));
+                }
                 
                 /*switch(q_getPara('sys.project').toUpperCase()=='DH'){
                 	default:
@@ -632,6 +639,13 @@
 					alert('請輸入客戶編號');
 				}else if(t_driverno.length==0){
 					alert('請輸入司機編號');
+				}
+				
+				if(t_custno=='D2500'){
+				    var t_noa = $.trim($('#txtNoa').val());
+				    var t_accy = $.trim(r_accy);
+				    var t_custno = $.trim($('#txtCustno').val());
+				    q_func('qtxt.query.tran2trd_es', 'trans.txt,tran2trd_es,'+ encodeURI(t_noa) + ';'+ encodeURI(t_accy) + ';'+ encodeURI(t_custno));
 				}
 				
 				if(q_cur ==1){
