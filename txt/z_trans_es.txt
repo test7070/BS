@@ -45,6 +45,11 @@ z_trans_es12:--z_trans_es12
 	left join view_trds b on a.noa=b.tranno
 	where b.noa is not null
 	
+	update @tmp set trdaccy=b.accy,trdnoa=b.vccno
+	from @tmp a
+	left join umms b on a.noa=b.vccno
+	where b.noa is not null and a.trdnoa is null
+	
 	update @tmp set isumm=1
 	from @tmp a
 	left join umms b on a.trdnoa=b.vccno
@@ -1132,6 +1137,11 @@ z_trans_es06:--z_trans_es06  ref.z_trans_es01
 	from @tmp a
 	left join view_trds b on a.noa=b.tranno and a.noq=b.trannoq
 	
+	update @tmp set istrd=case when len(ISNULL(b.vccno,''))=0 then 0 else 1 end
+	from @tmp a
+	left join umms b on a.noa=b.vccno
+	where a.istrd=0
+	
 	update @tmp set istre=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
 	from @tmp a
 	left join view_tres b on a.noa=b.tranno and a.noq=b.trannoq
@@ -1739,6 +1749,11 @@ z_trans_es01:--z_trans_es01
 	update @tmp set istrd=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
 	from @tmp a
 	left join view_trds b on a.noa=b.tranno and a.noq=b.trannoq
+	
+	update @tmp set istrd=case when len(ISNULL(b.vccno,''))=0 then 0 else 1 end
+	from @tmp a
+	left join umms b on a.noa=b.vccno
+	where a.istrd=0
 	
 	update @tmp set istre=case when len(ISNULL(b.noa,''))=0 then 0 else 1 end
 	from @tmp a
