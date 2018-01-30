@@ -606,8 +606,9 @@
                     waitBtnNext();
                 }
                 
-                var t_custno = $.trim($('#txtCustno').val()); 
-                if(t_custno=='D2500'){
+                var t_custno = $.trim($('#txtCustno').val());
+                var t_ship = $.trim($('#cmbShip').val());
+                if(t_custno=='D2500' || t_ship=='回收'){
                     var t_noa = $.trim($('#txtNoa').val());
                     var t_accy = $.trim(r_accy);
                     var t_custno = $.trim($('#txtCustno').val());
