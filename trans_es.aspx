@@ -634,6 +634,7 @@
 				
 				var t_custno = $.trim($('#txtCustno').val()); 
 				var t_driverno = $.trim($('#txtDriverno').val());
+				var t_ship = $.trim($('#cmbShip').val()); 
 				if(t_custno.length==0 && t_driverno.length==0){
 					alert('請輸入客戶、司機編號');
 				}else if(t_custno.length==0){
@@ -642,7 +643,7 @@
 					alert('請輸入司機編號');
 				}
 				
-				if(t_custno=='D2500'){
+				if(t_custno=='D2500' || t_ship=='回收'){
 				    var t_noa = $.trim($('#txtNoa').val());
 				    var t_accy = $.trim(r_accy);
 				    var t_custno = $.trim($('#txtCustno').val());
