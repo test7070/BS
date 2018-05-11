@@ -29,7 +29,12 @@
             brwNowPage = 0;
             brwKey = 'Datea';
             q_desc = 1;
-            aPop = new Array();
+            aPop = new Array(
+                    ['textCarno', 'lblCarno_import', 'car2', 'a.noa,driverno,driver', 'textCarno,textDriverno', 'car2_b.aspx']
+                    , ['textDriverno', 'lblDriverno_import', 'driver', 'noa,namea', 'textDriverno', 'driver_b.aspx']
+                    , ['textDriverno_2pay', 'lblDriverno_2pay', 'driver', 'noa,namea', 'ttextDriverno_2pay', 'driver_b.aspx']
+                    
+                    );
 
             q_xchg = 1;
             brwCount2 = 20;
