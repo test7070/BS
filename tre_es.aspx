@@ -30,11 +30,10 @@
             brwKey = 'Datea';
             q_desc = 1;
             aPop = new Array(
-                    ['textCarno', 'lblCarno_import', 'car2', 'a.noa,driverno,driver', 'textCarno,textDriverno', 'car2_b.aspx']
-                    , ['textDriverno', 'lblDriverno_import', 'driver', 'noa,namea', 'textDriverno', 'driver_b.aspx']
-                    , ['textDriverno_2pay', 'lblDriverno_2pay', 'driver', 'noa,namea', 'ttextDriverno_2pay', 'driver_b.aspx']
-                    
-                    );
+                    ['textCarno', '', 'car2', 'a.noa,driverno,driver', 'textCarno,textDriverno', 'car2_b.aspx']
+                    , ['textDriverno', '', 'driver', 'noa,namea', 'textDriverno', 'driver_b.aspx']
+                    , ['textDriverno_2pay', '', 'driver', 'noa,namea', 'ttextDriverno_2pay', 'driver_b.aspx']
+            );
 
             q_xchg = 1;
             brwCount2 = 20;
@@ -64,7 +63,6 @@
             }
 
             function mainPost() {
-            	
                 q_getFormat();
                 bbmMask = [['txtDatea_import', r_picd],['txtBdate_import', r_picd], ['txtEdate_import', r_picd],['txtDatea', r_picd], ['txtDate2', r_picd], ['txtBdate', r_picd], ['txtEdate', r_picd], ['txtPaydate', r_picd]
                 	, ['txtMon', r_picm], ['textDate', r_picd], ['textBdate', r_picd], ['textEdate', r_picd], ['textDate_2pay', r_picd], ['textPaydate_2pay', r_picd]];
@@ -133,10 +131,16 @@
                 $('#btnImport').click(function() {
                     $('#divImport').toggle();
                     $('#txtDatea_import').focus();
+                }).focus(function() {
+                    q_cur=2;
                 });
+                
                 $('#btnCancel_import').click(function() {
                     $('#divImport').toggle();
+                }).focus(function() {
+                    q_cur=0;
                 });
+                
                 $('#btnImport_trans').click(function() {
                    if(q_cur != 1 && q_cur != 2){
                    		var t_key = q_getPara('sys.key_tre');
@@ -151,6 +155,7 @@
                    		q_func('qtxt.query.tre_es', 'tre_es.txt,import,' + encodeURI(t_key) + ';'+ encodeURI(t_date) + ';'+ encodeURI(t_bdate) + ';' + encodeURI(t_edate)+ ';' + encodeURI(t_carno)+ ';' + encodeURI(t_driverno)+ ';' + encodeURI(t_cartype));
                 	}
                 });
+                
                 $('#textDate').keydown(function(e) {
                     if (e.which == 13)
                         $('#textBdate').focus();
@@ -186,10 +191,16 @@
                 $('#btn2pay').click(function() {
                     $('#div2pay').toggle();
                     $('#textDate_2pay').focus();
+                }).focus(function() {
+                    q_cur=2;
                 });
+                
                 $('#btnCancel_2pay').click(function() {
                     $('#div2pay').toggle();
+                }).focus(function() {
+                    q_cur=0;
                 });
+                
                 $('#btnImport_2pay').click(function() {
                    if(q_cur != 1 && q_cur != 2){
                    		var t_key = q_getPara('sys.key_pay');
